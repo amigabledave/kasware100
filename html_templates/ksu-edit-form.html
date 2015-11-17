@@ -1,52 +1,104 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+<div class="row">
+	<div class="col-md-12"> <h3>Base Key Action</h3></div>
+</div>
 	
 
 <form class="form-horizontal">
  
-  <div class="form-group">
- 	 <div class="col-md-3">
-  
-    	<label>Element</label>
-    	<select class="form-control">
-	    	{% for e in elements %}
-		    	<option> {{e}} </option>
-	    	{% endfor %}
-    	</select>
- 	 </div>
-  </div>
+	<div class="form-group">
+		<div class="col-md-11">
+			<label> Action </label>
+			<input type="text" class="form-control" name="description" placeholder="Action description">
+		</div>
+
+		<div class="col-md-1">
+			<label> Critical? </label>
+			<select class="form-control"> 
+				<option> No </option>
+				<option> Yes </option>
+			</select> 
+		</div>
+	</div>
+
+	<div class="form-group">
+ 		<div class="col-md-2">
+			<label>Element</label>
+			<select class="form-control">
+				{% for e in elements %}
+					<option> {{e}} </option>
+				{% endfor %}
+			</select>
+		</div>
+		
+		<div class="col-md-1">
+			<label> Time cost </label>
+			<input type="text" class="form-control" name="time_cost" placeholder="5 min.">
+		</div>
+
+		<div class="col-md-1">
+			<label> Frequency </label>
+			<input type="text" class="form-control" name="frequency" placeholder="7 days">
+		</div>
+
+		<div class="col-md-1">
+			<label> Best Day </label>
+				<select class="form-control"> 
+					<option> Sun </option>
+					<option> Mon </option>
+					<option> Tue </option>
+					<option> Wed </option>
+					<option> Thu </option>
+					<option> Fri </option>
+					<option> Sat </option>
+				</select> 
+		</div>
+		
+		<div class="col-md-2">
+			<label> Last Time </label>
+			<input type="date" class="form-control" name="" placeholder="7 days">
+		</div>
+
+		<div class="col-md-2">
+			<label> Group </label>
+			<input type="text" class="form-control" name="" placeholder="Optional">
+		</div>
+
+		<div class="col-md-3">
+			<label> Parent KSU </label>
+			<input type="text" class="form-control" name="" placeholder="Optional">
+		</div>
+
+	</div>
   	
+
+
   <div class="form-group">
-  	<div class="col-md-2">
-  		<button type="submit" class="btn btn-default">Submit</button>
-  	</div>
-  </div>
+
+	<div class="col-md-12">
+		<label> Additional Information </label>
+		<textarea class="form-control" name="" placeholder="Additional usefull information"> </textarea> 
+	</div>
+
+ </div>
+
+<div class="form-group">
+
+	<div class="col-md-2">
+	  	<button type="submit" class="btn btn-primary btn-lg">Commit</button>
+	</div>	
+		
+</div>
+
+
 </form>
+
+
 <hr>
 
-
-<form>
-  <div class="form-group">
-    <label for="exampleInputEmail1">Email address</label>
-    <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email">
-  </div>
-  <div class="form-group">
-    <label for="exampleInputPassword1">Password</label>
-    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-  </div>
-  <div class="form-group">
-    <label for="exampleInputFile">File input</label>
-    <input type="file" id="exampleInputFile">
-    <p class="help-block">Example block-level help text here.</p>
-  </div>
-  <div class="checkbox">
-    <label>
-      <input type="checkbox"> Check me out
-    </label>
-  </div>
-  <button type="submit" class="btn btn-default">Submit</button>
-</form>
 
 
 

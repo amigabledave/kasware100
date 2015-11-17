@@ -8,7 +8,7 @@ template_dir = os.path.join(os.path.dirname(__file__), 'html_templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
 
-# Handlers
+### Handlers ###
 
 class Handler(webapp2.RequestHandler):
 	def write(self, *a, **kw):
@@ -27,6 +27,41 @@ class Home(Handler):
         self.print_html('home.html')
 
 
+class NewKSU(Handler):
+	def get(self):
+		self.print_html('ksu-edit-form.html', elements = list_elements_cat)
+
+###
+
+
+
+### DataStore Entities ###
+
+class KSU_KeyBaseAction(db.Model):
+	element = db.StringProperty(required=True)
+	group = db.StringProperty()
+	description = db.StringProperty(required=True)
+	frequency = db.IntegerProperty(required=True)
+	time_cost = db.IntegerProperty(required=True)
+	comments = db.TextProperty(required=True)
+	latest_exe = db.DateProperty(required=True)
+	target_exe = db.DateProperty()
+	is_critical = db.BooleanProperty(required=True)
+	created = db.DateTimeProperty(auto_now_add=True)
+	last_modified = db.DateTimeProperty(auto_now=True)
+
+
+###
+
+
+### Global Constants ###
+list_elements_cat = ['1. Fun & Excitement', '2. Meaning & Direction', '3. Health & Vitality', '4. Love & Friendship', '5. Knowledge & Skills', '6. Outer Peace', '7. Money & Resources', '8. Inner Peace']
+###
+
+
+
+
 app = webapp2.WSGIApplication([
-    ('/', Home)
-], debug=True)
+							 ('/', Home),
+							 ('/newksu', NewKSU)
+							 ], debug=True)
