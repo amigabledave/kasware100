@@ -37,16 +37,9 @@ class NewKSU(Handler):
 
 ### DataStore Entities ###
 
-class KSU_KeyBaseAction(db.Model):
-	element = db.StringProperty(required=True)
-	group = db.StringProperty()
-	description = db.StringProperty(required=True)
-	frequency = db.IntegerProperty(required=True)
-	time_cost = db.IntegerProperty(required=True)
-	comments = db.TextProperty(required=True)
-	latest_exe = db.DateProperty(required=True)
-	target_exe = db.DateProperty()
-	is_critical = db.BooleanProperty(required=True)
+class User_Theory(db.Model):
+	user_name = db.StringProperty(required=True)
+	kba_set = db.TextProperty(required=True)
 	created = db.DateTimeProperty(auto_now_add=True)
 	last_modified = db.DateTimeProperty(auto_now=True)
 
