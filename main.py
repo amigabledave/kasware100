@@ -31,6 +31,10 @@ class NewKSU(Handler):
 	def get(self):
 		self.print_html('ksu-edit-form.html', elements = list_elements_cat)
 
+class ImportantPeople(Handler):
+	def get(self):
+		self.print_html('important-people.html', elements=list_elements_cat)
+
 ###
 
 
@@ -43,12 +47,18 @@ class User_Theory(db.Model):
 	created = db.DateTimeProperty(auto_now_add=True)
 	last_modified = db.DateTimeProperty(auto_now=True)
 
-
 ###
 
 
 ### Global Constants ###
-list_elements_cat = ['1. Fun & Excitement', '2. Meaning & Direction', '3. Health & Vitality', '4. Love & Friendship', '5. Knowledge & Skills', '6. Outer Peace', '7. Money & Resources', '8. Inner Peace']
+list_elements_cat = ['1. Fun & Excitement', 
+					 '2. Meaning & Direction', 
+					 '3. Health & Vitality', 
+					 '4. Love & Friendship', 
+					 '5. Knowledge & Skills', 
+					 '6. Outer Peace', 
+					 '7. Money & Resources', 
+					 '8. Inner Peace']
 ###
 
 
@@ -56,5 +66,6 @@ list_elements_cat = ['1. Fun & Excitement', '2. Meaning & Direction', '3. Health
 
 app = webapp2.WSGIApplication([
 							 ('/', Home),
-							 ('/newksu', NewKSU)
+							 ('/newksu', NewKSU),
+							 ('/important-people',ImportantPeople),
 							 ], debug=True)
