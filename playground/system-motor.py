@@ -20,6 +20,7 @@ def new_ksu_kba():
 			   'parent_ksu_id': None,
 			   'description': None,
 			   'frequency': None,
+			   'best_day':None,
 			   'time_cost': 5,
 			   'is_critical': False,
 			   'comments': None,
