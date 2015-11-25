@@ -7,4 +7,8 @@
     text-align: left;
     margin-bottom: 20px;
     margin-top: 25px;
-    text-decoration: none;
+    text-decoration: none;}
+
+.error {
+    color: red;
+}
