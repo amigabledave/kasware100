@@ -57,18 +57,6 @@ class Home(Handler):
         self.print_html('home.html')
 
 
-class NewKSU(Handler):
-	def get(self):
-		self.print_html('ksu-edit-form.html', elements = list_elements_cat)
-
-class ImportantPeople(Handler):
-	def get(self):
-		theory = self.theory
-		self.print_html('important-people.html')
-	# def post(self):
-	# 	name = self.request.get('important_person_name')
-	# 	frequency = self.request.get('frequency')
-
 
 class Signup(Handler):
 
@@ -135,6 +123,80 @@ class Logout(Handler):
 		self.redirect('/')
 
 
+class ImportantPeople(Handler):
+	
+	
+	def get(self):
+		theory = self.theory
+		people = theory.kba_set
+		# people = my_important_people(theory)
+		self.print_html('important-people.html', people=people)
+	
+	def post(self):
+		theory = self.theory
+		name = self.request.get('important_person_name')
+		frequency = self.request.get('frequency')
+		details = dict(frequency=frequency, important_person_name=name)
+		add_important_person_to_theory(theory, details)
+		self.redirect('/important-people')
+
+#BUG Not working!
+def my_important_people(theory):
+	kba_set = eval(theory.kba_set)
+	result = []
+	for e in kba_set:
+		name = str(e['important_person_name'])
+		if name:
+			result.append(name)
+	return str(result)
+#
+
+def add_important_person_to_theory(theory, details):
+	kba_set = eval(theory.kba_set)
+	kba = new_ksu_kba(kba_set)
+	kba['ksu_subtype'] = 'Important Person'
+	kba['element'] = '4. Love & Friendship'
+	kba['description'] = 'Contactar a ' + details['important_person_name']
+	kba['next_exe'] = kba['lastest_exe'] + int(details['frequency'])
+	for key, value in details.iteritems():
+		kba[key] = value
+	kba_set.append(kba)
+	theory.kba_set = str(kba_set)
+	theory.put()
+	return 
+
+
+
+# --- Datastore Entities ----------------------------------------------------------------------------
+
+class User_Theory(db.Model):
+	username = db.StringProperty(required=True)
+	password_hash = db.StringProperty(required=True)
+	email = db.StringProperty(required=True)
+	kba_set = db.TextProperty(required=True)
+	created = db.DateTimeProperty(auto_now_add=True)
+	last_modified = db.DateTimeProperty(auto_now=True)
+
+	@classmethod # This means you can call a method directly on the Class (no on a Class Instance)
+	def get_by_user_id(cls, user_id):
+		return User_Theory.get_by_id(user_id)
+
+	@classmethod
+	def get_by_username(cls, username):
+		return User_Theory.all().filter('username =', username).get()
+
+	@classmethod #Creates the theory object but do not store it in the db
+	def register(cls, username, password, email):
+		password_hash = make_password_hash(username, password)
+		return User_Theory(username=username, password_hash=password_hash, email=email, kba_set='[]')
+
+	@classmethod
+	def valid_login(cls, username, password):
+		theory = cls.get_by_username(username)
+		if theory and validate_password(username, password, theory.password_hash):
+			return theory
+
+
 
 
 # --- Helper Functions -----------------------------------------------------------------------------
@@ -174,42 +236,36 @@ def validate_password(username, password, h):
 	return h == make_password_hash(username, password, salt)
 
 
-
-
-# --- Datastore Entities ----------------------------------------------------------------------------
-
-class User_Theory(db.Model):
-	username = db.StringProperty(required=True)
-	password_hash = db.StringProperty(required=True)
-	email = db.StringProperty(required=True)
-	kba_set = db.TextProperty(required=True)
-	created = db.DateTimeProperty(auto_now_add=True)
-	last_modified = db.DateTimeProperty(auto_now=True)
-
-	@classmethod # This means you can call a method directly on the Class (no on a Class Instance)
-	def get_by_user_id(cls, user_id):
-		return User_Theory.get_by_id(user_id)
-
-	@classmethod
-	def get_by_username(cls, username):
-		return User_Theory.all().filter('username =', username).get()
-
-	@classmethod #Creates the theory object but do not store it in the db
-	def register(cls, username, password, email):
-		password_hash = make_password_hash(username, password)
-		return User_Theory(username=username, password_hash=password_hash, email=email, kba_set='[]')
-
-	@classmethod
-	def valid_login(cls, username, password):
-		theory = cls.get_by_username(username)
-		if theory and validate_password(username, password, theory.password_hash):
-			return theory
+def new_ksu_kba(kba_set):
+	ksu_id = 'kba_' + str(len(kba_set)+1)
+	new_ksu = {'ksu_id': ksu_id,
+			   'ksu_type':'Key Base Action',
+			   'ksu_subtype': None, 
+			   'element': None,
+			   'local_tags': None,
+			   'global_tags': None,
+			   'parent_ksu_id': None,
+			   'description': None,
+			   'frequency': None,
+			   'best_day':None,
+			   'time_cost': 5,
+			   'is_critical': False,
+			   'comments': None,
+			   'lastest_exe':today, 
+			   'status':'Active',
+			   'next_exe':None,
+			   'important_person_name':None,
+			   'exe_history':[['Created',today]]}
+	return new_ksu
 
 
 
 
 
-# --- Global Constants ------------------------------------------------------------------------------
+
+
+
+# --- Global Variables ------------------------------------------------------------------------------
 
 list_elements_cat = ['1. Fun & Excitement', 
 					 '2. Meaning & Direction', 
@@ -222,7 +278,7 @@ list_elements_cat = ['1. Fun & Excitement',
 
 secret = 'elzecreto'
 
-
+today = datetime.today().toordinal()
 
 
 # --- URL Handler Relation ---------------------------------------------------------------------------
@@ -232,6 +288,5 @@ app = webapp2.WSGIApplication([
 							 ('/signup', Signup),
 							 ('/login', Login),
                              ('/logout', Logout),
-							 ('/newksu', NewKSU),
 							 ('/important-people',ImportantPeople),
 							 ], debug=True)

@@ -72,20 +72,20 @@ def kba_done(user_kba_set, ksu_id, exe_comments):
 
 
 #---Testing----------------------------------------------------------------------------------------
-# print user_kba_set
-# today = 735926 - 30
-# add_important_person_to_theory({'important_person_name':'Jimmy', 'frequency':7})
-# add_important_person_to_theory({'important_person_name':'Luis', 'frequency':14, 'status':'Active'})
-# add_important_person_to_theory({'important_person_name':'Elena', 'frequency':30})
+print user_kba_set
+today = 735926 - 30
+add_important_person_to_theory({'important_person_name':'Jimmy', 'frequency':7})
+add_important_person_to_theory({'important_person_name':'Luis', 'frequency':14, 'status':'Active'})
+add_important_person_to_theory({'important_person_name':'Elena', 'frequency':30})
 
-# # print user_kba_set
-# print
-# today = 735926 
-# print todays_mission()
-# kba_done(user_kba_set, 0, 'me apendeje')
-# print
-# print todays_mission()
-# print
-# # print user_kba_set
+print user_kba_set
+print
+today = 735926 
+print todays_mission()
+kba_done(user_kba_set, 0, 'me apendeje')
+print
+print todays_mission()
+print
+# print user_kba_set
 
 
