@@ -7,13 +7,14 @@
     text-align: left;
     margin-bottom: 20px;
     margin-top: 25px;
-    text-decoration: none;}
+    text-decoration: none;
+}
 
 .corner-link{
     display: inline-block;
     margin-top: 25px;
     text-align: right;
-
+}
 
 
 .error {

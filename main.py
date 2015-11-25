@@ -10,43 +10,6 @@ template_dir = os.path.join(os.path.dirname(__file__), 'html_templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
 
-# --- Helper Functions -----------------------------------------------------------------------------
-
-USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
-PASS_RE = re.compile(r"^.{3,20}$")
-EMAIL_RE = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
-
-def valid_username(username):
-    return username and USER_RE.match(username)
-
-def valid_password(password):
-    return password and PASS_RE.match(password)
-
-def valid_email(email):
-    return email and EMAIL_RE.match(email)
-
-def make_secure_val(val):
-    return '%s|%s' % (val, hashlib.sha256(secret + val).hexdigest())
-
-def check_secure_val(secure_val):
-	val = secure_val.split('|')[0]
-	if secure_val == make_secure_val(val):
-		return val
-
-def make_salt(lenght = 5):
-    return ''.join(random.choice(string.letters) for x in range(lenght))
-
-def make_password_hash(username, password, salt = None):
-	if not salt:
-		salt = make_salt()
-	h = hashlib.sha256(username + password + salt).hexdigest()
-	return '%s|%s' % (h, salt)
-
-def validate_password(username, password, h):
-	salt = h.split('|')[1]
-	return h == make_password_hash(username, password, salt)
-
-
 
 
 # --- Handlers -------------------------------------------------------------------------------------------
@@ -58,7 +21,11 @@ class Handler(webapp2.RequestHandler):
 	
 	def render_html(self, template, **kw):
 		t = jinja_env.get_template(template)
-		return t.render(**kw)
+		if self.theory:
+			theory = self.theory
+			return t.render(theory=theory, **kw)
+		else:
+			return t.render(**kw)
 
 	def print_html(self, template, **kw):
 		self.write(self.render_html(template, **kw))
@@ -71,8 +38,8 @@ class Handler(webapp2.RequestHandler):
 		cookie_secure_val = self.request.cookies.get(cookie_name)
 		return cookie_secure_val and check_secure_val(cookie_secure_val)
 
-	def login(self, user):
-		self.set_secure_cookie('user_id', str(user.key().id()))
+	def login(self, theory):
+		self.set_secure_cookie('user_id', str(theory.key().id()))
 
 	def logout(self):
 		self.response.headers.add_header('Set-Cookie', 'user_id=; Path=/')
@@ -81,7 +48,6 @@ class Handler(webapp2.RequestHandler):
 		webapp2.RequestHandler.initialize(self, *a, **kw)
 		user_id = self.read_secure_cookie('user_id')
 		self.theory = user_id and User_Theory.get_by_user_id(int(user_id)) #if the user exist, 'self.theory' will store the actual theory object
-
 
 
 
@@ -97,7 +63,8 @@ class NewKSU(Handler):
 
 class ImportantPeople(Handler):
 	def get(self):
-		self.print_html('important-people.html', elements=list_elements_cat)
+		theory = self.theory
+		self.print_html('important-people.html')
 	# def post(self):
 	# 	name = self.request.get('important_person_name')
 	# 	frequency = self.request.get('frequency')
@@ -142,7 +109,7 @@ class Signup(Handler):
 			else:
 				theory = User_Theory.register(username, password, email)
 				theory.put()
-				# self.login(user)
+				self.login(theory)
 				self.redirect('/')
 
 
@@ -166,7 +133,45 @@ class Logout(Handler):
 	def get(self):
 		self.logout()
 		self.redirect('/')
-###
+
+
+
+
+# --- Helper Functions -----------------------------------------------------------------------------
+
+USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
+PASS_RE = re.compile(r"^.{3,20}$")
+EMAIL_RE = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
+
+def valid_username(username):
+    return username and USER_RE.match(username)
+
+def valid_password(password):
+    return password and PASS_RE.match(password)
+
+def valid_email(email):
+    return email and EMAIL_RE.match(email)
+
+def make_secure_val(val):
+    return '%s|%s' % (val, hashlib.sha256(secret + val).hexdigest())
+
+def check_secure_val(secure_val):
+	val = secure_val.split('|')[0]
+	if secure_val == make_secure_val(val):
+		return val
+
+def make_salt(lenght = 5):
+    return ''.join(random.choice(string.letters) for x in range(lenght))
+
+def make_password_hash(username, password, salt = None):
+	if not salt:
+		salt = make_salt()
+	h = hashlib.sha256(username + password + salt).hexdigest()
+	return '%s|%s' % (h, salt)
+
+def validate_password(username, password, h):
+	salt = h.split('|')[1]
+	return h == make_password_hash(username, password, salt)
 
 
 
@@ -189,8 +194,8 @@ class User_Theory(db.Model):
 	def get_by_username(cls, username):
 		return User_Theory.all().filter('username =', username).get()
 
-	@classmethod #Creates the user object but do not store it in the db
-	def register(cls, username, password, email=None):
+	@classmethod #Creates the theory object but do not store it in the db
+	def register(cls, username, password, email):
 		password_hash = make_password_hash(username, password)
 		return User_Theory(username=username, password_hash=password_hash, email=email, kba_set='[]')
 
@@ -219,10 +224,8 @@ secret = 'elzecreto'
 
 
 
-# --------------------------------------------------------------------------------------------------
 
-
-
+# --- URL Handler Relation ---------------------------------------------------------------------------
 
 app = webapp2.WSGIApplication([
 							 ('/', Home),
