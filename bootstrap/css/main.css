@@ -9,6 +9,13 @@
     margin-top: 25px;
     text-decoration: none;}
 
+.corner-link{
+    display: inline-block;
+    margin-top: 25px;
+    text-align: right;
+
+
+
 .error {
     color: red;
 }

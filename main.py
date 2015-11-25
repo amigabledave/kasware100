@@ -63,6 +63,28 @@ class Handler(webapp2.RequestHandler):
 	def print_html(self, template, **kw):
 		self.write(self.render_html(template, **kw))
 
+	def set_secure_cookie(self, cookie_name, cookie_value):
+		cookie_secure_value = make_secure_val(cookie_value)
+		self.response.headers.add_header('Set-Cookie', '%s=%s; Path=/' % (cookie_name, cookie_secure_value))
+
+	def read_secure_cookie(self, cookie_name):
+		cookie_secure_val = self.request.cookies.get(cookie_name)
+		return cookie_secure_val and check_secure_val(cookie_secure_val)
+
+	def login(self, user):
+		self.set_secure_cookie('user_id', str(user.key().id()))
+
+	def logout(self):
+		self.response.headers.add_header('Set-Cookie', 'user_id=; Path=/')
+
+	def initialize(self, *a, **kw):
+		webapp2.RequestHandler.initialize(self, *a, **kw)
+		user_id = self.read_secure_cookie('user_id')
+		self.theory = user_id and User_Theory.get_by_user_id(int(user_id)) #if the user exist, 'self.theory' will store the actual theory object
+
+
+
+
 
 class Home(Handler):
     def get(self):
@@ -124,6 +146,29 @@ class Signup(Handler):
 				self.redirect('/')
 
 
+class Login(Handler):
+	def get(self):
+		self.print_html('login-form.html')
+
+	def post(self):
+		username = self.request.get('username')
+		password = self.request.get('password')
+		theory = User_Theory.valid_login(username, password)
+		if theory:
+			self.login(theory)
+			self.redirect('/important-people')
+		else:
+			message = "Incorrect Username or Password"
+			self.print_html('login-form.html', error = message)
+
+
+class Logout(Handler):
+	def get(self):
+		self.logout()
+		self.redirect('/')
+###
+
+
 
 
 # --- Datastore Entities ----------------------------------------------------------------------------
@@ -152,7 +197,7 @@ class User_Theory(db.Model):
 	@classmethod
 	def valid_login(cls, username, password):
 		theory = cls.get_by_username(username)
-		if thoery and validate_password(username, password, user.password_hash):
+		if theory and validate_password(username, password, theory.password_hash):
 			return theory
 
 
@@ -182,6 +227,8 @@ secret = 'elzecreto'
 app = webapp2.WSGIApplication([
 							 ('/', Home),
 							 ('/signup', Signup),
+							 ('/login', Login),
+                             ('/logout', Logout),
 							 ('/newksu', NewKSU),
 							 ('/important-people',ImportantPeople),
 							 ], debug=True)
