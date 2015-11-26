@@ -48,7 +48,6 @@ def new_ksu(ksu_set):
 			   'x_excitement_lvl':None,
 			   'x_person_name':None,
 			   'history':[['Created',today,None,None]]} #History Format= [<Event description>, <Event date>, <Event Value>, <Event comments>]
-
 	return new_ksu
 
 
@@ -89,8 +88,6 @@ def done(ksu_set, ksu_id_digit, event_comments=None):
 	ksu['lastest_exe'] = today
 	ksu['history'] = history
 	return
-
-#KSU History Format= [<Event description>, <Event date>, <KPI Value>, <Event comments>]
 
 
 

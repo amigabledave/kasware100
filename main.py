@@ -136,7 +136,7 @@ class ImportantPeople(Handler):
 		theory = self.theory
 		name = self.request.get('important_person_name')
 		frequency = self.request.get('frequency')
-		details = dict(frequency=frequency, important_person_name=name)
+		details = dict(frequency=frequency, x_person_name=name)
 		add_important_person_to_theory(theory, details)
 		self.redirect('/important-people')
 
@@ -145,25 +145,26 @@ def my_important_people(theory):
 	kba_set = eval(theory.kba_set)
 	result = []
 	for e in kba_set:
-		name = str(e['important_person_name'])
+		name = str(e['x_person_name'])
 		if name:
 			result.append(name)
 	return str(result)
 #
 
+
 def add_important_person_to_theory(theory, details):
-	kba_set = eval(theory.kba_set)
-	kba = new_ksu_kba(kba_set)
-	kba['ksu_subtype'] = 'Important Person'
-	kba['element'] = '4. Love & Friendship'
-	kba['description'] = 'Contactar a ' + details['important_person_name']
-	kba['next_exe'] = kba['lastest_exe'] + int(details['frequency'])
+	ksu_set = eval(theory.kba_set)
+	ksu = new_ksu(ksu_set)
+	ksu['ksu_subtype'] = 'Important_Person'
+	ksu['element'] = '4_Love_Friendship'
+	ksu['description'] = 'Contactar a ' + details['x_person_name']
+	ksu['next_exe'] = today + int(details['frequency'])
 	for key, value in details.iteritems():
-		kba[key] = value
-	kba_set.append(kba)
-	theory.kba_set = str(kba_set)
+		ksu[key] = value
+	ksu_set.append(ksu)
+	theory.kba_set = str(ksu_set)
 	theory.put()
-	return 
+	return
 
 
 
@@ -188,7 +189,7 @@ class Theory(db.Model):
 	@classmethod #Creates the theory object but do not store it in the db
 	def register(cls, username, password, email):
 		password_hash = make_password_hash(username, password)
-		return Theory(username=username, password_hash=password_hash, email=email, kba_set='[]')
+		return Theory(username=username, password_hash=password_hash, email=email, kba_set=new_kba_set)
 
 	@classmethod
 	def valid_login(cls, username, password):
@@ -236,10 +237,13 @@ def validate_password(username, password, h):
 	return h == make_password_hash(username, password, salt)
 
 
-def new_ksu_kba(kba_set):
-	ksu_id = 'kba_' + str(len(kba_set)+1)
+def new_ksu(ksu_set):
+	ksu_type = ksu_set[0]['ksu_type']
+	id_digit = len(ksu_set)
+	ksu_id = ksu_type + '_'+ str(id_digit)
 	new_ksu = {'ksu_id': ksu_id,
-			   'ksu_type':'Key Base Action',
+			   'ksu_id_digit': id_digit,
+			   'ksu_type': ksu_type,
 			   'ksu_subtype': None, 
 			   'element': None,
 			   'local_tags': None,
@@ -248,15 +252,24 @@ def new_ksu_kba(kba_set):
 			   'description': None,
 			   'frequency': None,
 			   'best_day':None,
-			   'time_cost': 5,
+			   'time_cost': 1,
+			   'money_cost':0,
 			   'is_critical': False,
 			   'comments': None,
-			   'lastest_exe':today, 
-			   'status':'Active',
+			   'lastest_exe':None, 
 			   'next_exe':None,
-			   'important_person_name':None,
-			   'exe_history':[['Created',today]]}
+			   'target_exe':None,
+			   'status':'Active',
+			   'start_date':None,
+			   'end_date':None,
+			   'x_valid_exceptions':None,
+			   'x_triger_condition': None,
+			   'x_eval_date':None,
+			   'x_excitement_lvl':None,
+			   'x_person_name':None,
+			   'history':[['Created',today,None,None]]} #History Format= [<Event description>, <Event date>, <Event Value>, <Event comments>]
 	return new_ksu
+
 
 
 
@@ -280,6 +293,7 @@ secret = 'elzecreto'
 
 today = datetime.today().toordinal()
 
+new_kba_set = "[{'ksu_type': 'test_type', 'next_exe':None}]"
 
 # --- URL Handler Relation ---------------------------------------------------------------------------
 
