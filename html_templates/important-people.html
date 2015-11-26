@@ -21,16 +21,7 @@
 			<input type="text" class="form-control" name="frequency" placeholder="e.g. 7 (days)">
 		</div>
 
-<!-- 		<div class="col-md-2">
-			<label> Social Group </label>
-			<input type="text" class="form-control" name="" placeholder="e.g. Family">
-		</div>
-  	
-		<div class="col-md-4">
-			<label> Comments </label>
-			<textarea class="form-control" name="" placeholder="Additional usefull information"> </textarea> 
-		</div>
- -->
+
 		<div class="col-md-1">
 		  	<input type="submit" class="btn btn-primary btn-lg" value="Add">
 		</div>		
@@ -46,9 +37,13 @@
 	<div class="col-md-12"> <h3>My Important People</h3></div>
 </div>
 
-<div class="row">
-	<div class="col-md-12"> {{people}}</div>
-</div>
+{% for p in people %}
+
+	<div class="row">
+		<div class="col-md-12"> <h5> {{p['x_person_name']}} </h5></div>
+	</div>
+
+{% endfor %}
 
 
 {% endblock %}

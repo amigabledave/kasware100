@@ -140,16 +140,14 @@ class ImportantPeople(Handler):
 		add_important_person_to_theory(theory, details)
 		self.redirect('/important-people')
 
-#BUG Not working!
+
 def my_important_people(theory):
 	kba_set = eval(theory.kba_set)
 	result = []
-	for e in kba_set:
-		name = e['x_person_name']
-		if name:
-			result.append(name)
-	return str(result)
-#
+	for ksu in kba_set:
+		if ksu['ksu_subtype'] == 'Important_Person':
+			result.append(ksu)
+	return result
 
 
 def add_important_person_to_theory(theory, details):
@@ -293,7 +291,7 @@ secret = 'elzecreto'
 
 today = datetime.today().toordinal()
 
-new_kba_set = "[{'ksu_type': 'kba', 'next_exe':None, 'x_person_name':None}]"
+new_kba_set = "[{'ksu_type': 'kba', 'ksu_subtype': None, 'next_exe':None, 'x_person_name':None}]"
 
 # --- URL Handler Relation ---------------------------------------------------------------------------
 
