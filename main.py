@@ -98,7 +98,7 @@ class Signup(Handler):
 				theory = Theory.register(username, password, email)
 				theory.put()
 				self.login(theory)
-				self.redirect('/')
+				self.redirect('/important-people')
 
 
 class Login(Handler):
@@ -128,8 +128,8 @@ class ImportantPeople(Handler):
 	
 	def get(self):
 		theory = self.theory
-		people = theory.kba_set
-		# people = my_important_people(theory)
+		# people = theory.kba_set
+		people = my_important_people(theory)
 		self.print_html('important-people.html', people=people)
 	
 	def post(self):
@@ -145,7 +145,7 @@ def my_important_people(theory):
 	kba_set = eval(theory.kba_set)
 	result = []
 	for e in kba_set:
-		name = str(e['x_person_name'])
+		name = e['x_person_name']
 		if name:
 			result.append(name)
 	return str(result)
@@ -293,7 +293,7 @@ secret = 'elzecreto'
 
 today = datetime.today().toordinal()
 
-new_kba_set = "[{'ksu_type': 'test_type', 'next_exe':None}]"
+new_kba_set = "[{'ksu_type': 'kba', 'next_exe':None, 'x_person_name':None}]"
 
 # --- URL Handler Relation ---------------------------------------------------------------------------
 
