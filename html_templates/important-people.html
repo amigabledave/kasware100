@@ -34,16 +34,33 @@
 <hr>
 
 <div class="row">
+	<div class="col-md-12"> <h3>Today's Mission</h3></div>
+</div>
+
+{% for e in mission %}
+
+	<div class="row">
+		<div class="col-md-12"> <h5> {{e['description']}} </h5></div>
+	</div>
+
+{% endfor %}
+
+<hr>
+
+<div class="row">
 	<div class="col-md-12"> <h3>My Important People</h3></div>
 </div>
 
 {% for p in people %}
 
 	<div class="row">
-		<div class="col-md-12"> <h5> {{p['x_person_name']}} </h5></div>
+		<div class="col-md-12"> <h5> {{p['x_person_name']}}  {{p['frequency']}} </h5></div>
 	</div>
 
 {% endfor %}
+
+
+
 
 
 {% endblock %}

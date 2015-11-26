@@ -130,7 +130,8 @@ class ImportantPeople(Handler):
 		theory = self.theory
 		# people = theory.kba_set
 		people = my_important_people(theory)
-		self.print_html('important-people.html', people=people)
+		mission = todays_mission(theory)
+		self.print_html('important-people.html', people=people, mission=mission)
 	
 	def post(self):
 		theory = self.theory
@@ -149,20 +150,6 @@ def my_important_people(theory):
 			result.append(ksu)
 	return result
 
-
-def add_important_person_to_theory(theory, details):
-	ksu_set = eval(theory.kba_set)
-	ksu = new_ksu(ksu_set)
-	ksu['ksu_subtype'] = 'Important_Person'
-	ksu['element'] = '4_Love_Friendship'
-	ksu['description'] = 'Contactar a ' + details['x_person_name']
-	ksu['next_exe'] = today + int(details['frequency'])
-	for key, value in details.iteritems():
-		ksu[key] = value
-	ksu_set.append(ksu)
-	theory.kba_set = str(ksu_set)
-	theory.put()
-	return
 
 
 
@@ -268,10 +255,31 @@ def new_ksu(ksu_set):
 			   'history':[['Created',today,None,None]]} #History Format= [<Event description>, <Event date>, <Event Value>, <Event comments>]
 	return new_ksu
 
+def add_important_person_to_theory(theory, details):
+	ksu_set = eval(theory.kba_set)
+	ksu = new_ksu(ksu_set)
+	ksu['ksu_subtype'] = 'Important_Person'
+	ksu['element'] = '4_Love_Friendship'
+	ksu['description'] = 'Contactar a ' + details['x_person_name']
+	ksu['next_exe'] = today + int(details['frequency'])
+	for key, value in details.iteritems():
+		ksu[key] = value
+	ksu_set.append(ksu)
+	theory.kba_set = str(ksu_set)
+	theory.put()
+	return
 
 
-
-
+def todays_mission(theory):
+	ksu_set = eval(theory.kba_set)
+	result = []
+	for ksu in ksu_set:
+		if ksu['next_exe']:
+			delay = today - ksu['next_exe']
+			status = ksu['status']
+			if delay >= 0 and status=='Active':
+				result.append(ksu)
+	return result
 
 
 
@@ -289,7 +297,7 @@ list_elements_cat = ['1. Fun & Excitement',
 
 secret = 'elzecreto'
 
-today = datetime.today().toordinal()
+today = datetime.today().toordinal() + 20
 
 new_kba_set = "[{'ksu_type': 'kba', 'ksu_subtype': None, 'next_exe':None, 'x_person_name':None}]"
 
