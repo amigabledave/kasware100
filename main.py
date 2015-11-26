@@ -39,15 +39,15 @@ class Handler(webapp2.RequestHandler):
 		return cookie_secure_val and check_secure_val(cookie_secure_val)
 
 	def login(self, theory):
-		self.set_secure_cookie('user_id', str(theory.key().id()))
+		self.set_secure_cookie('theory_id', str(theory.key().id()))
 
 	def logout(self):
-		self.response.headers.add_header('Set-Cookie', 'user_id=; Path=/')
+		self.response.headers.add_header('Set-Cookie', 'theory_id=; Path=/')
 
 	def initialize(self, *a, **kw):
 		webapp2.RequestHandler.initialize(self, *a, **kw)
-		user_id = self.read_secure_cookie('user_id')
-		self.theory = user_id and User_Theory.get_by_user_id(int(user_id)) #if the user exist, 'self.theory' will store the actual theory object
+		theory_id = self.read_secure_cookie('theory_id')
+		self.theory = theory_id and Theory.get_by_theory_id(int(theory_id)) #if the user exist, 'self.theory' will store the actual theory object
 
 
 
@@ -90,12 +90,12 @@ class Signup(Handler):
 		if have_error:
 			self.print_html('signup-form.html', **params)
 		else: 
-			theory = User_Theory.get_by_username(username)
+			theory = Theory.get_by_username(username)
 			if theory:
 				message = 'That username already exists!'
 				self.print_html('signup-form.html', error_username = message)
 			else:
-				theory = User_Theory.register(username, password, email)
+				theory = Theory.register(username, password, email)
 				theory.put()
 				self.login(theory)
 				self.redirect('/')
@@ -108,7 +108,7 @@ class Login(Handler):
 	def post(self):
 		username = self.request.get('username')
 		password = self.request.get('password')
-		theory = User_Theory.valid_login(username, password)
+		theory = Theory.valid_login(username, password)
 		if theory:
 			self.login(theory)
 			self.redirect('/important-people')
@@ -169,7 +169,7 @@ def add_important_person_to_theory(theory, details):
 
 # --- Datastore Entities ----------------------------------------------------------------------------
 
-class User_Theory(db.Model):
+class Theory(db.Model):
 	username = db.StringProperty(required=True)
 	password_hash = db.StringProperty(required=True)
 	email = db.StringProperty(required=True)
@@ -178,17 +178,17 @@ class User_Theory(db.Model):
 	last_modified = db.DateTimeProperty(auto_now=True)
 
 	@classmethod # This means you can call a method directly on the Class (no on a Class Instance)
-	def get_by_user_id(cls, user_id):
-		return User_Theory.get_by_id(user_id)
+	def get_by_theory_id(cls, theory_id):
+		return Theory.get_by_id(theory_id)
 
 	@classmethod
 	def get_by_username(cls, username):
-		return User_Theory.all().filter('username =', username).get()
+		return Theory.all().filter('username =', username).get()
 
 	@classmethod #Creates the theory object but do not store it in the db
 	def register(cls, username, password, email):
 		password_hash = make_password_hash(username, password)
-		return User_Theory(username=username, password_hash=password_hash, email=email, kba_set='[]')
+		return Theory(username=username, password_hash=password_hash, email=email, kba_set='[]')
 
 	@classmethod
 	def valid_login(cls, username, password):
