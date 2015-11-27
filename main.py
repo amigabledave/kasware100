@@ -143,31 +143,42 @@ class ImportantPeople(Handler):
 
 
 class Mission(Handler):
+
 	def get(self):
 		theory = self.theory
 		mission = todays_mission(theory)
 		self.print_html('todays-mission.html', mission=mission)
 
-
-
-
-
-
-
-class DoubleTrouble(Handler):
-	def get(self):
-		self.print_html('two-buttons.html')
-	
 	def post(self):
-		arguments = self.request.arguments()
+		theory = self.theory
+		ksu_set = eval(theory.kba_set)
+		target_ksu = int(self.request.get('ksu_id_digit'))
+		ksu = ksu_set[target_ksu]
+		event_comments = self.request.get('event_comments')
+		done(ksu, event_comments)
+		theory.kba_set = str(ksu_set)
+		theory.put()
+		self.redirect('/mission')
+		# arguments = self.request.arguments()
+		# result = []
+		# for e in arguments:
+		# 	result.append(self.request.get(e))
+		# self.response.out.write(str(result)+str(arguments))
 
-		self.response.out.write(arguments)
-		# if Opcion1:
-		# 	self.response.out.write(str(Opcion1))
-		# elif Opcion2:
-		# 	self.response.out.write(Opcion2)
-		# else:
-		# 	self.response.out.write(Opcion3)
+
+def done(ksu, event_comments=None):
+	event_description = 'Done'
+	event_date = today
+	event_value = today - int(ksu['next_exe'])
+	frequency = int(ksu['frequency'])
+	history = ksu['history']
+	history.append([event_description, event_date, event_value, event_comments])
+	next_exe = today + frequency
+	ksu['next_exe'] = next_exe
+	ksu['lastest_exe'] = today
+	ksu['history'] = history
+	return
+
 
 
 
@@ -325,7 +336,7 @@ list_elements_cat = ['1. Fun & Excitement',
 
 secret = 'elzecreto'
 
-today = datetime.today().toordinal() + 30
+today = datetime.today().toordinal() + 35
 
 new_kba_set = "[{'ksu_type': 'kba', 'ksu_subtype': None, 'next_exe':None, 'x_person_name':None}]"
 
@@ -337,6 +348,5 @@ app = webapp2.WSGIApplication([
 							 ('/login', Login),
                              ('/logout', Logout),
                              ('/mission', Mission),
-							 ('/important-people',ImportantPeople),
-							 ('/double-trouble', DoubleTrouble)
+							 ('/important-people',ImportantPeople)
 							 ], debug=True)

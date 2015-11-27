@@ -8,9 +8,30 @@
 	
 {% for ksu in mission %}
 
+	<hr>
+
 	<div class="row">
-		<div class="col-md-12"> <h5> {{ksu['description']}} </h5></div>
-	</div>
+		
+	<form class="form-horizontal" method="post">
+
+		<div class="col-md-2"> <h5> {{ksu['description']}} </h5></div>
+
+		<div class="col-md-2"> 
+			<input type="text" class="form-control" name="event_comments" placeholder="Event comments"> 
+			<input type="text" class="form-control hidden" name="x_person_name" value="{{ksu['x_person_name']}}">
+
+			<input type="text" class="form-control hidden" name="ksu_id_digit" value="{{ksu['ksu_id_digit']}}"> 
+
+		</div>
+
+		<div class="col-md-1">
+			<input type="submit" class="btn btn-primary btn-sm btn-success" name="event_description" value="Done">
+		</div>
+		  		
+	</form>	
+	</div>	
+	
+
 
 {% endfor %}
 
