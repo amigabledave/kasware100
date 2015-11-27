@@ -1,0 +1,4 @@
+cron:
+- description: daily mission email
+  url: /email
+  schedule: every day 00:00

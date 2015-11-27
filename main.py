@@ -173,8 +173,6 @@ class Email(Handler):
     	self.response.write('Email sent!')
 
 
-
-
 def done(ksu, event_comments=None):
 	event_description = 'Done'
 	event_date = today
