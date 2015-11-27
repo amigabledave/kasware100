@@ -4,6 +4,7 @@ import re, os, webapp2, jinja2, logging, hashlib, random, string
 from datetime import datetime, timedelta
 from google.appengine.ext import db
 from google.appengine.api import memcache
+from google.appengine.api import mail
 
 
 template_dir = os.path.join(os.path.dirname(__file__), 'html_templates')
@@ -164,6 +165,14 @@ class Mission(Handler):
 		# for e in arguments:
 		# 	result.append(self.request.get(e))
 		# self.response.out.write(str(result)+str(arguments))
+
+
+class Email(Handler):
+    def get(self):
+    	mail.send_mail(sender="<mission@kasware100.appspotmail.com>", to="Dave <amigabledave@gmail.com>", subject="Test email", body="Hello Dave! This was sent from your appengine")
+    	self.response.write('Email sent!')
+
+
 
 
 def done(ksu, event_comments=None):
@@ -348,5 +357,6 @@ app = webapp2.WSGIApplication([
 							 ('/login', Login),
                              ('/logout', Logout),
                              ('/mission', Mission),
-							 ('/important-people',ImportantPeople)
+							 ('/important-people',ImportantPeople),
+							 ('/email',Email)
 							 ], debug=True)

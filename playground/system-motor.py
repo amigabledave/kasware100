@@ -5,6 +5,7 @@ from operator import itemgetter
 # today = datetime.today().toordinal()
 # tomorrow = datetime.fromordinal(today+1)
 # print today, tomorrow.strftime('%d-%m-%Y')
+# datetime.fromordinal().strftime('%d-%m-%Y')
 
 ksu_set = [{'ksu_type': 'test_type', 'next_exe':None}]
 
@@ -60,7 +61,7 @@ def add_important_person_to_theory(details):
 	for key, value in details.iteritems():
 		ksu[key] = value
 	ksu_set.append(ksu)
-	return 
+	return
 
 
 def todays_mission():
