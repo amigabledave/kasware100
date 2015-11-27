@@ -142,13 +142,32 @@ class ImportantPeople(Handler):
 		self.redirect('/important-people')
 
 
-def my_important_people(theory):
-	kba_set = eval(theory.kba_set)
-	result = []
-	for ksu in kba_set:
-		if ksu['ksu_subtype'] == 'Important_Person':
-			result.append(ksu)
-	return result
+class Mission(Handler):
+	def get(self):
+		theory = self.theory
+		mission = todays_mission(theory)
+		self.print_html('todays-mission.html', mission=mission)
+
+
+
+
+
+
+
+class DoubleTrouble(Handler):
+	def get(self):
+		self.print_html('two-buttons.html')
+	
+	def post(self):
+		arguments = self.request.arguments()
+
+		self.response.out.write(arguments)
+		# if Opcion1:
+		# 	self.response.out.write(str(Opcion1))
+		# elif Opcion2:
+		# 	self.response.out.write(Opcion2)
+		# else:
+		# 	self.response.out.write(Opcion3)
 
 
 
@@ -282,6 +301,15 @@ def todays_mission(theory):
 	return result
 
 
+def my_important_people(theory):
+	kba_set = eval(theory.kba_set)
+	result = []
+	for ksu in kba_set:
+		if ksu['ksu_subtype'] == 'Important_Person':
+			result.append(ksu)
+	return result
+
+
 
 
 # --- Global Variables ------------------------------------------------------------------------------
@@ -297,7 +325,7 @@ list_elements_cat = ['1. Fun & Excitement',
 
 secret = 'elzecreto'
 
-today = datetime.today().toordinal() + 20
+today = datetime.today().toordinal() + 30
 
 new_kba_set = "[{'ksu_type': 'kba', 'ksu_subtype': None, 'next_exe':None, 'x_person_name':None}]"
 
@@ -308,5 +336,7 @@ app = webapp2.WSGIApplication([
 							 ('/signup', Signup),
 							 ('/login', Login),
                              ('/logout', Logout),
+                             ('/mission', Mission),
 							 ('/important-people',ImportantPeople),
+							 ('/double-trouble', DoubleTrouble)
 							 ], debug=True)
