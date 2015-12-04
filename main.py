@@ -129,7 +129,7 @@ class ImportantPeople(Handler):
 	
 	def get(self):
 		theory = self.theory
-		# people = theory.kba_set
+		# people = theory.kas1
 		people = my_important_people(theory)
 		mission = todays_mission(theory)
 		self.print_html('important-people.html', people=people, mission=mission)
@@ -152,12 +152,12 @@ class Mission(Handler):
 
 	def post(self):
 		theory = self.theory
-		ksu_set = eval(theory.kba_set)
+		ksu_set = eval(theory.kas1)
 		target_ksu = int(self.request.get('ksu_id_digit'))
 		ksu = ksu_set[target_ksu]
 		event_comments = self.request.get('event_comments')
 		done(ksu, event_comments)
-		theory.kba_set = str(ksu_set)
+		theory.kas1 = str(ksu_set)
 		theory.put()
 		self.redirect('/mission')
 		# arguments = self.request.arguments()
@@ -174,19 +174,18 @@ class Email(Handler):
 
 
 def done(ksu, event_comments=None):
-	event_description = 'Done'
-	event_date = today
-	event_value = today - int(ksu['next_exe'])
-	frequency = int(ksu['frequency'])
+	event = new_event()
+	event['event_date'] = today
+	event['event_type'] = 'Done'
+	event['event_comments'] =event_comments
 	history = ksu['history']
-	history.append([event_description, event_date, event_value, event_comments])
+	history.append(event)
+	ksu['history'] = history
+	frequency = int(ksu['frequency'])
 	next_exe = today + frequency
 	ksu['next_exe'] = next_exe
 	ksu['lastest_exe'] = today
-	ksu['history'] = history
 	return
-
-
 
 
 
@@ -196,7 +195,7 @@ class Theory(db.Model):
 	username = db.StringProperty(required=True)
 	password_hash = db.StringProperty(required=True)
 	email = db.StringProperty(required=True)
-	kba_set = db.TextProperty(required=True)
+	kas1 = db.TextProperty(required=True)
 	created = db.DateTimeProperty(auto_now_add=True)
 	last_modified = db.DateTimeProperty(auto_now=True)
 
@@ -211,7 +210,7 @@ class Theory(db.Model):
 	@classmethod #Creates the theory object but do not store it in the db
 	def register(cls, username, password, email):
 		password_hash = make_password_hash(username, password)
-		return Theory(username=username, password_hash=password_hash, email=email, kba_set=new_kba_set)
+		return Theory(username=username, password_hash=password_hash, email=email, kas1=new_kas1)
 
 	@classmethod
 	def valid_login(cls, username, password):
@@ -263,6 +262,8 @@ def new_ksu(ksu_set):
 	ksu_type = ksu_set[0]['ksu_type']
 	id_digit = len(ksu_set)
 	ksu_id = ksu_type + '_'+ str(id_digit)
+	event = new_event()
+	event['event_type'] = 'Created'
 	new_ksu = {'ksu_id': ksu_id,
 			   'ksu_id_digit': id_digit,
 			   'ksu_type': ksu_type,
@@ -274,7 +275,8 @@ def new_ksu(ksu_set):
 			   'description': None,
 			   'frequency': None,
 			   'best_day':None,
-			   'time_cost': 1,
+			   'best_time':None,
+			   'time_cost': 0,
 			   'money_cost':0,
 			   'is_critical': False,
 			   'comments': None,
@@ -284,16 +286,36 @@ def new_ksu(ksu_set):
 			   'status':'Active',
 			   'start_date':None,
 			   'end_date':None,
-			   'x_valid_exceptions':None,
-			   'x_triger_condition': None,
-			   'x_eval_date':None,
-			   'x_excitement_lvl':None,
-			   'x_person_name':None,
-			   'history':[['Created',today,None,None]]} #History Format= [<Event description>, <Event date>, <Event Value>, <Event comments>]
+			   'action_nature':None, # Enjoy or Produce
+			   'intenalization_lvl':None,
+			   'kas4_valid_exceptions':None,
+			   'kas3_triger_condition': None,
+			   'bigo_eval_date':None,
+			   'wish_excitement_lvl':None,
+			   'imp_person_name':None,
+			   'history':[event]}
 	return new_ksu
 
+
+def new_event():
+	event = {'event_date':today,
+			   'event_type':None,
+			   'event_title':None,
+			   'event_people':[],
+			   'event_comments':None,
+			   'event_duration':0, # In Kasware Time ( 1 unit of Kasware time = 5 minutes. Total time should always be rounded down)
+			   'event_intensity':0, # In a fibonacci scale 
+			   'event_hpts':0,
+			   'event_epts':0,
+			   'event_spts':0}
+	return event
+
+
+
+
+
 def add_important_person_to_theory(theory, details):
-	ksu_set = eval(theory.kba_set)
+	ksu_set = eval(theory.kas1)
 	ksu = new_ksu(ksu_set)
 	ksu['ksu_subtype'] = 'Important_Person'
 	ksu['element'] = '4_Love_Friendship'
@@ -302,13 +324,13 @@ def add_important_person_to_theory(theory, details):
 	for key, value in details.iteritems():
 		ksu[key] = value
 	ksu_set.append(ksu)
-	theory.kba_set = str(ksu_set)
+	theory.kas1 = str(ksu_set)
 	theory.put()
 	return
 
 
 def todays_mission(theory):
-	ksu_set = eval(theory.kba_set)
+	ksu_set = eval(theory.kas1)
 	result = []
 	for ksu in ksu_set:
 		if ksu['next_exe']:
@@ -320,9 +342,9 @@ def todays_mission(theory):
 
 
 def my_important_people(theory):
-	kba_set = eval(theory.kba_set)
+	kas1 = eval(theory.kas1)
 	result = []
-	for ksu in kba_set:
+	for ksu in kas1:
 		if ksu['ksu_subtype'] == 'Important_Person':
 			result.append(ksu)
 	return result
@@ -343,9 +365,9 @@ list_elements_cat = ['1. Fun & Excitement',
 
 secret = 'elzecreto'
 
-today = datetime.today().toordinal() + 85
+today = datetime.today().toordinal() + 100
 
-new_kba_set = "[{'ksu_type': 'kba', 'ksu_subtype': None, 'next_exe':None, 'x_person_name':None}]"
+new_kas1 = "[{'ksu_type': 'kas1', 'ksu_subtype': None, 'next_exe':None, 'imp_person_name':None}]"
 
 # --- URL Handler Relation ---------------------------------------------------------------------------
 
