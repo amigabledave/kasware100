@@ -278,11 +278,13 @@ def new_ksu(ksu_set):
 			   'best_time':None,
 			   'time_cost': 0,
 			   'money_cost':0,
+			   'base_epts':0,
 			   'is_critical': False,
 			   'comments': None,
 			   'lastest_exe':None, 
 			   'next_exe':None,
 			   'target_exe':None,
+			   'in_mission': False,
 			   'status':'Active',
 			   'start_date':None,
 			   'end_date':None,
@@ -319,7 +321,7 @@ def add_important_person_to_theory(theory, details):
 	ksu = new_ksu(ksu_set)
 	ksu['ksu_subtype'] = 'Important_Person'
 	ksu['element'] = '4_Love_Friendship'
-	ksu['description'] = 'Contactar a ' + details['x_person_name']
+	ksu['description'] = 'Contactar a ' + details['imp_person_name']
 	ksu['next_exe'] = today + int(details['frequency'])
 	for key, value in details.iteritems():
 		ksu[key] = value
