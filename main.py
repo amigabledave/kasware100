@@ -1,6 +1,6 @@
 #KASware v1.0.0 | Copyright 2015 AmigableDave & Co.
 
-import re, os, webapp2, jinja2, logging, hashlib, random, string
+import re, os, webapp2, jinja2, logging, hashlib, random, string, csv
 from datetime import datetime, timedelta
 from google.appengine.ext import db
 from google.appengine.api import memcache
@@ -141,6 +141,15 @@ class ImportantPeople(Handler):
 		details = dict(frequency=frequency, imp_person_name=name)
 		add_important_person_to_theory(theory, details)
 		self.redirect('/important-people')
+
+
+class LoadCSV(Handler):
+	def get(self):
+		theory = self.theory
+		add_ksus_to_set_from_csv(csv_path, theory)
+		self.redirect('/important-people')
+
+
 
 
 class Mission(Handler):
@@ -337,7 +346,7 @@ def todays_mission(theory):
 	result = []
 	for ksu in ksu_set:
 		if ksu['next_exe']:
-			delay = today - ksu['next_exe']
+			delay = today - int(ksu['next_exe'])
 			status = ksu['status']
 			if delay >= 0 and status=='Active':
 				result.append(ksu)
@@ -419,5 +428,6 @@ app = webapp2.WSGIApplication([
                              ('/logout', Logout),
                              ('/mission', Mission),
 							 ('/important-people',ImportantPeople),
-							 ('/email',Email)
+							 ('/email',Email),
+							 ('/loadCSV', LoadCSV)
 							 ], debug=True)
