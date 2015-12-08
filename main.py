@@ -138,7 +138,7 @@ class ImportantPeople(Handler):
 		theory = self.theory
 		name = self.request.get('important_person_name')
 		frequency = self.request.get('frequency')
-		details = dict(frequency=frequency, x_person_name=name)
+		details = dict(frequency=frequency, imp_person_name=name)
 		add_important_person_to_theory(theory, details)
 		self.redirect('/important-people')
 
@@ -367,7 +367,7 @@ list_elements_cat = ['1. Fun & Excitement',
 
 secret = 'elzecreto'
 
-today = datetime.today().toordinal() + 100
+today = datetime.today().toordinal() + 100 + 17
 
 new_kas1 = "[{'ksu_type': 'kas1', 'ksu_subtype': None, 'next_exe':None, 'imp_person_name':None}]"
 
