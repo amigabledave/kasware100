@@ -147,8 +147,11 @@ class Mission(Handler):
 
 	def get(self):
 		theory = self.theory
-		mission = todays_mission(theory)
-		self.print_html('todays-mission.html', mission=mission)
+		if theory:
+			mission = todays_mission(theory)
+			self.print_html('todays-mission.html', mission=mission)
+		else:
+			self.redirect('/login')
 
 	def post(self):
 		theory = self.theory
@@ -351,6 +354,41 @@ def my_important_people(theory):
 
 
 
+#--- CSV File import
+
+def digest_csv(csv_path):
+	f = open(csv_path, 'rU')
+	f.close
+	csv_f = csv.reader(f, dialect=csv.excel_tab)
+	result = []
+	attributes = csv_f.next()[0].split(',')
+	for row in csv_f:
+		digested_ksu = {}
+		i = 0
+		raw_ksu = row[0].split(',')
+		for attribute in raw_ksu:
+			digested_ksu[attributes[i]] = attribute
+			i += 1
+		result.append(digested_ksu)
+	return result
+
+
+
+def add_ksus_to_set_from_csv(csv_path, theory):
+	ksu_set = eval(theory.kas1)
+	digested_csv = digest_csv(csv_path)
+	for pseudo_ksu in digested_csv:
+		ksu = new_ksu(ksu_set)
+		for key, value in pseudo_ksu.iteritems():
+			ksu[key] = value
+		ksu_set.append(ksu)
+	theory.kas1 = str(ksu_set)
+	theory.put()
+	return
+
+
+
+
 
 # --- Global Variables ------------------------------------------------------------------------------
 
@@ -368,6 +406,9 @@ secret = 'elzecreto'
 today = datetime.today().toordinal()
 
 new_kas1 = "[{'ksu_type': 'kas1', 'ksu_subtype': None, 'next_exe':None, 'imp_person_name':None}]"
+
+csv_path = '/Users/amigabledave/kasware100/csv_files/important_people.csv'
+
 
 # --- URL Handler Relation ---------------------------------------------------------------------------
 

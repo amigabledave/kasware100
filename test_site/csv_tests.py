@@ -5,9 +5,6 @@ today = datetime.today().toordinal()
 # print today
 
 
-csv_path = '/Users/amigabledave/kasware100/csv_files/important_people.csv'
-
-
 #--------------------------------------------
 
 kas1 = [{'ksu_type': 'kas1', 'ksu_subtype': None, 'next_exe':None, 'imp_person_name':None}]
@@ -66,6 +63,10 @@ def new_event():
 
 
 #--------------------------------------------
+
+
+csv_path = '/Users/amigabledave/kasware100/csv_files/important_people.csv'
+
 
 def digest_csv(csv_path):
 	f = open(csv_path, 'rU')
