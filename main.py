@@ -143,14 +143,6 @@ class ImportantPeople(Handler):
 		self.redirect('/important-people')
 
 
-class LoadCSV(Handler):
-	def get(self):
-		theory = self.theory
-		add_ksus_to_set_from_csv(csv_path, theory)
-		self.redirect('/important-people')
-
-
-
 
 class Mission(Handler):
 
@@ -185,19 +177,35 @@ class Email(Handler):
     	self.response.write('Email sent!')
 
 
-def done(ksu, event_comments=None):
-	event = new_event()
-	event['event_date'] = today
-	event['event_type'] = 'Done'
-	event['event_comments'] =event_comments
-	history = ksu['history']
-	history.append(event)
-	ksu['history'] = history
-	frequency = int(ksu['frequency'])
-	next_exe = today + frequency
-	ksu['next_exe'] = next_exe
-	ksu['lastest_exe'] = today
-	return
+
+class LoadCSV(Handler):
+	def get(self):
+		theory = self.theory
+		add_ksus_to_set_from_csv(csv_path, theory)
+		self.redirect('/important-people')
+
+
+
+class PythonBackup(Handler):
+	def get(self):
+		theory = self.theory
+		if theory:
+			kas1 = theory.kas1
+			self.write(kas1)
+		else:
+			self.redirect('/login')
+
+
+class CSVBackup(Handler):
+	def get(self):
+		theory = self.theory
+		if theory:
+			kas1 = theory.kas1
+			output = create_csv_backup(kas1, ['ksu_id','ksu_type','description','frequency','lastest_exe','status','imp_person_name'])
+			self.write(output)
+		else:
+			self.redirect('/login')
+
 
 
 
@@ -222,7 +230,7 @@ class Theory(db.Model):
 	@classmethod #Creates the theory object but do not store it in the db
 	def register(cls, username, password, email):
 		password_hash = make_password_hash(username, password)
-		return Theory(username=username, password_hash=password_hash, email=email, kas1=new_kas1)
+		return Theory(username=username, password_hash=password_hash, email=email, kas1=new_kas1())
 
 	@classmethod
 	def valid_login(cls, username, password):
@@ -276,40 +284,49 @@ def new_ksu(ksu_set):
 	ksu_id = ksu_type + '_'+ str(id_digit)
 	event = new_event()
 	event['event_type'] = 'Created'
-	new_ksu = {'ksu_id': ksu_id,
-			   'ksu_id_digit': id_digit,
-			   'ksu_type': ksu_type,
-			   'ksu_subtype': None, 
-			   'element': None,
-			   'local_tags': None,
-			   'global_tags': None,
-			   'parent_ksu_id': None,
-			   'description': None,
-			   'frequency': None,
-			   'best_day':None,
-			   'best_time':None,
-			   'time_cost': 0,
-			   'money_cost':0,
-			   'base_effort_points':0,
-			   'is_critical': False,
-			   'comments': None,
-			   'lastest_exe':None, 
-			   'next_exe':None,
-			   'target_exe':None,
-			   'in_mission': False,
-			   'status':'Active',
-			   'start_date':None,
-			   'end_date':None,
-			   'action_nature':None, # Enjoy or Produce
-			   'intenalization_lvl':None,
-			   'kas4_valid_exceptions':None,
-			   'kas3_triger_condition': None,
-			   'bigo_eval_date':None,
-			   'bigo_type':None, # End Goal or Sprint Goal
-			   'wish_excitement_lvl':None,
-			   'imp_person_name':None,
-			   'history':[event]}
+	new_ksu = ksu_template()
+	new_ksu['ksu_id'] = ksu_id
+	new_ksu['ksu_id_digit'] = id_digit
+	new_ksu['ksu_type'] = ksu_type
+	new_ksu['history'] = [event]
 	return new_ksu
+
+
+def ksu_template():
+	template = {'ksu_id': None,
+				'ksu_id_digit': None,
+		   		'ksu_type': None,
+		   		'ksu_subtype': None, 
+		    	'element': None,
+		    	'local_tags': None,
+		    	'global_tags': None,
+		    	'parent_ksu_id': None,
+		    	'description': None,
+		    	'frequency': None,
+		    	'best_day':None,
+		    	'best_time':None,
+		    	'time_cost': 0,
+		    	'money_cost':0,
+		    	'base_effort_points':0,
+		    	'is_critical': False,
+		    	'comments': None,
+		    	'lastest_exe':None, 
+		    	'next_exe':None,
+		    	'target_exe':None,
+		    	'in_mission': False,
+		    	'status':'Active',
+		    	'start_date':None,
+		    	'end_date':None,
+		    	'action_nature':None, # Enjoy or Produce
+		    	'internalization_lvl':None,
+		    	'kas4_valid_exceptions':None,
+		    	'kas3_triger_condition': None,
+		    	'bigo_eval_date':None,
+		    	'bigo_type':None, # End Goal or Sprint Goal
+		    	'wish_excitement_lvl':None,
+		    	'imp_person_name':None,
+		    	'history':None}
+	return template		    	
 
 
 def new_event():
@@ -324,6 +341,14 @@ def new_event():
 	return event
 
 
+def new_kas1():
+	result = []
+	first_ksu = ksu_template()
+	first_ksu['ksu_id'] = 'kas1_0'
+	first_ksu['ksu_type'] = 'kas1'
+	first_ksu['description'] = 'KAS1 Key Base Actions Set'
+	result.append(first_ksu)
+	return str(result)
 
 
 
@@ -340,6 +365,22 @@ def add_important_person_to_theory(theory, details):
 	theory.kas1 = str(ksu_set)
 	theory.put()
 	return
+
+
+def done(ksu, event_comments=None):
+	event = new_event()
+	event['event_date'] = today
+	event['event_type'] = 'Done'
+	event['event_comments'] =event_comments
+	history = ksu['history']
+	history.append(event)
+	ksu['history'] = history
+	frequency = int(ksu['frequency'])
+	next_exe = today + frequency
+	ksu['next_exe'] = next_exe
+	ksu['lastest_exe'] = today
+	return
+
 
 
 def todays_mission(theory):
@@ -397,10 +438,24 @@ def add_ksus_to_set_from_csv(csv_path, theory):
 	return
 
 
+def create_csv_backup(ksu_set, required_attributes):
+	result = ""
+	i = 0
+	ksu_set = eval(ksu_set)
+	for attribute in required_attributes:
+		result += attribute + ',' 
+	for ksu in ksu_set:
+		result += '<br>'
+		for attribute in required_attributes:
+			result += str(ksu[attribute]) + ','
+	return result
+
 
 
 
 # --- Global Variables ------------------------------------------------------------------------------
+
+today = datetime.today().toordinal()
 
 list_elements_cat = ['1. Fun & Excitement', 
 					 '2. Meaning & Direction', 
@@ -413,9 +468,9 @@ list_elements_cat = ['1. Fun & Excitement',
 
 secret = 'elzecreto'
 
-today = datetime.today().toordinal()
 
-new_kas1 = "[{'ksu_type': 'kas1', 'ksu_subtype': None, 'next_exe':None, 'imp_person_name':None}]"
+
+# template_dir = os.path.join(os.path.dirname(__file__), 'html_templates')
 
 csv_path = '/Users/amigabledave/kasware100/csv_files/important_people.csv'
 
@@ -430,5 +485,7 @@ app = webapp2.WSGIApplication([
                              ('/mission', Mission),
 							 ('/important-people',ImportantPeople),
 							 ('/email',Email),
-							 ('/loadCSV', LoadCSV)
+							 ('/loadCSV', LoadCSV),
+							 ('/python-backup',PythonBackup),
+							 ('/csv-backup',CSVBackup)
 							 ], debug=True)
