@@ -305,6 +305,7 @@ def new_ksu(ksu_set):
 			   'kas4_valid_exceptions':None,
 			   'kas3_triger_condition': None,
 			   'bigo_eval_date':None,
+			   'bigo_type':None, # End Goal or Sprint Goal
 			   'wish_excitement_lvl':None,
 			   'imp_person_name':None,
 			   'history':[event]}
