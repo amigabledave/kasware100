@@ -278,7 +278,7 @@ def new_ksu(ksu_set):
 			   'best_time':None,
 			   'time_cost': 0,
 			   'money_cost':0,
-			   'base_epts':0,
+			   'base_effort_points':0,
 			   'is_critical': False,
 			   'comments': None,
 			   'lastest_exe':None, 
@@ -301,15 +301,13 @@ def new_ksu(ksu_set):
 
 def new_event():
 	event = {'event_date':today,
-			   'event_type':None,
-			   'event_title':None,
-			   'event_people':[],
-			   'event_comments':None,
-			   'event_duration':0, # In Kasware Time ( 1 unit of Kasware time = 5 minutes. Total time should always be rounded down)
-			   'event_intensity':0, # In a fibonacci scale 
-			   'event_hpts':0,
-			   'event_epts':0,
-			   'event_spts':0}
+			 'event_type':None,
+			 'event_title':None,
+			 'event_people':[],
+			 'event_comments':None,
+			 'event_duration':0, # In Kasware Time ( 1 unit of Kasware time = 5 minutes. Total time should always be rounded down)
+			 'event_intensity':0, # In a fibonacci scale
+			 'event_points':0}
 	return event
 
 
@@ -367,7 +365,7 @@ list_elements_cat = ['1. Fun & Excitement',
 
 secret = 'elzecreto'
 
-today = datetime.today().toordinal() + 100 + 17
+today = datetime.today().toordinal()
 
 new_kas1 = "[{'ksu_type': 'kas1', 'ksu_subtype': None, 'next_exe':None, 'imp_person_name':None}]"
 
