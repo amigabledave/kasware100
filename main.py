@@ -308,6 +308,7 @@ def ksu_template():
 		    	'time_cost': 0,
 		    	'money_cost':0,
 		    	'base_effort_points':0,
+		    	'priority_lvl':9,
 		    	'is_critical': False,
 		    	'comments': None,
 		    	'lastest_exe':None, 
@@ -335,8 +336,9 @@ def new_event():
 			 'event_title':None,
 			 'event_people':[],
 			 'event_comments':None,
-			 'event_duration':0, # In Kasware Time ( 1 unit of Kasware time = 5 minutes. Total time should always be rounded down)
-			 'event_intensity':0, # In a fibonacci scale
+			 'event_duration':0, # In minutes rounded down
+			 'event_base_intensity':0, # In a fibonacci scale
+			 'event_spike_intensity':0, # In a fibonacci scale
 			 'event_points':0}
 	return event
 
