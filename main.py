@@ -420,10 +420,11 @@ def todays_mission(theory):
 
 def mission_email(ksu_set):
 	result = "Hello, here is your mission for today: " 
-	space = """ 
-	"""
+	space = """
+"""
 	for ksu in ksu_set:
 		result += space + space + ksu['description']
+	result += space + space + space + space + "visit www.kasware.com to update your mission status"
 	return result
 
 
