@@ -15,6 +15,10 @@ handlers:
 - url: /css
   static_dir: css
 
+- url: /csv_files
+  static_dir: csv_files
+  application_readable: True
+
 
 - url: .*
   script: main.app

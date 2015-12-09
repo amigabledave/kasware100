@@ -200,7 +200,7 @@ class CSVBackup(Handler):
 	def get(self):
 		theory = self.theory
 		if theory:
-			kas1 = theory.kas1
+			kas1 = eval(theory.kas1)
 			output = create_csv_backup(kas1, ['ksu_id','ksu_type','description','frequency','lastest_exe','status','imp_person_name'])
 			self.write(output)
 		else:
@@ -441,7 +441,6 @@ def add_ksus_to_set_from_csv(csv_path, theory):
 def create_csv_backup(ksu_set, required_attributes):
 	result = ""
 	i = 0
-	ksu_set = eval(ksu_set)
 	for attribute in required_attributes:
 		result += attribute + ',' 
 	for ksu in ksu_set:
@@ -470,9 +469,13 @@ secret = 'elzecreto'
 
 
 
-# template_dir = os.path.join(os.path.dirname(__file__), 'html_templates')
+# csv_path = '/Users/amigabledave/kasware100/csv_files/important_people.csv'
 
-csv_path = '/Users/amigabledave/kasware100/csv_files/important_people.csv'
+csv_path = os.path.join(os.path.dirname(__file__), 'csv_files', 'important_people.csv')
+
+
+# csv_path = '/csv_files/important_people.csv'
+
 
 
 # --- URL Handler Relation ---------------------------------------------------------------------------
