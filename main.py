@@ -156,7 +156,7 @@ class Mission(Handler):
 
 	def post(self):
 		theory = self.theory
-		ksu_set = eval(theory.kas1)
+		ksu_set = eval(theory.kas1, {})
 		target_ksu = int(self.request.get('ksu_id_digit'))
 		ksu = ksu_set[target_ksu]
 		event = new_event()		
@@ -207,7 +207,7 @@ class CSVBackup(Handler):
 	def get(self):
 		theory = self.theory
 		if theory:
-			kas1 = eval(theory.kas1)
+			kas1 = eval(theory.kas1, {})
 			output = create_csv_backup(kas1, ['ksu_id','ksu_type','description','frequency','lastest_exe','status','imp_person_name'])
 			self.write(output)
 		else:
@@ -379,7 +379,7 @@ def done(ksu, event):
 
 
 def add_important_person_to_theory(theory, details):
-	ksu_set = eval(theory.kas1)
+	ksu_set = eval(theory.kas1, {})
 	ksu = new_ksu(ksu_set)
 	ksu['ksu_subtype'] = 'Important_Person'
 	ksu['element'] = '4_Love_Friendship'
@@ -398,7 +398,7 @@ def add_important_person_to_theory(theory, details):
 
 
 def todays_mission(theory):
-	ksu_set = eval(theory.kas1)
+	ksu_set = eval(theory.kas1, {})
 	result = []
 	for ksu in ksu_set:
 		if ksu['next_exe']:
@@ -410,7 +410,7 @@ def todays_mission(theory):
 
 
 def my_important_people(theory):
-	kas1 = eval(theory.kas1)
+	kas1 = eval(theory.kas1, {})
 	result = []
 	for ksu in kas1:
 		if ksu['ksu_subtype'] == 'Important_Person':
@@ -440,7 +440,7 @@ def digest_csv(csv_path):
 
 
 def add_ksus_to_set_from_csv(csv_path, theory):
-	ksu_set = eval(theory.kas1)
+	ksu_set = eval(theory.kas1, {})
 	digested_csv = digest_csv(csv_path)
 	for pseudo_ksu in digested_csv:
 		ksu = new_ksu(ksu_set)
