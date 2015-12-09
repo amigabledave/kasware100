@@ -174,14 +174,23 @@ class Mission(Handler):
 
 
 
-
-
-
-
 class Email(Handler):
     def get(self):
-    	mail.send_mail(sender="<mission@kasware100.appspotmail.com>", to="Dave <amigabledave@gmail.com>", subject="Test email", body="Hello Dave! This was sent from your appengine")
-    	self.response.write('Email sent!')
+    	theories = Theory.all().fetch(limit=10)
+    	for theory in theories:
+    		email_receiver = str(theory.email)
+    		email_body = mission_email(todays_mission(theory))
+    		mail.send_mail(sender="<mission@kasware100.appspotmail.com>", to=email_receiver, subject="Today's Mission", body=email_body)
+		self.response.write('Emails sent!')
+
+    	# theory = self.theory
+    	# if theory:
+    	# 	email_body = mission_email(todays_mission(theory))
+    	# 	mail.send_mail(sender="<mission@kasware100.appspotmail.com>", to="Dave <amigabledave@gmail.com>", subject="Today's Mission", body=email_body)
+    	# 	self.response.write(email_body)
+    	# else:
+    	# 	mail.send_mail(sender="<mission@kasware100.appspotmail.com>", to="Dave <amigabledave@gmail.com>", subject="Test email", body="Hello Dave! This was sent from your appengine")
+    	# 	self.response.write('Email sent!')
 
 
 
@@ -407,6 +416,17 @@ def todays_mission(theory):
 			if delay >= 0 and status=='Active':
 				result.append(ksu)
 	return result
+
+
+def mission_email(ksu_set):
+	result = "Hello, here is your mission for today: " 
+	space = """ 
+	"""
+	for ksu in ksu_set:
+		result += space + space + ksu['description']
+	return result
+
+
 
 
 def my_important_people(theory):
