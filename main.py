@@ -159,16 +159,23 @@ class Mission(Handler):
 		ksu_set = eval(theory.kas1)
 		target_ksu = int(self.request.get('ksu_id_digit'))
 		ksu = ksu_set[target_ksu]
-		event_comments = self.request.get('event_comments')
-		done(ksu, event_comments)
+		event = new_event()		
+		# event['event_people'] = self.request.get('event_people')
+		# event['event_duration'] = self.request.get('event_duration')
+		# event['event_base_intensity'] = self.request.get('event_base_intensity')
+		# event['event_spike_intensity'] = self.request.get('event_spike_intensity')
+		event['event_comments'] = self.request.get('event_comments')
+		done(ksu, event)
 		theory.kas1 = str(ksu_set)
 		theory.put()
 		self.redirect('/mission')
-		# arguments = self.request.arguments()
-		# result = []
-		# for e in arguments:
-		# 	result.append(self.request.get(e))
-		# self.response.out.write(str(result)+str(arguments))
+
+
+
+
+
+
+
 
 
 class Email(Handler):
@@ -315,6 +322,7 @@ def ksu_template():
 		    	'next_exe':None,
 		    	'target_exe':None,
 		    	'in_mission': False,
+		    	'is_visible': True,
 		    	'status':'Active',
 		    	'start_date':None,
 		    	'end_date':None,
@@ -332,14 +340,14 @@ def ksu_template():
 
 def new_event():
 	event = {'event_date':today,
-			 'event_type':None,
-			 'event_title':None,
-			 'event_people':[],
-			 'event_comments':None,
+			 'event_type':None, # [Created, Edited ,Deleted, Done]
+			 'event_people':None,
+			 'event_comments':None, # Passed in as as an optinal parameter
 			 'event_duration':0, # In minutes rounded down
 			 'event_base_intensity':0, # In a fibonacci scale
 			 'event_spike_intensity':0, # In a fibonacci scale
-			 'event_points':0}
+			 'event_happiness_points':0, # Calculated based on duration adn event base and spike intensities
+			 'event_effort_points':0} # Taken from the current base_effort_points
 	return event
 
 
@@ -354,26 +362,10 @@ def new_kas1():
 
 
 
-def add_important_person_to_theory(theory, details):
-	ksu_set = eval(theory.kas1)
-	ksu = new_ksu(ksu_set)
-	ksu['ksu_subtype'] = 'Important_Person'
-	ksu['element'] = '4_Love_Friendship'
-	ksu['description'] = 'Contactar a ' + details['imp_person_name']
-	ksu['next_exe'] = today + int(details['frequency'])
-	for key, value in details.iteritems():
-		ksu[key] = value
-	ksu_set.append(ksu)
-	theory.kas1 = str(ksu_set)
-	theory.put()
-	return
-
-
-def done(ksu, event_comments=None):
-	event = new_event()
-	event['event_date'] = today
+def done(ksu, event):
 	event['event_type'] = 'Done'
-	event['event_comments'] =event_comments
+	event['event_happiness_points'] = int(event['event_duration']) * int(event['event_base_intensity']) + int(event['event_spike_intensity'])
+	event['event_effort_points'] = ksu['base_effort_points']
 	history = ksu['history']
 	history.append(event)
 	ksu['history'] = history
@@ -382,6 +374,26 @@ def done(ksu, event_comments=None):
 	ksu['next_exe'] = next_exe
 	ksu['lastest_exe'] = today
 	return
+
+
+
+
+def add_important_person_to_theory(theory, details):
+	ksu_set = eval(theory.kas1)
+	ksu = new_ksu(ksu_set)
+	ksu['ksu_subtype'] = 'Important_Person'
+	ksu['element'] = '4_Love_Friendship'
+	ksu['description'] = 'Contactar a ' + details['imp_person_name']
+	ksu['next_exe'] = today + int(details['frequency'])
+	ksu['base_effort_points'] = 3
+	for key, value in details.iteritems():
+		ksu[key] = value
+	ksu_set.append(ksu)
+	theory.kas1 = str(ksu_set)
+	theory.put()
+	return
+
+
 
 
 
@@ -456,7 +468,7 @@ def create_csv_backup(ksu_set, required_attributes):
 
 # --- Global Variables ------------------------------------------------------------------------------
 
-today = datetime.today().toordinal()
+today = datetime.today().toordinal() + 14
 
 list_elements_cat = ['1. Fun & Excitement', 
 					 '2. Meaning & Direction', 
@@ -476,7 +488,7 @@ secret = 'elzecreto'
 csv_path = os.path.join(os.path.dirname(__file__), 'csv_files', 'important_people.csv')
 
 
-# csv_path = '/csv_files/important_people.csv'
+
 
 
 
