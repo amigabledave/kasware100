@@ -339,6 +339,7 @@ def ksu_template():
 		    	'target_exe':None,
 		    	'in_mission': False,
 		    	'is_visible': True,
+		    	'is_private' False,
 		    	'status':'Active',
 		    	'start_date':None,
 		    	'end_date':None,
