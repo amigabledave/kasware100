@@ -12,6 +12,39 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), a
 
 
 
+# --- Datastore Entities ----------------------------------------------------------------------------
+
+class Theory(db.Model):
+	username = db.StringProperty(required=True)
+	password_hash = db.StringProperty(required=True)
+	email = db.StringProperty(required=True)
+	kas1 = db.TextProperty(required=True)
+	master_log = db.TextProperty(required=True)
+	created = db.DateTimeProperty(auto_now_add=True)
+	last_modified = db.DateTimeProperty(auto_now=True)
+
+	@classmethod # This means you can call a method directly on the Class (no on a Class Instance)
+	def get_by_theory_id(cls, theory_id):
+		return Theory.get_by_id(theory_id)
+
+	@classmethod
+	def get_by_username(cls, username):
+		return Theory.all().filter('username =', username).get()
+
+	@classmethod #Creates the theory object but do not store it in the db
+	def register(cls, username, password, email):
+		password_hash = make_password_hash(username, password)
+		return Theory(username=username, password_hash=password_hash, email=email, kas1=new_kas1(), master_log=new_master_log())
+
+	@classmethod
+	def valid_login(cls, username, password):
+		theory = cls.get_by_username(username)
+		if theory and validate_password(username, password, theory.password_hash):
+			return theory
+
+
+
+
 
 # --- Handlers -------------------------------------------------------------------------------------------
 
@@ -175,6 +208,27 @@ class Mission(Handler):
 
 
 
+class EffortReport(Handler):
+	def get(self):
+		theory = self.theory
+		report = create_effort_report(theory,today)
+		self.print_html('effort-report.html', report=report)
+
+
+
+
+def create_effort_report(theory, date):
+	result = []
+	kas1 = eval(theory.kas1, {})
+	for ksu in kas1:
+		history = ksu['history']
+		for event in history:
+			if event['event_date'] == date and event['event_type']=='Effort':
+				report_item = {'effort_description':None,'effort_points':0}
+				report_item['effort_description'] = ksu['description']
+				report_item['effort_points'] = event['event_value']
+				result.append(report_item)
+	return result
 
 
 
@@ -222,39 +276,6 @@ class CSVBackup(Handler):
 			self.write(output)
 		else:
 			self.redirect('/login')
-
-
-
-
-# --- Datastore Entities ----------------------------------------------------------------------------
-
-class Theory(db.Model):
-	username = db.StringProperty(required=True)
-	password_hash = db.StringProperty(required=True)
-	email = db.StringProperty(required=True)
-	kas1 = db.TextProperty(required=True)
-	master_log = db.TextProperty(required=True)
-	created = db.DateTimeProperty(auto_now_add=True)
-	last_modified = db.DateTimeProperty(auto_now=True)
-
-	@classmethod # This means you can call a method directly on the Class (no on a Class Instance)
-	def get_by_theory_id(cls, theory_id):
-		return Theory.get_by_id(theory_id)
-
-	@classmethod
-	def get_by_username(cls, username):
-		return Theory.all().filter('username =', username).get()
-
-	@classmethod #Creates the theory object but do not store it in the db
-	def register(cls, username, password, email):
-		password_hash = make_password_hash(username, password)
-		return Theory(username=username, password_hash=password_hash, email=email, kas1=new_kas1(), master_log=new_master_log())
-
-	@classmethod
-	def valid_login(cls, username, password):
-		theory = cls.get_by_username(username)
-		if theory and validate_password(username, password, theory.password_hash):
-			return theory
 
 
 
@@ -339,7 +360,7 @@ def ksu_template():
 		    	'target_exe':None,
 		    	'in_mission': False,
 		    	'is_visible': True,
-		    	'is_private' False,
+		    	'is_private': False,
 		    	'status':'Active',
 		    	'start_date':None,
 		    	'end_date':None,
@@ -372,6 +393,9 @@ def new_kas1():
 	first_ksu['ksu_id'] = 'kas1_0'
 	first_ksu['ksu_type'] = 'kas1'
 	first_ksu['description'] = 'KAS1 Key Base Actions Set'
+	event = new_event()
+	event['event_type'] = 'Created'
+	first_ksu['history'] = [event]
 	result.append(first_ksu)
 	return str(result)
 
@@ -607,6 +631,7 @@ app = webapp2.WSGIApplication([
                              ('/logout', Logout),
                              ('/mission', Mission),
 							 ('/important-people',ImportantPeople),
+							 ('/effort-report',EffortReport),
 							 ('/email',Email),
 							 ('/loadCSV', LoadCSV),
 							 ('/python-backup',PythonBackup),

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+	<div class="col-md-12"> <h3>This is all that you have acomplished today: </h3></div>
+</div>
+	
+<div class="row">
+	<div class="col-md-5"> <h4> Description </h4></div>
+	<div class="col-md-1"> </div>
+	<div class="col-md-1"> <h4> Points </h4></div>
+
+</div>
+
+
+{% for entry in report %}
+
+	<div class="row">
+		<div class="col-md-5">  {{entry['effort_description']}} </div>
+		<div class="col-md-1"> </div>
+		<div class="col-md-1">  {{entry['effort_points']}} </div>
+	</div>
+
+
+	<hr>
+
+{% endfor %}
+
+
+
+
+
+{% endblock %}
