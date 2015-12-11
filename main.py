@@ -24,7 +24,8 @@ class Handler(webapp2.RequestHandler):
 		t = jinja_env.get_template(template)
 		if self.theory:
 			theory = self.theory
-			return t.render(theory=theory, **kw)
+			todays_effort = eval(theory.master_log)[today]['Effort']
+			return t.render(theory=theory, todays_effort=todays_effort, **kw)
 		else:
 			return t.render(**kw)
 
@@ -154,21 +155,26 @@ class Mission(Handler):
 		else:
 			self.redirect('/login')
 
+
 	def post(self):
 		theory = self.theory
 		ksu_set = eval(theory.kas1, {})
+		master_log = eval(theory.master_log, {})
 		target_ksu = int(self.request.get('ksu_id_digit'))
 		ksu = ksu_set[target_ksu]
-		event = new_event()		
-		# event['event_people'] = self.request.get('event_people')
-		# event['event_duration'] = self.request.get('event_duration')
-		# event['event_base_intensity'] = self.request.get('event_base_intensity')
-		# event['event_spike_intensity'] = self.request.get('event_spike_intensity')
-		event['event_comments'] = self.request.get('event_comments')
-		done(ksu, event)
+		post_details = get_post_details(self)
+		# self.response.write(post_details)
+		event = effort_event(post_details)
+		add_event_to_ksu(ksu,event)
+		update_next_exe(ksu)
+		update_master_log(master_log, event)
+		theory.master_log = str(master_log)
 		theory.kas1 = str(ksu_set)
 		theory.put()
 		self.redirect('/mission')
+
+
+
 
 
 
@@ -183,14 +189,6 @@ class Email(Handler):
     		mail.send_mail(sender="<mission@kasware100.appspotmail.com>", to=email_receiver, subject="Today's Mission", body=email_body)
 		self.response.write('Emails sent!')
 
-    	# theory = self.theory
-    	# if theory:
-    	# 	email_body = mission_email(todays_mission(theory))
-    	# 	mail.send_mail(sender="<mission@kasware100.appspotmail.com>", to="Dave <amigabledave@gmail.com>", subject="Today's Mission", body=email_body)
-    	# 	self.response.write(email_body)
-    	# else:
-    	# 	mail.send_mail(sender="<mission@kasware100.appspotmail.com>", to="Dave <amigabledave@gmail.com>", subject="Test email", body="Hello Dave! This was sent from your appengine")
-    	# 	self.response.write('Email sent!')
 
 
 
@@ -202,6 +200,7 @@ class LoadCSV(Handler):
 
 
 
+
 class PythonBackup(Handler):
 	def get(self):
 		theory = self.theory
@@ -210,6 +209,8 @@ class PythonBackup(Handler):
 			self.write(kas1)
 		else:
 			self.redirect('/login')
+
+
 
 
 class CSVBackup(Handler):
@@ -232,6 +233,7 @@ class Theory(db.Model):
 	password_hash = db.StringProperty(required=True)
 	email = db.StringProperty(required=True)
 	kas1 = db.TextProperty(required=True)
+	master_log = db.TextProperty(required=True)
 	created = db.DateTimeProperty(auto_now_add=True)
 	last_modified = db.DateTimeProperty(auto_now=True)
 
@@ -246,7 +248,7 @@ class Theory(db.Model):
 	@classmethod #Creates the theory object but do not store it in the db
 	def register(cls, username, password, email):
 		password_hash = make_password_hash(username, password)
-		return Theory(username=username, password_hash=password_hash, email=email, kas1=new_kas1())
+		return Theory(username=username, password_hash=password_hash, email=email, kas1=new_kas1(), master_log=new_master_log())
 
 	@classmethod
 	def valid_login(cls, username, password):
@@ -258,10 +260,7 @@ class Theory(db.Model):
 
 
 # --- Helper Functions -----------------------------------------------------------------------------
-
-USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
-PASS_RE = re.compile(r"^.{3,20}$")
-EMAIL_RE = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
+#--- Security Functions ---
 
 def valid_username(username):
     return username and USER_RE.match(username)
@@ -294,19 +293,27 @@ def validate_password(username, password, h):
 	return h == make_password_hash(username, password, salt)
 
 
-def new_ksu(ksu_set):
-	ksu_type = ksu_set[0]['ksu_type']
-	id_digit = len(ksu_set)
-	ksu_id = ksu_type + '_'+ str(id_digit)
-	event = new_event()
-	event['event_type'] = 'Created'
-	new_ksu = ksu_template()
-	new_ksu['ksu_id'] = ksu_id
-	new_ksu['ksu_id_digit'] = id_digit
-	new_ksu['ksu_type'] = ksu_type
-	new_ksu['history'] = [event]
-	return new_ksu
 
+#--- Handler Essentials ---
+
+def get_post_details(self):
+	result = new_event()
+	arguments = self.request.arguments()
+	for argument in arguments:
+		result[str(argument)] = self.request.get(str(argument))
+	return result
+
+
+def update_next_exe(ksu):
+	frequency = int(ksu['frequency'])
+	next_exe = today + frequency
+	ksu['next_exe'] = next_exe
+	ksu['lastest_exe'] = today
+	return
+
+
+
+#--- New KSU & KSU set --- 
 
 def ksu_template():
 	template = {'ksu_id': None,
@@ -347,17 +354,15 @@ def ksu_template():
 	return template		    	
 
 
-def new_event():
-	event = {'event_date':today,
-			 'event_type':None, # [Created, Edited ,Deleted, Done]
-			 'event_people':None,
-			 'event_comments':None, # Passed in as as an optinal parameter
-			 'event_duration':0, # In minutes rounded down
-			 'event_base_intensity':0, # In a fibonacci scale
-			 'event_spike_intensity':0, # In a fibonacci scale
-			 'event_happiness_points':0, # Calculated based on duration adn event base and spike intensities
-			 'event_effort_points':0} # Taken from the current base_effort_points
-	return event
+
+def new_master_log(start_date=735942, end_date=736680):
+	result = {}
+	for date in range(start_date, end_date):
+		entry = {'date':0,'Effort':0,'Happiness':0}
+		entry['date'] = datetime.fromordinal(date).strftime('%d-%m-%Y')
+		result[date] = entry
+	return str(result)
+
 
 
 def new_kas1():
@@ -371,20 +376,90 @@ def new_kas1():
 
 
 
-def done(ksu, event):
-	event['event_type'] = 'Done'
-	event['event_happiness_points'] = int(event['event_duration']) * int(event['event_base_intensity']) + int(event['event_spike_intensity'])
-	event['event_effort_points'] = ksu['base_effort_points']
+def new_ksu(ksu_set):
+	ksu_type = ksu_set[0]['ksu_type']
+	id_digit = len(ksu_set)
+	ksu_id = ksu_type + '_'+ str(id_digit)
+	event = new_event()
+	event['event_type'] = 'Created'
+	new_ksu = ksu_template()
+	new_ksu['ksu_id'] = ksu_id
+	new_ksu['ksu_id_digit'] = id_digit
+	new_ksu['ksu_type'] = ksu_type
+	new_ksu['history'] = [event]
+	return new_ksu
+
+
+
+
+
+
+#--- Event related ---
+
+
+def new_event():
+	event = {'event_date':today,
+			 'event_type':None, # [Created, Edited ,Deleted, Happiness, Effort]
+			 'event_duration':0, # In minutes rounded down
+			 'event_value':0, # In a fibonacci scale
+			 'event_comments':None} # Passed in as as an optinal parameter
+	return event
+
+
+def add_effort_event_to_ksu(ksu, post_details):
+	event = new_event()
+	event['event_type'] = 'Effort'
+	event['event_comments'] = post_details['event_comments']
+	event['event_duration'] = post_details['event_duration']
+	event_points['event_value'] = ksu['base_effort_points']
 	history = ksu['history']
 	history.append(event)
 	ksu['history'] = history
-	frequency = int(ksu['frequency'])
-	next_exe = today + frequency
-	ksu['next_exe'] = next_exe
-	ksu['lastest_exe'] = today
+	return
+
+def effort_event(post_details):
+	event = new_event()
+	event['event_type'] = 'Effort'
+	event['event_comments'] = post_details['event_comments']
+	event['event_duration'] = post_details['event_duration']
+	event['event_value'] = post_details['event_value']
+	return event
+
+
+def happiness_event(post_details):
+	event = new_event()
+	event['event_type'] = 'Happiness'
+	event['event_comments'] = post_details['event_comments']
+	event['event_duration'] = post_details['event_duration']
+	event['event_value'] = int(post_details['event_duration']) * int(post_details['event_base_intensity']) + int(post_details['event_spike_intensity'])
+	return event
+
+
+def add_event_to_ksu(ksu, event):
+	history = ksu['history']
+	history.append(event)
+	ksu['history'] = history
 	return
 
 
+def update_master_log(master_log, event):
+	date = event['event_date']
+	event_type = event['event_type']
+	event_points = int(event['event_value'])
+	log = master_log[date]
+	log[event_type] = log[event_type] + event_points
+	return
+
+
+
+
+
+
+
+
+
+
+#--- Important People related ---
 
 
 def add_important_person_to_theory(theory, details):
@@ -404,7 +479,19 @@ def add_important_person_to_theory(theory, details):
 
 
 
+def my_important_people(theory):
+	kas1 = eval(theory.kas1, {})
+	result = []
+	for ksu in kas1:
+		if ksu['ksu_subtype'] == 'Important_Person':
+			result.append(ksu)
+	return result
 
+
+
+
+
+#--- Mission related ---
 
 def todays_mission(theory):
 	ksu_set = eval(theory.kas1, {})
@@ -416,6 +503,7 @@ def todays_mission(theory):
 			if delay >= 0 and status=='Active':
 				result.append(ksu)
 	return result
+
 
 
 def mission_email(ksu_set):
@@ -430,17 +518,9 @@ def mission_email(ksu_set):
 
 
 
-def my_important_people(theory):
-	kas1 = eval(theory.kas1, {})
-	result = []
-	for ksu in kas1:
-		if ksu['ksu_subtype'] == 'Important_Person':
-			result.append(ksu)
-	return result
 
 
-
-#--- CSV File import
+#--- CSV load & backup ---
 
 def digest_csv(csv_path):
 	f = open(csv_path, 'rU')
@@ -509,7 +589,11 @@ secret = 'elzecreto'
 csv_path = os.path.join(os.path.dirname(__file__), 'csv_files', 'important_people.csv')
 
 
+# --- Regular expressions ---
 
+USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
+PASS_RE = re.compile(r"^.{3,20}$")
+EMAIL_RE = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
 
 
 
