@@ -1,6 +1,6 @@
 #KASware v1.0.0 | Copyright 2015 AmigableDave & Co.
 
-import re, os, webapp2, jinja2, logging, hashlib, random, string, csv
+import re, os, webapp2, jinja2, logging, hashlib, random, string, csv, pickle
 from datetime import datetime, timedelta
 from google.appengine.ext import db
 from google.appengine.api import memcache
@@ -163,7 +163,6 @@ class ImportantPeople(Handler):
 	
 	def get(self):
 		theory = self.theory
-		# people = theory.kas1
 		people = my_important_people(theory)
 		mission = todays_mission(theory)
 		self.print_html('important-people.html', people=people, mission=mission)
@@ -191,7 +190,7 @@ class Mission(Handler):
 
 	def post(self):
 		theory = self.theory
-		ksu_set = eval(theory.kas1, {})
+		ksu_set = unpack_set(theory.kas1)
 		master_log = eval(theory.master_log, {})
 		target_ksu = int(self.request.get('ksu_id_digit'))
 		ksu = ksu_set[target_ksu]
@@ -202,7 +201,7 @@ class Mission(Handler):
 		update_next_exe(ksu)
 		update_master_log(master_log, event)
 		theory.master_log = str(master_log)
-		theory.kas1 = str(ksu_set)
+		theory.kas1 = pack_set(ksu_set)
 		theory.put()
 		self.redirect('/mission')
 
@@ -219,7 +218,7 @@ class EffortReport(Handler):
 
 def create_effort_report(theory, date):
 	result = []
-	kas1 = eval(theory.kas1, {})
+	kas1 = unpack_set(theory.kas1)
 	for ksu in kas1:
 		history = ksu['history']
 		for event in history:
@@ -271,7 +270,7 @@ class CSVBackup(Handler):
 	def get(self):
 		theory = self.theory
 		if theory:
-			kas1 = eval(theory.kas1, {})
+			kas1 = unpack_set(theory.kas1)
 			output = create_csv_backup(kas1, ['ksu_id','ksu_type','description','frequency','lastest_exe','status','imp_person_name'])
 			self.write(output)
 		else:
@@ -397,7 +396,7 @@ def new_kas1():
 	event['event_type'] = 'Created'
 	first_ksu['history'] = [event]
 	result.append(first_ksu)
-	return str(result)
+	return pack_set(result)
 
 
 
@@ -488,7 +487,7 @@ def update_master_log(master_log, event):
 
 
 def add_important_person_to_theory(theory, details):
-	ksu_set = eval(theory.kas1, {})
+	ksu_set = unpack_set(theory.kas1)
 	ksu = new_ksu(ksu_set)
 	ksu['ksu_subtype'] = 'Important_Person'
 	ksu['element'] = '4_Love_Friendship'
@@ -498,14 +497,14 @@ def add_important_person_to_theory(theory, details):
 	for key, value in details.iteritems():
 		ksu[key] = value
 	ksu_set.append(ksu)
-	theory.kas1 = str(ksu_set)
+	theory.kas1 = pack_set(ksu_set)
 	theory.put()
 	return
 
 
 
 def my_important_people(theory):
-	kas1 = eval(theory.kas1, {})
+	kas1 = unpack_set(theory.kas1)
 	result = []
 	for ksu in kas1:
 		if ksu['ksu_subtype'] == 'Important_Person':
@@ -519,7 +518,7 @@ def my_important_people(theory):
 #--- Mission related ---
 
 def todays_mission(theory):
-	ksu_set = eval(theory.kas1, {})
+	ksu_set = unpack_set(theory.kas1)
 	result = []
 	for ksu in ksu_set:
 		if ksu['next_exe']:
@@ -566,14 +565,14 @@ def digest_csv(csv_path):
 
 
 def add_ksus_to_set_from_csv(csv_path, theory):
-	ksu_set = eval(theory.kas1, {})
+	ksu_set = unpack_set(theory.kas1)
 	digested_csv = digest_csv(csv_path)
 	for pseudo_ksu in digested_csv:
 		ksu = new_ksu(ksu_set)
 		for key, value in pseudo_ksu.iteritems():
 			ksu[key] = value
 		ksu_set.append(ksu)
-	theory.kas1 = str(ksu_set)
+	theory.kas1 = pack_set(ksu_set)
 	theory.put()
 	return
 
@@ -591,10 +590,22 @@ def create_csv_backup(ksu_set, required_attributes):
 
 
 
+#--- Pickle related ---
+
+def pack_set(ksu_set):
+	return pickle.dumps(ksu_set)
+
+def unpack_set(ksu_pickled_set):
+	return pickle.loads(ksu_pickled_set)
+
+
+
+
+
 
 # --- Global Variables ------------------------------------------------------------------------------
 
-today = datetime.today().toordinal() + 14
+today = datetime.today().toordinal()
 
 list_elements_cat = ['1. Fun & Excitement', 
 					 '2. Meaning & Direction', 
