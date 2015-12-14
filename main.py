@@ -57,7 +57,7 @@ class Handler(webapp2.RequestHandler):
 		t = jinja_env.get_template(template)
 		if self.theory:
 			theory = self.theory
-			todays_effort = eval(theory.master_log)[today]['Effort']
+			todays_effort = unpack_set(theory.master_log)[today]['Effort']
 			return t.render(theory=theory, todays_effort=todays_effort, **kw)
 		else:
 			return t.render(**kw)
@@ -191,7 +191,7 @@ class Mission(Handler):
 	def post(self):
 		theory = self.theory
 		ksu_set = unpack_set(theory.kas1)
-		master_log = eval(theory.master_log, {})
+		master_log = unpack_set(theory.master_log)
 		target_ksu = int(self.request.get('ksu_id_digit'))
 		ksu = ksu_set[target_ksu]
 		post_details = get_post_details(self)
@@ -200,7 +200,7 @@ class Mission(Handler):
 		add_event_to_ksu(ksu,event)
 		update_next_exe(ksu)
 		update_master_log(master_log, event)
-		theory.master_log = str(master_log)
+		theory.master_log = pack_set(master_log)
 		theory.kas1 = pack_set(ksu_set)
 		theory.put()
 		self.redirect('/mission')
@@ -258,7 +258,7 @@ class PythonBackup(Handler):
 	def get(self):
 		theory = self.theory
 		if theory:
-			kas1 = theory.kas1
+			kas1 = unpack_set(theory.kas1)
 			self.write(kas1)
 		else:
 			self.redirect('/login')
@@ -382,7 +382,7 @@ def new_master_log(start_date=735942, end_date=736680):
 		entry = {'date':0,'Effort':0,'Happiness':0}
 		entry['date'] = datetime.fromordinal(date).strftime('%d-%m-%Y')
 		result[date] = entry
-	return str(result)
+	return pack_set(result)
 
 
 
