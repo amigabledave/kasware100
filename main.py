@@ -490,7 +490,6 @@ def new_ksu_in_kas1(kas1):
 	ksu['best_time'] = None
 	ksu['latest_exe'] = None
 	ksu['next_exe'] = None
-	ksu['target_exe'] = None
 	ksu['imp_person_name'] = None
 	return ksu
 

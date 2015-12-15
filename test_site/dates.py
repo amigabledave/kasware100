@@ -15,6 +15,7 @@ from datetime import datetime
 
 
 
+
 def new_master_log(start_date=735942, end_date=736680):
 	result = {}
 	for date in range(start_date, end_date):
