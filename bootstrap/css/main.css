@@ -2,13 +2,31 @@
 .main-title {
     display: block;
     color: #222;
-    font-size: 40px;
+    font-size: 30px;
     font-weight: bold;
     text-align: left;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
     margin-top: 25px;
     text-decoration: none;
 }
+
+
+.score-title {
+    display: block;
+    color: #6600CC;
+    font-size: 15px;
+    /*font-weight: bold;*/
+    text-align: left;
+    margin-bottom: 5px;
+    margin-top: 25px;
+    text-decoration: none;
+    white-space:pre;
+
+}
+
+
+
+
 
 .corner-link{
     display: inline-block;

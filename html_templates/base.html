@@ -11,24 +11,29 @@
 		
 		<div class="row">
 
-			<div class="col-md-3"> <h1 class="main-title"> KASware </h1></div>
+			<div class="col-md-2"> <h1 class="main-title"> KASware </h1></div>
 			<div class="col-md-1">  </div>
+			
 			{% if theory %}
-				<div class="col-md-3"> <h3> Today's Effort: {{todays_effort}} </h3> </div>
+				<div class="col-md-6"> <div class="score-title"> Today's Score: <a href=""> Happiness</a>  = ? |  <a href="/effort-report">Effort</a>  = {{todays_effort}} </div></div>
 				<div class="col-md-1">  </div>
-				<div class="col-md-1"> <a href="/mission" class="corner-link"> Today's Mission </a></div>
-				<div class="col-md-1"> <a href="/important-people" class="corner-link"> Important People </a></div>
 				<div class="col-md-1"> <a href="" class="corner-link">{{theory.username}} </a> </div>			
-				<div class="col-md-1"> <a href="/logout" class="corner-link"> (Logout) </a> </div>	
+				<div class="col-md-1"> <a href="/logout" class="corner-link"> (Logout) </a> </div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-1"> <a href="/mission"> Mission </a></div>
+					<div class="col-md-1"> <a href="/important-people"> People </a></div>	
+				</div>
+
 			{% else %}
-				<div class="col-md-1"> </div>
+				<div class="col-md-7"> </div>
 				<div class="col-md-1"> <a href="/login" class="corner-link"> Login </a> </div>
-				<div class="col-md-1"> <a href="/signup" class="corner-link"> (Signup) </a> </div>	
+				<div class="col-md-1"> <a href="/signup" class="corner-link"> (Signup) </a> </div>
+				</div>
 			{% endif %}
 					
-		</div>
-
-
+		<br>
 
 		{% block content %}
 		{% endblock %}
