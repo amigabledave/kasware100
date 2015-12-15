@@ -302,7 +302,7 @@ def create_effort_report(theory, date):
 		if event['date'] == date and event['type']=='Effort':			
 			report_item = {'effort_description':None,'effort_points':0}
 			report_item['effort_description'] = get_attribute_from_id(kas1, event['ksu_id'], 'description')
-			report_item['effort_points'] = event['points']
+			report_item['effort_points'] = event['value']
 			result.append(report_item)
 	return result
 
@@ -556,7 +556,7 @@ def new_event():
 			 'description': None, # Passed in as as an optional parameter
 			 'date':today,
 			 'duration':0, #To record duration of happy moments
-			 'points':0} # In a fibonacci scale
+			 'value':0} # In a fibonacci scale
 	return event
 
 
@@ -573,7 +573,7 @@ def effort_event(post_details):
 	event['type'] = 'Effort'
 	event['description'] = post_details['event_comments']
 	event['duration'] = post_details['event_duration']
-	event['points'] = post_details['event_value']
+	event['value'] = post_details['event_value']
 	return event
 
 
@@ -584,9 +584,9 @@ def effort_event(post_details):
 def update_master_log(master_log, event):
 	date = event['date']
 	event_type = event['type']
-	event_points = int(event['points'])
+	event_value = int(event['value'])
 	log = master_log[date]
-	log[event_type] = log[event_type] + event_points
+	log[event_type] = log[event_type] + event_value
 	return
 
 
