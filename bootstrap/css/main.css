@@ -20,3 +20,44 @@
 .error {
     color: red;
 }
+
+
+
+.blank-row-sm{
+    margin-top: 10px;
+}
+
+.blank-row-md{
+    margin-top: 20px;
+}
+
+.blank-row-lg{
+    margin-top: 40px;
+}
+
+
+.thick-hr-1px {
+    border: none;
+    height: 1px;
+    /* Set the hr color */
+    color: #333; /* old IE */
+    background-color: #333; /* Modern Browsers */
+}
+
+.thick-hr-2px {
+    border: none;
+    height: 2px;
+    /* Set the hr color */
+    color: #333; /* old IE */
+    background-color: #333; /* Modern Browsers */
+}
+
+
+
+.field-header{
+    font-weight: 700;
+    font-style: italic;
+}
+
+
+

@@ -213,12 +213,23 @@ def my_important_people(theory):
 	for ksu in kas1:
 		if ksu['ksu_subtype'] == 'Important_Person':
 			result.append(ksu)
+	result = pretty_dates(result)
 	return result
 
 
 
 
-
+def pretty_dates(ksu_set):
+	date_attributes = ['latest_exe', 'next_exe']
+	for date_attribute in date_attributes:
+		for ksu in ksu_set:
+			if ksu[date_attribute]:
+				number_date = int(ksu[date_attribute])
+				pretty_date = datetime.fromordinal(number_date).strftime('%b %d')
+				# pretty_date = datetime.fromordinal(number_date).strftime('%a-%d-%m-%Y')
+				ksu[date_attribute] = pretty_date
+	return ksu_set
+	
 
 
 
@@ -362,7 +373,7 @@ class CSVBackup(Handler):
 		theory = self.theory
 		if theory:
 			kas1 = unpack_set(theory.kas1)
-			output = create_csv_backup(kas1, ['ksu_id','description','frequency','lastest_exe','status','imp_person_name'])
+			output = create_csv_backup(kas1, ['ksu_id','description','frequency','latest_exe','status','imp_person_name'])
 			self.write(output)
 		else:
 			self.redirect('/login')
@@ -430,8 +441,11 @@ def update_next_exe(ksu):
 	frequency = int(ksu['frequency'])
 	next_exe = today + frequency
 	ksu['next_exe'] = next_exe
-	ksu['lastest_exe'] = today
+	ksu['latest_exe'] = today
 	return
+
+
+
 
 
 
@@ -474,7 +488,7 @@ def new_ksu_in_kas1(kas1):
 	ksu['frequency'] = None
 	ksu['best_day'] = None
 	ksu['best_time'] = None
-	ksu['lastest_exe'] = None
+	ksu['latest_exe'] = None
 	ksu['next_exe'] = None
 	ksu['target_exe'] = None
 	ksu['imp_person_name'] = None
@@ -528,7 +542,7 @@ def new_kas1():
 	ksu['frequency'] = None
 	ksu['best_day'] = None
 	ksu['best_time'] = None
-	ksu['lastest_exe'] = None
+	ksu['latest_exe'] = None
 	ksu['next_exe'] = None
 	ksu['target_exe'] = None
 	ksu['imp_person_name'] = None

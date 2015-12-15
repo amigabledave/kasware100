@@ -5,7 +5,8 @@
 <div class="row">
 	<div class="col-md-12"> <h3>Add Important Person</h3></div>
 </div>
-	
+
+<div class="row"> <div class="col-md-12"> <div class="blank-row-md"></div></div></div>	
 
 <form class="form-horizontal" method="post">
  
@@ -31,34 +32,38 @@
 </form>
 
 
-<hr>
-
-<div class="row">
-	<div class="col-md-12"> <h3>Today's Mission</h3></div>
-</div>
-
-{% for e in mission %}
-
-	<div class="row">
-		<div class="col-md-12"> <h5> {{e['description']}} </h5></div>
-	</div>
-
-{% endfor %}
-
-<hr>
+<hr class="thick-hr-2px">
 
 <div class="row">
 	<div class="col-md-12"> <h3>My Important People</h3></div>
 </div>
 
+<div class="row"> <div class="col-md-12"> <div class="blank-row-md"></div></div></div>
+
+
+<div class="row">
+	<div class="col-md-3">  <div class="field-header">  Name </div> </div>
+	<div class="col-md-1">  <div class="field-header"> Freq. </div> </div>
+	<div class="col-md-1">  <div class="field-header"> Last C.</div> </div>
+	<div class="col-md-1">  <div class="field-header"> Next C. </div> </div>
+	<div class="col-md-3">  <div class="field-header"> Comments </div> </div>
+
+</div>
+
+<hr class="thick-hr-1px">
+
+
 {% for p in people %}
 
 	<div class="row">
-		<div class="col-md-2"> <h5> {{p['imp_person_name']}} </h5></div>
-		<div class="col-md-1"> <h5> {{p['frequency']}} </h5></div>
-		<div class="col-md-1"> <h5> {{p['next_exe']}} </h5></div>
+		<div class="col-md-3"> {{p['imp_person_name']}}</div>
+		<div class="col-md-1"> {{p['frequency']}} </div>
+		<div class="col-md-1"> {% if p['latest_exe'] %} {{p['latest_exe']}} {% endif %} </div>
+		<div class="col-md-1"> {{p['next_exe']}} </div>
+		<div class="col-md-3"> {% if p['comments'] %} {{p['comments']}} {% endif %} </div>
 
 	</div>
+	<hr>
 
 {% endfor %}
 
