@@ -1,4 +1,4 @@
-ksu_type,ksu_subtype,element,local_tags,description,frequency,base_effort_points,lastest_exe,next_exe,in_mission,imp_person_name
+ksu_type,ksu_subtype,element,local_tags,description,frequency,effort_points,lastest_exe,next_exe,in_mission,imp_person_name
 kas1,Important_Person,4_Love_Friendship,Familia,Contactar a Mama,7,3,735926,735933,True,Mama
 kas1,Important_Person,4_Love_Friendship,Familia,Contactar a Papa,7,3,735925,735932,True,Papa
 kas1,Important_Person,4_Love_Friendship,Other,Contactar a Zuzana Prokesova (condesa),7,3,735930,735937,True,Zuzana Prokesova (condesa)
