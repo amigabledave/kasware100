@@ -18,12 +18,12 @@ class Theory(db.Model):
 	username = db.StringProperty(required=True)
 	password_hash = db.StringProperty(required=True)
 	email = db.StringProperty(required=True)
-	kas1 = db.TextProperty(required=True)
+	KAS1 = db.TextProperty(required=True)
 	ImPe = db.TextProperty(required=True)
 	master_log = db.TextProperty(required=True)
 	created = db.DateTimeProperty(auto_now_add=True)
 	last_modified = db.DateTimeProperty(auto_now=True)
-	history_1 = db.TextProperty(required=True)
+	history = db.TextProperty(required=True)
 
 	@classmethod # This means you can call a method directly on the Class (no on a Class Instance)
 	def get_by_theory_id(cls, theory_id):
@@ -39,10 +39,10 @@ class Theory(db.Model):
 		return Theory(username=username, 
 					  password_hash=password_hash,
 					  email=email, 
-					  kas1=new_kas1(),
+					  KAS1=new_KAS1(),
 					  ImPe=new_Important_People_Set(),
 					  master_log=new_master_log(),
-					  history_1=new_history())
+					  history=new_history())
 
 	@classmethod
 	def valid_login(cls, username, password):
@@ -191,10 +191,10 @@ class ImportantPeople(Handler):
 
 
 def add_important_person_to_theory(theory, details):
-	kas1 = unpack_set(theory.kas1)
+	KAS1 = unpack_set(theory.KAS1)
 	ImPe = unpack_set(theory.ImPe)
-	history = unpack_set(theory.history_1)
-	ksu = new_ksu_in_kas1(kas1)
+	history = unpack_set(theory.history)
+	ksu = new_ksu_in_KAS1(KAS1)
 	ksu['element'] = 'E500'
 	ksu['description'] = 'Contactar a ' + details['name']
 	ksu['next_exe'] = today + int(details['contact_frequency'])
@@ -205,15 +205,15 @@ def add_important_person_to_theory(theory, details):
 	update_history(history, event)
 	for key, value in details.iteritems():
 		ksu[key] = value
-	kas1.append(ksu)
+	KAS1.append(ksu)
 	person = new_ksu_in_ImPe(ImPe)
 	person['name'] = details['name']
 	person['contact_frequency'] = details['contact_frequency']
 	person['next_contact'] = today + int(details['contact_frequency'])
 	ImPe.append(person)
-	theory.history_1 = pack_set(history)
+	theory.history = pack_set(history)
 	theory.ImPe = pack_set(ImPe)
-	theory.kas1 = pack_set(kas1)
+	theory.KAS1 = pack_set(KAS1)
 	theory.put()
 	return
 
@@ -251,9 +251,9 @@ class Mission(Handler):
 
 	def post(self):
 		theory = self.theory
-		ksu_set = unpack_set(theory.kas1)
+		ksu_set = unpack_set(theory.KAS1)
 		master_log = unpack_set(theory.master_log)
-		history = unpack_set(theory.history_1)
+		history = unpack_set(theory.history)
 		target_ksu = get_digit_from_id(self.request.get('ksu_id'))
 		ksu = ksu_set[target_ksu]
 		post_details = get_post_details(self)
@@ -261,9 +261,9 @@ class Mission(Handler):
 		update_history(history, event)
 		update_next_exe(ksu) # BUG ALERT! This will not work for all KSU types
 		update_master_log(master_log, event)
-		theory.history_1 = pack_set(history)
+		theory.history = pack_set(history)
 		theory.master_log = pack_set(master_log)
-		theory.kas1 = pack_set(ksu_set)
+		theory.KAS1 = pack_set(ksu_set)
 		theory.put()
 		self.redirect('/mission')
 
@@ -273,7 +273,7 @@ def get_digit_from_id(ksu_id):
 
 
 def todays_mission(theory):
-	ksu_set = unpack_set(theory.kas1)
+	ksu_set = unpack_set(theory.KAS1)
 	result = []
 	for ksu in ksu_set:
 		if ksu['next_exe']:
@@ -320,12 +320,12 @@ def get_attribute_from_id(ksu_set, ksu_id, ksu_attribute):
 
 def create_effort_report(theory, date):
 	result = []
-	kas1 = unpack_set(theory.kas1)
-	history = unpack_set(theory.history_1)
+	KAS1 = unpack_set(theory.KAS1)
+	history = unpack_set(theory.history)
 	for event in history:
 		if event['date'] == date and event['type']=='Effort':			
 			report_item = {'effort_description':None,'effort_points':0}
-			report_item['effort_description'] = get_attribute_from_id(kas1, event['ksu_id'], 'description')
+			report_item['effort_description'] = get_attribute_from_id(KAS1, event['ksu_id'], 'description')
 			report_item['effort_points'] = event['value']
 			result.append(report_item)
 	return result
@@ -373,8 +373,8 @@ class PythonBackup(Handler):
 	def get(self):
 		theory = self.theory
 		if theory:
-			kas1 = unpack_set(theory.kas1)
-			self.write(kas1)
+			KAS1 = unpack_set(theory.KAS1)
+			self.write(KAS1)
 		else:
 			self.redirect('/login')
 
@@ -385,8 +385,8 @@ class CSVBackup(Handler):
 	def get(self):
 		theory = self.theory
 		if theory:
-			kas1 = unpack_set(theory.kas1)
-			output = create_csv_backup(kas1, ['ksu_id','description','frequency','latest_exe','status','imp_person_name'])
+			KAS1 = unpack_set(theory.KAS1)
+			output = create_csv_backup(KAS1, ['ksu_id','description','frequency','latest_exe','status','imp_person_name'])
 			self.write(output)
 		else:
 			self.redirect('/login')
@@ -397,7 +397,7 @@ class History(Handler):
 	def get(self):
 		theory = self.theory
 		if theory:
-			history = unpack_set(theory.history_1)
+			history = unpack_set(theory.history)
 			self.write(history)
 		else:
 			self.redirect('/login')
@@ -492,9 +492,9 @@ def create_ksu_id(ksu_set):
 	return ksu_id
 
 
-def new_ksu_in_kas1(kas1):
+def new_ksu_in_KAS1(KAS1):
 	ksu = ksu_template()
-	ksu_id = create_ksu_id(kas1)
+	ksu_id = create_ksu_id(KAS1)
 	ksu['ksu_id'] = ksu_id
 	ksu['status'] = 'Active' # ['Active', 'Hold', 'Deleted']
 	ksu['effort_points'] = 0
@@ -571,12 +571,12 @@ def new_history():
 
 
 
-def new_kas1():
+def new_KAS1():
 	result = []
 	ksu = ksu_template()
 	ksu['set_size'] = 0
-	ksu['ksu_id'] = 'kas1_0'
-	ksu['ksu_type'] = 'kas1'
+	ksu['ksu_id'] = 'KAS1_0'
+	ksu['ksu_type'] = 'KAS1'
 	ksu['description'] = 'KAS1 Key Base Actions Set'
 	ksu['status'] = 'Active' # ['Active', 'Hold', 'Deleted']
 	ksu['effort_points'] = 0
@@ -674,11 +674,11 @@ def digest_csv(csv_path):
 
 
 def add_ksus_to_set_from_csv(csv_path, theory):
-	ksu_set = unpack_set(theory.kas1)
-	history = unpack_set(theory.history_1)
+	ksu_set = unpack_set(theory.KAS1)
+	history = unpack_set(theory.history)
 	digested_csv = digest_csv(csv_path)
 	for pseudo_ksu in digested_csv:
-		ksu = new_ksu_in_kas1(ksu_set)
+		ksu = new_ksu_in_KAS1(ksu_set)
 		event = new_event()
 		event['ksu_id'] = ksu['ksu_id']
 		event['type'] = 'Created'
@@ -686,8 +686,8 @@ def add_ksus_to_set_from_csv(csv_path, theory):
 		for key, value in pseudo_ksu.iteritems():
 			ksu[key] = value
 		ksu_set.append(ksu)
-	theory.history_1 = pack_set(history)
-	theory.kas1 = pack_set(ksu_set)
+	theory.history = pack_set(history)
+	theory.KAS1 = pack_set(ksu_set)
 	theory.put()
 	return
 
