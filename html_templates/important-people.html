@@ -14,12 +14,12 @@
 
 		<div class="col-md-3">
 			<label> Name </label>
-			<input type="text" class="form-control" name="important_person_name" placeholder="Person's Name">
+			<input type="text" class="form-control" name="person_name" placeholder="Person's Name">
 		</div>
 
 		<div class="col-md-2">
 			<label> Contact Frequency </label>
-			<input type="text" class="form-control" name="frequency" placeholder="e.g. 7 (days)">
+			<input type="text" class="form-control" name="contact_frequency" placeholder="e.g. 7 (days)">
 		</div>
 
 
@@ -56,10 +56,10 @@
 {% for p in people %}
 
 	<div class="row">
-		<div class="col-md-3"> {{p['imp_person_name']}}</div>
-		<div class="col-md-1"> {{p['frequency']}} </div>
-		<div class="col-md-1"> {% if p['latest_exe'] %} {{p['latest_exe']}} {% endif %} </div>
-		<div class="col-md-1"> {{p['next_exe']}} </div>
+		<div class="col-md-3"> {{p['name']}}</div>
+		<div class="col-md-1"> {{p['contact_frequency']}} </div>
+		<div class="col-md-1"> {% if p['last_contact'] %} {{p['last_contact']}} {% endif %} </div>
+		<div class="col-md-1"> {{p['next_contact']}} </div>
 		<div class="col-md-3"> {% if p['comments'] %} {{p['comments']}} {% endif %} </div>
 
 	</div>

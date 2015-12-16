@@ -19,6 +19,7 @@ class Theory(db.Model):
 	password_hash = db.StringProperty(required=True)
 	email = db.StringProperty(required=True)
 	kas1 = db.TextProperty(required=True)
+	ImPe = db.TextProperty(required=True)
 	master_log = db.TextProperty(required=True)
 	created = db.DateTimeProperty(auto_now_add=True)
 	last_modified = db.DateTimeProperty(auto_now=True)
@@ -35,7 +36,13 @@ class Theory(db.Model):
 	@classmethod #Creates the theory object but do not store it in the db
 	def register(cls, username, password, email):
 		password_hash = make_password_hash(username, password)
-		return Theory(username=username, password_hash=password_hash, email=email, kas1=new_kas1(), master_log=new_master_log(), history_1=new_history())
+		return Theory(username=username, 
+					  password_hash=password_hash,
+					  email=email, 
+					  kas1=new_kas1(),
+					  ImPe=new_Important_People_Set(),
+					  master_log=new_master_log(),
+					  history_1=new_history())
 
 	@classmethod
 	def valid_login(cls, username, password):
@@ -167,31 +174,30 @@ class Logout(Handler):
 
 class ImportantPeople(Handler):
 	
-	
 	def get(self):
 		theory = self.theory
-		people = my_important_people(theory)
-		mission = todays_mission(theory)
-		self.print_html('important-people.html', people=people, mission=mission)
+		people = pretty_dates(unpack_set(theory.ImPe))
+		self.print_html('important-people.html', people=people)
 	
 	def post(self):
 		theory = self.theory
-		name = self.request.get('important_person_name')
-		frequency = self.request.get('frequency')
-		details = dict(frequency=frequency, imp_person_name=name)
+		name = self.request.get('person_name')
+		frequency = self.request.get('contact_frequency')
+		details = dict(contact_frequency=frequency, name=name)
 		add_important_person_to_theory(theory, details)
 		self.redirect('/important-people')
 
 
 
+
 def add_important_person_to_theory(theory, details):
-	ksu_set = unpack_set(theory.kas1)
+	kas1 = unpack_set(theory.kas1)
+	ImPe = unpack_set(theory.ImPe)
 	history = unpack_set(theory.history_1)
-	ksu = new_ksu_in_kas1(ksu_set)
-	ksu['ksu_subtype'] = 'Important_Person'
+	ksu = new_ksu_in_kas1(kas1)
 	ksu['element'] = 'E500'
-	ksu['description'] = 'Contactar a ' + details['imp_person_name']
-	ksu['next_exe'] = today + int(details['frequency'])
+	ksu['description'] = 'Contactar a ' + details['name']
+	ksu['next_exe'] = today + int(details['contact_frequency'])
 	ksu['effort_points'] = 3
 	event = new_event()
 	event['type'] = 'Created'
@@ -199,35 +205,31 @@ def add_important_person_to_theory(theory, details):
 	update_history(history, event)
 	for key, value in details.iteritems():
 		ksu[key] = value
-	ksu_set.append(ksu)
+	kas1.append(ksu)
+	person = new_ksu_in_ImPe(ImPe)
+	person['name'] = details['name']
+	person['contact_frequency'] = details['contact_frequency']
+	person['next_contact'] = today + int(details['contact_frequency'])
+	ImPe.append(person)
 	theory.history_1 = pack_set(history)
-	theory.kas1 = pack_set(ksu_set)
+	theory.ImPe = pack_set(ImPe)
+	theory.kas1 = pack_set(kas1)
 	theory.put()
 	return
 
 
 
-def my_important_people(theory):
-	kas1 = unpack_set(theory.kas1)
-	result = []
-	for ksu in kas1:
-		if ksu['ksu_subtype'] == 'Important_Person':
-			result.append(ksu)
-	result = pretty_dates(result)
-	return result
-
-
-
-
 def pretty_dates(ksu_set):
-	date_attributes = ['latest_exe', 'next_exe']
+	date_attributes = ['latest_exe', 'next_exe', 'last_contact', 'next_contact']
 	for date_attribute in date_attributes:
 		for ksu in ksu_set:
-			if ksu[date_attribute]:
-				number_date = int(ksu[date_attribute])
-				pretty_date = datetime.fromordinal(number_date).strftime('%b %d')
-				# pretty_date = datetime.fromordinal(number_date).strftime('%a-%d-%m-%Y')
-				ksu[date_attribute] = pretty_date
+			valid_attributes = list(ksu.keys())
+			if date_attribute in valid_attributes:	
+				if ksu[date_attribute]:
+					number_date = int(ksu[date_attribute])
+					pretty_date = datetime.fromordinal(number_date).strftime('%b %d')
+					# pretty_date = datetime.fromordinal(number_date).strftime('%a-%d-%m-%Y')
+					ksu[date_attribute] = pretty_date
 	return ksu_set
 	
 
@@ -280,6 +282,17 @@ def todays_mission(theory):
 			if delay >= 0 and status=='Active':
 				result.append(ksu)
 	return result
+
+
+
+
+#--- Edit KSU Handler ---
+
+class EditKSU(Handler):
+	def get(self):
+		self.print_html('ksu-edit-form.html', elements=list_Elements)
+
+
 
 
 
@@ -461,6 +474,7 @@ def ksu_template():
 		    	'comments': None,
 		    	'local_tags': None,
 		    	'global_tags': None,
+		    	'target_person':None,
 		    	'parent_ksu_id': None,
 		    	'priority_lvl':9,
 		    	'is_critical': False,
@@ -490,7 +504,36 @@ def new_ksu_in_kas1(kas1):
 	ksu['best_time'] = None
 	ksu['latest_exe'] = None
 	ksu['next_exe'] = None
-	ksu['imp_person_name'] = None
+	return ksu
+
+
+
+
+def important_person_template():
+	person = {'ksu_id':None,
+			  'name':None,
+			  'group':None,
+			  'contact_frequency':None,
+			  'last_contact':None,
+			  'next_contact':None,
+			  'fun_facts':None,
+			  'email':None,
+			  'phone':None,
+			  'facebook':None,
+			  'birthday':None,
+			  'comments':None,
+			  'important_since':today,
+			  'child_ksus':[],
+			  'related_ksus':[]}
+	return person		  	
+
+
+
+
+def new_ksu_in_ImPe(Important_People_set):
+	ksu = important_person_template()
+	ksu_id = create_ksu_id(Important_People_set)
+	ksu['ksu_id'] = ksu_id
 	return ksu
 
 
@@ -544,15 +587,20 @@ def new_kas1():
 	ksu['latest_exe'] = None
 	ksu['next_exe'] = None
 	ksu['target_exe'] = None
-	ksu['imp_person_name'] = None
 	ksu['is_visible'] = False
-	#BUG ALERT - Pending to add create and add an event to master log
-	# event = new_event()
-	# event['event_type'] = 'Created'
-	# first_ksu['history'] = [event]
 	result.append(ksu)
 	return pack_set(result)
 
+
+def new_Important_People_Set():
+	result = []
+	ksu = important_person_template()
+	ksu['set_size'] = 0
+	ksu['ksu_id'] = 'ImPe_0'
+	ksu['ksu_type'] = 'ImPe'
+	ksu['description'] = 'Important People Set'
+	result.append(ksu)
+	return pack_set(result)
 
 
 
@@ -565,8 +613,7 @@ def new_kas1():
 def new_event():
 	event = {'type':None, # [Created, Edited ,Deleted, Happiness, Effort]
 			 'ksu_id': None,
-			 'element': None, # This is only here because KAS2 skus will be deleted
-			 'description': None, # Passed in as as an optional parameter
+			 'description': None, # Comments regarding the event
 			 'date':today,
 			 'duration':0, #To record duration of happy moments
 			 'value':0} # In a fibonacci scale
@@ -675,6 +722,18 @@ def unpack_set(ksu_pickled_set):
 
 today = datetime.today().toordinal()
 
+
+list_Elements = ['1. Inner Peace',
+				 '2. Fun & Excitement',
+				 '3. Meaning & Direction', 
+				 '4. Health & Vitality',
+				 '5. Love & Friendship',
+				 '6. Knowledge & Skills',
+				 '7. Outer Peace',
+				 '8. Monetary Resources',
+				 '9. Non-Monetary Resources']
+
+
 dictionary_Elements = {'E100': '1. Inner Peace',
 					 'E200': '2. Fun & Excitement', 
 					 'E300': '3. Meaning & Direction', 
@@ -714,6 +773,7 @@ app = webapp2.WSGIApplication([
                              ('/logout', Logout),
                              ('/mission', Mission),
 							 ('/important-people',ImportantPeople),
+							 ('/editKSU', EditKSU),
 							 ('/effort-report',EffortReport),
 							 ('/email',Email),
 							 ('/loadCSV', LoadCSV),
