@@ -1,4 +1,8 @@
 
+
+/*--- Base Formats----------------------------*/
+
+
 .main-title {
     display: block;
     color: #222;
@@ -35,8 +39,6 @@
 }
 
 
-
-
 .corner-link{
     display: inline-block;
     margin-top: 25px;
@@ -49,7 +51,8 @@
 }
 
 
-
+/*--- To Be Deleted ----------------*/
+ 
 .blank-row-sm{
     margin-top: 10px;
 }
@@ -61,6 +64,8 @@
 .blank-row-lg{
     margin-top: 40px;
 }
+
+
 
 
 .thick-hr-1px {
@@ -84,6 +89,17 @@
 .field-header{
     font-weight: 700;
     font-style: italic;
+}
+
+
+
+.tile-ksu-edit{
+    font-size: 20px;
+
+}
+
+.respect-space{
+    white-space:pre;
 }
 
 

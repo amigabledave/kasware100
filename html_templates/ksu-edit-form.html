@@ -3,104 +3,169 @@
 {% block content %}
 
 <div class="row">
-	<div class="col-md-12"> <h3>Base Key Action</h3></div>
+	<div class="col-md-12"> <h3>Edit your KSU </h3></div>
 </div>
-	
+
+<br>	
+
 
 <form class="form-horizontal">
  
 	<div class="form-group">
-		<div class="col-md-11">
-			<label> Action </label>
-			<input type="text" class="form-control" name="description" placeholder="Action description">
+		<div class="col-md-9"> 
+			<label> Action Description </label>
+			<input type="text" class="form-control tile-ksu-edit" name="description" placeholder="Contactar a Dave" >
 		</div>
 
-		<div class="col-md-1">
-			<label> Critical? </label>
+
+		<div class="col-md-1"> 
+			<label> Prio. Lvl. </label> 
 			<select class="form-control"> 
-				<option> No </option>
-				<option> Yes </option>
-			</select> 
+				{% for i in range(1,10) %}
+					<option> {{i}} </option>
+				{% endfor %}
+			</select>
+		</div>
+
+
+		<div class="col-md-2">
+	 		<div class="checkbox"> 
+	 			<label> <input type="checkbox"> <b> Is Critical </b> </label> 
+	 		</div>
+
+	 		<div class="checkbox"> 
+	 			<label> <input type="checkbox"> <b> Is Private </b> </label> 
+	 		</div>
 		</div>
 	</div>
 
+
+
+
+
+
+
 	<div class="form-group">
- 		<div class="col-md-2">
+
+		<div class="col-md-3">
 			<label>Element</label>
-			<select class="form-control">
+				<select class="form-control">
 				{% for e in elements %}
 					<option> {{e}} </option>
 				{% endfor %}
 			</select>
-		</div>
-		
-		<div class="col-md-1">
-			<label> Time cost </label>
-			<input type="text" class="form-control" name="time_cost" placeholder="5 min.">
-		</div>
-
-		<div class="col-md-1">
-			<label> Frequency </label>
-			<input type="text" class="form-control" name="frequency" placeholder="7 days">
-		</div>
-
-		<div class="col-md-1">
-			<label> Best Day </label>
-				<select class="form-control"> 
-					<option> Sun </option>
-					<option> Mon </option>
-					<option> Tue </option>
-					<option> Wed </option>
-					<option> Thu </option>
-					<option> Fri </option>
-					<option> Sat </option>
-				</select> 
-		</div>
-		
-		<div class="col-md-2">
-			<label> Last Time </label>
-			<input type="date" class="form-control" name="" placeholder="7 days">
-		</div>
-
-		<div class="col-md-2">
-			<label> Group </label>
-			<input type="text" class="form-control" name="" placeholder="Optional">
-		</div>
+		</div>	
 
 		<div class="col-md-3">
 			<label> Parent KSU </label>
 			<input type="text" class="form-control" name="" placeholder="Optional">
 		</div>
 
+
+		<div class="col-md-2">
+			<label> Local Tag </label>
+			<input type="text" class="form-control" name="" placeholder="Optional">
+		</div>
+
+		<div class="col-md-2">
+			<label> Global Tag </label>
+			<input type="text" class="form-control" name="" placeholder="Optional">
+		</div>
+
+		<div class="col-md-2">
+			<label> Target Person </label>
+			<input type="text" class="form-control" name="" placeholder="Optional">
+		</div>
+
 	</div>
-  	
 
 
-  <div class="form-group">
 
-	<div class="col-md-12">
-		<label> Additional Information </label>
-		<textarea class="form-control" name="" placeholder="Additional usefull information"> </textarea> 
+
+	<div class="form-group">
+
+		<div class="col-md-2"> 
+			<label> Effort Rewards Points </label>
+			<input type="text" class="form-control" name="description" placeholder="13" >
+		</div>
+
+		<div class="col-md-2">
+			<label> Frequency in Days </label>
+			<input type="text" class="form-control" name="frequency" placeholder="7">
+		</div>
+
+		<div class="col-md-2">
+			<label> Next Scheduled Event </label>
+			<input type="text" class="form-control" value="03-03-2016" name="">
+		</div>
+
+
+		<div class="col-md-2">
+			<label> Prefered Day </label>
+				<select class="form-control">
+					<option> None </option>
+					<option> Sunday </option>
+					<option> Monday </option>
+					<option> Tuesday </option>
+					<option> Wednesday </option>
+					<option> Thursday </option>
+					<option> Friday </option>
+					<option> Saturday </option>
+				</select> 
+		</div>
+
+		<div class="col-md-2">
+			<label> Preferred Time (24hrs.)</label>
+			<input type="text" class="form-control" name="best_time" placeholder="00:00">
+		</div>
+
+		<div class="col-md-2">
+			<div class="radio">
+			  <label>
+			    <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>
+			    <b> Active </b>
+			  </label>
+			</div>
+			<div class="radio">
+			  <label>
+			    <input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
+			    <b> On Hold </b>
+			  </label>
+			</div>
+
+
+
+
+		</div>
+
+
+
 	</div>
 
- </div>
 
-<div class="form-group">
 
-	<div class="col-md-2">
-	  	<button type="submit" class="btn btn-primary btn-lg">Commit</button>
-	</div>	
-		
-</div>
+	<div class="form-group">
+		<div class="col-md-12">
+			<label> Comments </label>
+			<textarea class="form-control" name="" placeholder="Additional usefull information"> </textarea> 
+		</div>
+	</div>
 
+
+
+  	<div class="form-group">
+		<div class="col-md-2">
+		  	<button type="submit" class="btn btn-success btn-lg">Save Changes</button>
+		</div>	
+		<div class="col-md-2">
+		<button type="button" class="btn btn-danger btn-lg"> Delete KSU </button>
+		</div>
+	</div>
 
 </form>
 
 
 <hr>
-
-
-
 
 
 {% endblock %}
