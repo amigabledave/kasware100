@@ -181,14 +181,8 @@ class ImportantPeople(Handler):
 		self.print_html('important-people.html', people=people)
 	
 	def post(self):
-		theory = self.theory
-		details = get_post_details(self)
-		person = add_Person_ksu(theory, details)
-		ksu = add_ImPe_Contact_ksu(theory, person)
-		add_Created_event(theory, ksu)
-		theory.put()
+		user_Action_Create_ImPe_ksu(self)
 		self.redirect('/important-people')
-
 
 
 
@@ -225,23 +219,8 @@ class Mission(Handler):
 
 
 	def post(self):
-		theory = self.theory
-		post_details = get_post_details(self)
-		update_ksu_next_exe(theory, post_details)
-		event = add_Effort_event(theory, post_details)
-		update_master_log(theory, event)
-		theory.put()
+		user_Action_Effort_Done(self)
 		self.redirect('/mission')
-
-
-
-
-def get_digit_from_id(ksu_id):
-	return int(ksu_id.split("_")[1])
-
-
-def get_type_from_id(ksu_id):
-	return int(ksu_id.split("_")[0])
 
 
 
@@ -427,41 +406,8 @@ class History(Handler):
 
 # --- Additional Helper Functions -----------------------------------------------------------------------------
 
-#--- Security Functions ---
-
-def valid_username(username):
-    return username and USER_RE.match(username)
-
-def valid_password(password):
-    return password and PASS_RE.match(password)
-
-def valid_email(email):
-    return email and EMAIL_RE.match(email)
-
-def make_secure_val(val):
-    return '%s|%s' % (val, hashlib.sha256(secret + val).hexdigest())
-
-def check_secure_val(secure_val):
-	val = secure_val.split('|')[0]
-	if secure_val == make_secure_val(val):
-		return val
-
-def make_salt(lenght = 5):
-    return ''.join(random.choice(string.letters) for x in range(lenght))
-
-def make_password_hash(username, password, salt = None):
-	if not salt:
-		salt = make_salt()
-	h = hashlib.sha256(username + password + salt).hexdigest()
-	return '%s|%s' % (h, salt)
-
-def validate_password(username, password, h):
-	salt = h.split('|')[1]
-	return h == make_password_hash(username, password, salt)
-
-
-
 #--- Essentials ---
+
 
 def get_post_details(self):
 	result = {}
@@ -470,13 +416,20 @@ def get_post_details(self):
 		result[str(argument)] = self.request.get(str(argument))
 	return result
 
-
 def pack_set(ksu_set):
 	return pickle.dumps(ksu_set)
 
 
 def unpack_set(ksu_pickled_set):
 	return pickle.loads(ksu_pickled_set)
+
+
+def get_digit_from_id(ksu_id):
+	return int(ksu_id.split("_")[1])
+
+
+def get_type_from_id(ksu_id):
+	return int(ksu_id.split("_")[0])
 
 
 
@@ -677,8 +630,6 @@ def new_ksu_for_KAS2(KAS2):
 
 
 
-
-
 #--- Add items to sets. IT DOES NOT STORE THEM, IS STILL NECESARY TO ADD THE FUNCTION 	theory.put() ---
 
 def update_set(ksu_set, ksu):
@@ -742,6 +693,62 @@ def add_ImPe_Contact_ksu(theory, person):
 	theory.KAS1 = pack_set(KAS1)
 	return ksu
 
+
+
+
+
+#--- User Actions ---
+
+def user_Action_Effort_Done(self):
+	theory = self.theory
+	post_details = get_post_details(self)
+	update_ksu_next_exe(theory, post_details)
+	event = add_Effort_event(theory, post_details)
+	update_master_log(theory, event)
+	theory.put()
+
+
+def user_Action_Create_ImPe_ksu(self):
+	theory = self.theory
+	details = get_post_details(self)
+	person = add_Person_ksu(theory, details)
+	ksu = add_ImPe_Contact_ksu(theory, person)
+	add_Created_event(theory, ksu)
+	theory.put()
+
+
+
+#--- Security Functions ---
+
+def valid_username(username):
+    return username and USER_RE.match(username)
+
+def valid_password(password):
+    return password and PASS_RE.match(password)
+
+def valid_email(email):
+    return email and EMAIL_RE.match(email)
+
+def make_secure_val(val):
+    return '%s|%s' % (val, hashlib.sha256(secret + val).hexdigest())
+
+def check_secure_val(secure_val):
+	val = secure_val.split('|')[0]
+	if secure_val == make_secure_val(val):
+		return val
+
+def make_salt(lenght = 5):
+    return ''.join(random.choice(string.letters) for x in range(lenght))
+
+def make_password_hash(username, password, salt = None):
+	if not salt:
+		salt = make_salt()
+	h = hashlib.sha256(username + password + salt).hexdigest()
+	return '%s|%s' % (h, salt)
+
+def validate_password(username, password, h):
+	salt = h.split('|')[1]
+	return h == make_password_hash(username, password, salt)
 
 
 
