@@ -229,8 +229,8 @@ class Mission(Handler):
 		ksu_set = unpack_set(theory.KAS1)
 		master_log = unpack_set(theory.master_log)
 		history = unpack_set(theory.history)
-		target_ksu_id = self.request.get('ksu_id')
-		ksu = ksu_set[target_ksu_id]
+		target_id = self.request.get('id')
+		ksu = ksu_set[target_id]
 		post_details = get_post_details(self)
 		event = effort_event(post_details)
 		update_set(history, event)
@@ -296,7 +296,7 @@ def create_effort_report(theory, date):
 		event = history[event]
 		if event['date'] == date and event['type']=='Effort':			
 			report_item = {'effort_description':None,'effort_points':0}
-			report_item['effort_description'] = get_attribute_from_id(KAS1, event['ksu_id'], 'description')
+			report_item['effort_description'] = get_attribute_from_id(KAS1, event['id'], 'description')
 			report_item['effort_points'] = event['value']
 			result.append(report_item)
 	return result
@@ -354,7 +354,7 @@ class CSVBackup(Handler):
 		theory = self.theory
 		if theory:
 			KAS1 = unpack_set(theory.KAS1)
-			output = create_csv_backup(KAS1, ['ksu_id','description','frequency','latest_exe','status','imp_person_name'])
+			output = create_csv_backup(KAS1, ['id','description','frequency','latest_exe','status','imp_person_name'])
 			self.write(output)
 		else:
 			self.redirect('/login')
@@ -385,7 +385,7 @@ def add_ksus_to_set_from_csv(csv_path, theory):
 	for pseudo_ksu in digested_csv:
 		ksu = new_ksu_for_KAS1(ksu_set)
 		event = new_event()
-		event['ksu_id'] = ksu['ksu_id']
+		event['id'] = ksu['id']
 		event['type'] = 'Created'
 		update_set(history, event)
 		for key, value in pseudo_ksu.iteritems():
@@ -488,7 +488,7 @@ def unpack_set(ksu_pickled_set):
 
 
 def update_set(ksu_set, ksu):
-	ksu_id = ksu['ksu_id']
+	ksu_id = ksu['id']
 	ksu_set[ksu_id]=ksu
 	return
 
@@ -518,7 +518,7 @@ def update_master_log(master_log, event):
 
 def event_template():
 	event = {'type':None, # [Created, Edited ,Deleted, Happiness, Effort]
-			 'ksu_id': None,
+			 'id': None,
 			 'description': None, # Comments regarding the event
 			 'date':today,
 			 'duration':0, #To record duration of happy moments
@@ -527,8 +527,8 @@ def event_template():
 
 
 def ksu_template():
-	template = {'ksu_id': None,	
-				'ksu_subtype':None,		
+	template = {'id': None,	
+				'subtype':None,		
 		    	'element': None,
 		    	'lever':None,
 		    	'description': None,
@@ -536,7 +536,7 @@ def ksu_template():
 		    	'local_tags': None,
 		    	'global_tags': None,
 		    	'target_person':None,
-		    	'parent_ksu_id': None,
+		    	'parent_id': None,
 		    	'priority_lvl':9,
 		    	'is_critical': False,
 		    	'is_visible': True,
@@ -545,7 +545,7 @@ def ksu_template():
 
 
 def important_person_template():
-	person = {'ksu_id':None,
+	person = {'id':None,
 			  'name':None,
 			  'group':None,
 			  'contact_frequency':None,
@@ -572,9 +572,9 @@ def important_person_template():
 def new_history():
 	result = {}
 	event = event_template()
+	event['id'] = 'Event_0'
 	event['type'] = 'Created'
 	event['ksu_type'] = 'Event'
-	event['ksu_id'] = 'Event_0'
 	event['set_size'] = 0
 	event['description'] = 'Events History'
 	result['set_details'] = event
@@ -596,7 +596,7 @@ def new_KAS1():
 	result = {}
 	ksu = ksu_template()
 	ksu['set_size'] = 0
-	ksu['ksu_id'] = 'KAS1_0'
+	ksu['id'] = 'KAS1_0'
 	ksu['ksu_type'] = 'KAS1'
 	ksu['description'] = 'KAS1 Key Base Actions Set'
 	ksu['status'] = 'Active' # ['Active', 'Hold', 'Deleted']
@@ -618,7 +618,7 @@ def new_Important_People_Set():
 	result = {}
 	ksu = important_person_template()
 	ksu['set_size'] = 0
-	ksu['ksu_id'] = 'ImPe_0'
+	ksu['id'] = 'ImPe_0'
 	ksu['ksu_type'] = 'ImPe'
 	ksu['description'] = 'Important People Set'
 	result['set_details'] = ksu
@@ -630,7 +630,7 @@ def new_Important_People_Set():
 
 #--- Create new Set Items ---
 
-def create_ksu_id(ksu_set):
+def create_id(ksu_set):
 	set_details = ksu_set['set_details']
 	ksu_type = set_details['ksu_type']
 	id_digit = int(set_details['set_size']) + 1
@@ -641,8 +641,8 @@ def create_ksu_id(ksu_set):
 
 def new_event(history):
 	event = event_template()
-	event_id = create_ksu_id(history)
-	event['ksu_id'] = event_id
+	event_id = create_id(history)
+	event['id'] = event_id
 	return event
 
 
@@ -655,7 +655,7 @@ def created_event(theory, ksu):
 
 def effort_event(post_details):
 	event = event_template()
-	event['ksu_id'] = post_details['ksu_id']
+	event['id'] = post_details['id']
 	event['type'] = 'Effort'
 	event['description'] = post_details['event_comments']
 	event['duration'] = post_details['event_duration']
@@ -666,8 +666,8 @@ def effort_event(post_details):
 
 def new_ksu_for_KAS1(KAS1):
 	ksu = ksu_template()
-	ksu_id = create_ksu_id(KAS1)
-	ksu['ksu_id'] = ksu_id
+	ksu_id = create_id(KAS1)
+	ksu['id'] = ksu_id
 	ksu['status'] = 'Active' # ['Active', 'Hold', 'Deleted']
 	ksu['effort_points'] = 0
 	ksu['in_mission'] = False
@@ -681,16 +681,16 @@ def new_ksu_for_KAS1(KAS1):
 
 def new_ksu_for_ImPe(Important_People_set):
 	ksu = important_person_template()
-	ksu_id = create_ksu_id(Important_People_set)
-	ksu['ksu_id'] = ksu_id
+	ksu_id = create_id(Important_People_set)
+	ksu['id'] = ksu_id
 	return ksu
 
 
 
 def new_ksu_for_KAS2(KAS2):
 	ksu = ksu_template()
-	ksu_id = create_ksu_id(kas2)
-	ksu['ksu_id'] = ksu_id
+	ksu_id = create_id(kas2)
+	ksu['id'] = ksu_id
 	ksu['status'] = 'Pending' # ['Done', 'Pending', 'Deleted']
 	ksu['effort_points'] = 0
 	ksu['in_mission'] = False
@@ -709,7 +709,7 @@ def add_Created_event(theory, ksu):
 	history = unpack_set(theory.history)
 	event = new_event(history)
 	event['type'] = 'Created'
-	event['ksu_id'] = ksu['ksu_id']
+	event['id'] = ksu['id']
 	update_set(history, event)
 	theory.history = pack_set(history)
 	return event
@@ -739,9 +739,9 @@ def add_ImPe_Contact_ksu(theory, person):
 	else:
 		ksu['next_exe'] = today + int(person['contact_frequency'])
 	ksu['effort_points'] = 3
-	ksu['target_person'] = person['ksu_id']
-	ksu['ksu_subtype'] = 'ImPe_Contact'
-	person['child_ksus'] = person['child_ksus'].append(ksu['ksu_id'])
+	ksu['target_person'] = person['id']
+	ksu['subtype'] = 'ImPe_Contact'
+	person['child_ksus'] = person['child_ksus'].append(ksu['id'])
 	update_set(KAS1,ksu)
 	theory.KAS1 = pack_set(KAS1)
 	return ksu
