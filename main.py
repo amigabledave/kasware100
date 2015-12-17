@@ -177,6 +177,7 @@ class ImportantPeople(Handler):
 	def get(self):
 		theory = self.theory
 		people = pretty_dates(unpack_set(theory.ImPe))
+		people = list(people.values())
 		self.print_html('important-people.html', people=people)
 	
 	def post(self):
@@ -194,23 +195,22 @@ def add_important_person_to_theory(theory, details):
 	KAS1 = unpack_set(theory.KAS1)
 	ImPe = unpack_set(theory.ImPe)
 	history = unpack_set(theory.history)
-	ksu = new_ksu_in_KAS1(KAS1)
+	ksu = new_ksu_for_KAS1(KAS1)
 	ksu['element'] = 'E500'
 	ksu['description'] = 'Contactar a ' + details['name']
 	ksu['next_exe'] = today + int(details['contact_frequency'])
 	ksu['effort_points'] = 3
-	event = new_event()
+	event = new_event(history)
 	event['type'] = 'Created'
-	event['ksu_id'] = ksu['ksu_id']
-	update_history(history, event)
+	update_set(history, event)
 	for key, value in details.iteritems():
 		ksu[key] = value
-	KAS1.append(ksu)
-	person = new_ksu_in_ImPe(ImPe)
+	update_set(KAS1,ksu)	
+	person = new_ksu_for_ImPe(ImPe)
 	person['name'] = details['name']
 	person['contact_frequency'] = details['contact_frequency']
 	person['next_contact'] = today + int(details['contact_frequency'])
-	ImPe.append(person)
+	update_set(ImPe,person)
 	theory.history = pack_set(history)
 	theory.ImPe = pack_set(ImPe)
 	theory.KAS1 = pack_set(KAS1)
@@ -223,6 +223,7 @@ def pretty_dates(ksu_set):
 	date_attributes = ['latest_exe', 'next_exe', 'last_contact', 'next_contact']
 	for date_attribute in date_attributes:
 		for ksu in ksu_set:
+			ksu = ksu_set[ksu]
 			valid_attributes = list(ksu.keys())
 			if date_attribute in valid_attributes:	
 				if ksu[date_attribute]:
@@ -258,7 +259,7 @@ class Mission(Handler):
 		ksu = ksu_set[target_ksu]
 		post_details = get_post_details(self)
 		event = effort_event(post_details)
-		update_history(history, event)
+		update_set(history, event)
 		update_next_exe(ksu) # BUG ALERT! This will not work for all KSU types
 		update_master_log(master_log, event)
 		theory.history = pack_set(history)
@@ -323,6 +324,7 @@ def create_effort_report(theory, date):
 	KAS1 = unpack_set(theory.KAS1)
 	history = unpack_set(theory.history)
 	for event in history:
+		event = history[event]
 		if event['date'] == date and event['type']=='Effort':			
 			report_item = {'effort_description':None,'effort_points':0}
 			report_item['effort_description'] = get_attribute_from_id(KAS1, event['ksu_id'], 'description')
@@ -379,7 +381,7 @@ class PythonBackup(Handler):
 			self.redirect('/login')
 
 
-
+#--- CSV load & backup ---
 
 class CSVBackup(Handler):
 	def get(self):
@@ -391,6 +393,60 @@ class CSVBackup(Handler):
 		else:
 			self.redirect('/login')
 
+
+def digest_csv(csv_path):
+	f = open(csv_path, 'rU')
+	f.close
+	csv_f = csv.reader(f, dialect=csv.excel_tab)
+	result = []
+	attributes = csv_f.next()[0].split(',')
+	for row in csv_f:
+		digested_ksu = {}
+		i = 0
+		raw_ksu = row[0].split(',')
+		for attribute in raw_ksu:
+			digested_ksu[attributes[i]] = attribute
+			i += 1
+		result.append(digested_ksu)
+	return result
+
+
+
+def add_ksus_to_set_from_csv(csv_path, theory):
+	ksu_set = unpack_set(theory.KAS1)
+	history = unpack_set(theory.history)
+	digested_csv = digest_csv(csv_path)
+	for pseudo_ksu in digested_csv:
+		ksu = new_ksu_for_KAS1(ksu_set)
+		event = new_event()
+		event['ksu_id'] = ksu['ksu_id']
+		event['type'] = 'Created'
+		update_set(history, event)
+		for key, value in pseudo_ksu.iteritems():
+			ksu[key] = value
+		ksu_set.append(ksu)
+	theory.history = pack_set(history)
+	theory.KAS1 = pack_set(ksu_set)
+	theory.put()
+	return
+
+
+def create_csv_backup(ksu_set, required_attributes):
+	result = ""
+	i = 0
+	for attribute in required_attributes:
+		result += attribute + ',' 
+	for ksu in ksu_set:
+		result += '<br>'
+		for attribute in required_attributes:
+			result += str(ksu[attribute]) + ','
+	return result
+
+
+
+
+
+#--- Development Handlers ----
 
 
 class History(Handler):
@@ -405,7 +461,8 @@ class History(Handler):
 
 
 
-# --- Helper Functions -----------------------------------------------------------------------------
+# --- Additional Helper Functions -----------------------------------------------------------------------------
+
 #--- Security Functions ---
 
 def valid_username(username):
@@ -440,7 +497,7 @@ def validate_password(username, password, h):
 
 
 
-#--- Handler Essentials ---
+#--- Essentials ---
 
 def get_post_details(self):
 	result = new_event()
@@ -448,6 +505,26 @@ def get_post_details(self):
 	for argument in arguments:
 		result[str(argument)] = self.request.get(str(argument))
 	return result
+
+
+def pack_set(ksu_set):
+	return pickle.dumps(ksu_set)
+
+
+def unpack_set(ksu_pickled_set):
+	return pickle.loads(ksu_pickled_set)
+
+
+
+
+
+#--- Update Stuff ---
+
+
+def update_set(ksu_set, ksu):
+	ksu_id = ksu['ksu_id']
+	ksu_set[ksu_id]=ksu
+	return
 
 
 def update_next_exe(ksu):
@@ -460,9 +537,27 @@ def update_next_exe(ksu):
 
 
 
+def update_master_log(master_log, event):
+	date = event['date']
+	event_type = event['type']
+	event_value = int(event['value'])
+	log = master_log[date]
+	log[event_type] = log[event_type] + event_value
+	return
 
 
-#--- New KSU & KSU set --- 
+
+
+#--- Dictionary Templates ---
+
+def event_template():
+	event = {'type':None, # [Created, Edited ,Deleted, Happiness, Effort]
+			 'ksu_id': None,
+			 'description': None, # Comments regarding the event
+			 'date':today,
+			 'duration':0, #To record duration of happy moments
+			 'value':0} # In a fibonacci scale
+	return event
 
 
 
@@ -483,32 +578,6 @@ def ksu_template():
 	return template	
 
 
-
-def create_ksu_id(ksu_set):
-	ksu_type = ksu_set[0]['ksu_type']
-	id_digit = int(ksu_set[0]['set_size']) + 1
-	ksu_set[0]['set_size'] = id_digit
-	ksu_id = ksu_type + '_'+ str(id_digit)
-	return ksu_id
-
-
-def new_ksu_in_KAS1(KAS1):
-	ksu = ksu_template()
-	ksu_id = create_ksu_id(KAS1)
-	ksu['ksu_id'] = ksu_id
-	ksu['status'] = 'Active' # ['Active', 'Hold', 'Deleted']
-	ksu['effort_points'] = 0
-	ksu['in_mission'] = False
-	ksu['frequency'] = None
-	ksu['best_day'] = None
-	ksu['best_time'] = None
-	ksu['latest_exe'] = None
-	ksu['next_exe'] = None
-	return ksu
-
-
-
-
 def important_person_template():
 	person = {'ksu_id':None,
 			  'name':None,
@@ -525,54 +594,40 @@ def important_person_template():
 			  'important_since':today,
 			  'child_ksus':[],
 			  'related_ksus':[]}
-	return person		  	
+	return person
 
 
 
 
-def new_ksu_in_ImPe(Important_People_set):
-	ksu = important_person_template()
-	ksu_id = create_ksu_id(Important_People_set)
-	ksu['ksu_id'] = ksu_id
-	return ksu
+#--- Create new Sets --- 
 
 
 
-def new_ksu_in_kas2(kas2):
-	ksu = ksu_template()
-	ksu_id = create_ksu_id(kas2)
-	ksu['ksu_id'] = ksu_id
-	ksu['status'] = 'Pending' # ['Done', 'Pending', 'Deleted']
-	ksu['effort_points'] = 0
-	ksu['in_mission'] = False
-	ksu['best_time'] = None
-	ksu['target_exe'] = None
-	return ksu
-
-
+def new_history():
+	result = {}
+	event = event_template()
+	event['type'] = 'Created'
+	event['ksu_type'] = 'Event'
+	event['ksu_id'] = 'Event_0'
+	event['set_size'] = 0
+	event['description'] = 'Events History'
+	result['set_details'] = event
+	return pack_set(result)
 
 
 
 def new_master_log(start_date=735942, end_date=736680):
 	result = {}
 	for date in range(start_date, end_date):
-		entry = {'date':0,'Effort':0,'Happiness':0}
+		entry = {'Effort':0,'Happiness':0}
 		entry['date'] = datetime.fromordinal(date).strftime('%d-%m-%Y')
 		result[date] = entry
 	return pack_set(result)
 
 
-def new_history():
-	result = []
-	event = new_event()
-	event['type'] = 'Created'
-	result.append(event)
-	return pack_set(result)
-
-
 
 def new_KAS1():
-	result = []
+	result = {}
 	ksu = ksu_template()
 	ksu['set_size'] = 0
 	ksu['ksu_id'] = 'KAS1_0'
@@ -588,42 +643,41 @@ def new_KAS1():
 	ksu['next_exe'] = None
 	ksu['target_exe'] = None
 	ksu['is_visible'] = False
-	result.append(ksu)
+	result['set_details'] = ksu
 	return pack_set(result)
 
 
+
 def new_Important_People_Set():
-	result = []
+	result = {}
 	ksu = important_person_template()
 	ksu['set_size'] = 0
 	ksu['ksu_id'] = 'ImPe_0'
 	ksu['ksu_type'] = 'ImPe'
 	ksu['description'] = 'Important People Set'
-	result.append(ksu)
+	result['set_details'] = ksu
 	return pack_set(result)
 
 
 
 
 
+#--- Create new Set Items ---
 
-#--- Event related ---
+def create_ksu_id(ksu_set):
+	set_details = ksu_set['set_details']
+	ksu_type = set_details['ksu_type']
+	id_digit = int(set_details['set_size']) + 1
+	set_details['set_size'] = id_digit
+	ksu_id = ksu_type + '_'+ str(id_digit)
+	return ksu_id
 
 
-def new_event():
-	event = {'type':None, # [Created, Edited ,Deleted, Happiness, Effort]
-			 'ksu_id': None,
-			 'description': None, # Comments regarding the event
-			 'date':today,
-			 'duration':0, #To record duration of happy moments
-			 'value':0} # In a fibonacci scale
+def new_event(history):
+	event = event_template()
+	event_id = create_ksu_id(history)
+	event['ksu_id'] = event_id
 	return event
-
-
-
-def update_history(history, event):
-	history.append(event)
-	return
 
 
 
@@ -638,80 +692,39 @@ def effort_event(post_details):
 
 
 
+def new_ksu_for_KAS1(KAS1):
+	ksu = ksu_template()
+	ksu_id = create_ksu_id(KAS1)
+	ksu['ksu_id'] = ksu_id
+	ksu['status'] = 'Active' # ['Active', 'Hold', 'Deleted']
+	ksu['effort_points'] = 0
+	ksu['in_mission'] = False
+	ksu['frequency'] = None
+	ksu['best_day'] = None
+	ksu['best_time'] = None
+	ksu['latest_exe'] = None
+	ksu['next_exe'] = None
+	return ksu
 
 
-#BUG WARNING - NEEDS TO BE FIXED TO NEW VERSION
-def update_master_log(master_log, event):
-	date = event['date']
-	event_type = event['type']
-	event_value = int(event['value'])
-	log = master_log[date]
-	log[event_type] = log[event_type] + event_value
-	return
-
-
-
-
-
-#--- CSV load & backup ---
-
-def digest_csv(csv_path):
-	f = open(csv_path, 'rU')
-	f.close
-	csv_f = csv.reader(f, dialect=csv.excel_tab)
-	result = []
-	attributes = csv_f.next()[0].split(',')
-	for row in csv_f:
-		digested_ksu = {}
-		i = 0
-		raw_ksu = row[0].split(',')
-		for attribute in raw_ksu:
-			digested_ksu[attributes[i]] = attribute
-			i += 1
-		result.append(digested_ksu)
-	return result
+def new_ksu_for_ImPe(Important_People_set):
+	ksu = important_person_template()
+	ksu_id = create_ksu_id(Important_People_set)
+	ksu['ksu_id'] = ksu_id
+	return ksu
 
 
 
-def add_ksus_to_set_from_csv(csv_path, theory):
-	ksu_set = unpack_set(theory.KAS1)
-	history = unpack_set(theory.history)
-	digested_csv = digest_csv(csv_path)
-	for pseudo_ksu in digested_csv:
-		ksu = new_ksu_in_KAS1(ksu_set)
-		event = new_event()
-		event['ksu_id'] = ksu['ksu_id']
-		event['type'] = 'Created'
-		update_history(history, event)
-		for key, value in pseudo_ksu.iteritems():
-			ksu[key] = value
-		ksu_set.append(ksu)
-	theory.history = pack_set(history)
-	theory.KAS1 = pack_set(ksu_set)
-	theory.put()
-	return
-
-
-def create_csv_backup(ksu_set, required_attributes):
-	result = ""
-	i = 0
-	for attribute in required_attributes:
-		result += attribute + ',' 
-	for ksu in ksu_set:
-		result += '<br>'
-		for attribute in required_attributes:
-			result += str(ksu[attribute]) + ','
-	return result
-
-
-
-#--- Pickle related ---
-
-def pack_set(ksu_set):
-	return pickle.dumps(ksu_set)
-
-def unpack_set(ksu_pickled_set):
-	return pickle.loads(ksu_pickled_set)
+def new_ksu_for_KAS2(KAS2):
+	ksu = ksu_template()
+	ksu_id = create_ksu_id(kas2)
+	ksu['ksu_id'] = ksu_id
+	ksu['status'] = 'Pending' # ['Done', 'Pending', 'Deleted']
+	ksu['effort_points'] = 0
+	ksu['in_mission'] = False
+	ksu['best_time'] = None
+	ksu['target_exe'] = None
+	return ksu
 
 
 
