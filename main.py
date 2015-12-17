@@ -226,25 +226,23 @@ class Mission(Handler):
 
 	def post(self):
 		theory = self.theory
-		ksu_set = unpack_set(theory.KAS1)
-		master_log = unpack_set(theory.master_log)
-		history = unpack_set(theory.history)
-		target_id = self.request.get('id')
-		ksu = ksu_set[target_id]
 		post_details = get_post_details(self)
-		event = effort_event(post_details)
-		update_set(history, event)
-		update_next_exe(ksu) # BUG ALERT! This will not work for all KSU types
-		update_master_log(master_log, event)
-		theory.history = pack_set(history)
-		theory.master_log = pack_set(master_log)
-		theory.KAS1 = pack_set(ksu_set)
+		update_ksu_next_exe(theory, post_details)
+		event = add_Effort_event(theory, post_details)
+		update_master_log(theory, event)
 		theory.put()
 		self.redirect('/mission')
 
 
+
+
 def get_digit_from_id(ksu_id):
 	return int(ksu_id.split("_")[1])
+
+
+def get_type_from_id(ksu_id):
+	return int(ksu_id.split("_")[0])
+
 
 
 def todays_mission(theory):
@@ -296,7 +294,7 @@ def create_effort_report(theory, date):
 		event = history[event]
 		if event['date'] == date and event['type']=='Effort':			
 			report_item = {'effort_description':None,'effort_points':0}
-			report_item['effort_description'] = get_attribute_from_id(KAS1, event['id'], 'description')
+			report_item['effort_description'] = get_attribute_from_id(KAS1, event['ksu_id'], 'description')
 			report_item['effort_points'] = event['value']
 			result.append(report_item)
 	return result
@@ -487,28 +485,24 @@ def unpack_set(ksu_pickled_set):
 #--- Update Stuff ---
 
 
-def update_set(ksu_set, ksu):
-	ksu_id = ksu['id']
-	ksu_set[ksu_id]=ksu
-	return
-
-
-def update_next_exe(ksu):
-	frequency = int(ksu['frequency'])
-	next_exe = today + frequency
-	ksu['next_exe'] = next_exe
+def update_ksu_next_exe(theory, post_details):
+	ksu_set = unpack_set(theory.KAS1)
+	ksu_id = post_details['ksu_id']
+	ksu = ksu_set[ksu_id]
+	ksu['next_exe'] = today + int(ksu['frequency'])
 	ksu['latest_exe'] = today
+	theory.KAS1 = pack_set(ksu_set)
 	return
 
 
-
-
-def update_master_log(master_log, event):
+def update_master_log(theory, event):
+	master_log = unpack_set(theory.master_log)
 	date = event['date']
 	event_type = event['type']
 	event_value = int(event['value'])
 	log = master_log[date]
 	log[event_type] = log[event_type] + event_value
+	theory.master_log = pack_set(master_log)
 	return
 
 
@@ -517,8 +511,9 @@ def update_master_log(master_log, event):
 #--- Dictionary Templates ---
 
 def event_template():
-	event = {'type':None, # [Created, Edited ,Deleted, Happiness, Effort]
-			 'id': None,
+	event = {'id': None,
+			 'type':None, # [Created, Edited ,Deleted, Happiness, Effort]
+			 'ksu_id':None,
 			 'description': None, # Comments regarding the event
 			 'date':today,
 			 'duration':0, #To record duration of happy moments
@@ -574,7 +569,7 @@ def new_history():
 	event = event_template()
 	event['id'] = 'Event_0'
 	event['type'] = 'Created'
-	event['ksu_type'] = 'Event'
+	event['set_type'] = 'Event'
 	event['set_size'] = 0
 	event['description'] = 'Events History'
 	result['set_details'] = event
@@ -597,7 +592,7 @@ def new_KAS1():
 	ksu = ksu_template()
 	ksu['set_size'] = 0
 	ksu['id'] = 'KAS1_0'
-	ksu['ksu_type'] = 'KAS1'
+	ksu['set_type'] = 'KAS1'
 	ksu['description'] = 'KAS1 Key Base Actions Set'
 	ksu['status'] = 'Active' # ['Active', 'Hold', 'Deleted']
 	ksu['effort_points'] = 0
@@ -619,7 +614,7 @@ def new_Important_People_Set():
 	ksu = important_person_template()
 	ksu['set_size'] = 0
 	ksu['id'] = 'ImPe_0'
-	ksu['ksu_type'] = 'ImPe'
+	ksu['set_type'] = 'ImPe'
 	ksu['description'] = 'Important People Set'
 	result['set_details'] = ksu
 	return pack_set(result)
@@ -632,10 +627,10 @@ def new_Important_People_Set():
 
 def create_id(ksu_set):
 	set_details = ksu_set['set_details']
-	ksu_type = set_details['ksu_type']
+	set_type = set_details['set_type']
 	id_digit = int(set_details['set_size']) + 1
 	set_details['set_size'] = id_digit
-	ksu_id = ksu_type + '_'+ str(id_digit)
+	ksu_id = set_type + '_'+ str(id_digit)
 	return ksu_id
 
 
@@ -644,24 +639,6 @@ def new_event(history):
 	event_id = create_id(history)
 	event['id'] = event_id
 	return event
-
-
-
-def created_event(theory, ksu):
-
-	return
-
-
-
-def effort_event(post_details):
-	event = event_template()
-	event['id'] = post_details['id']
-	event['type'] = 'Effort'
-	event['description'] = post_details['event_comments']
-	event['duration'] = post_details['event_duration']
-	event['value'] = post_details['event_value']
-	return event
-
 
 
 def new_ksu_for_KAS1(KAS1):
@@ -704,12 +681,31 @@ def new_ksu_for_KAS2(KAS2):
 
 #--- Add items to sets. IT DOES NOT STORE THEM, IS STILL NECESARY TO ADD THE FUNCTION 	theory.put() ---
 
+def update_set(ksu_set, ksu):
+	ksu_id = ksu['id']
+	ksu_set[ksu_id]=ksu
+	return
+
 
 def add_Created_event(theory, ksu):
 	history = unpack_set(theory.history)
 	event = new_event(history)
 	event['type'] = 'Created'
-	event['id'] = ksu['id']
+	event['ksu_id'] = ksu['id']
+	update_set(history, event)
+	theory.history = pack_set(history)
+	return event
+
+
+
+def add_Effort_event(theory, post_details):
+	history = unpack_set(theory.history)
+	event = new_event(history)
+	event['ksu_id'] = post_details['ksu_id']
+	event['type'] = 'Effort'
+	event['description'] = post_details['event_comments']
+	event['duration'] = post_details['event_duration']
+	event['value'] = post_details['event_value']
 	update_set(history, event)
 	theory.history = pack_set(history)
 	return event
@@ -745,13 +741,6 @@ def add_ImPe_Contact_ksu(theory, person):
 	update_set(KAS1,ksu)
 	theory.KAS1 = pack_set(KAS1)
 	return ksu
-
-
-
-
-
-
-
 
 
 
