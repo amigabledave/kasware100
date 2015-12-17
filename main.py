@@ -183,40 +183,13 @@ class ImportantPeople(Handler):
 	def post(self):
 		theory = self.theory
 		details = get_post_details(self)
-		add_important_person_to_theory(theory, details)
+		person = add_Person_ksu(theory, details)
+		ksu = add_ImPe_Contact_ksu(theory, person)
+		add_Created_event(theory, ksu)
+		theory.put()
 		self.redirect('/important-people')
 
 
-
-def add_important_person_to_theory(theory, details):
-	ImPe = unpack_set(theory.ImPe)
-	person = new_ksu_for_ImPe(ImPe)
-	person['name'] = details['name']
-	person['contact_frequency'] = details['contact_frequency']
-	person['next_contact'] = today + int(details['contact_frequency'])
-	person_id = person['ksu_id']
-	update_set(ImPe,person)
-	theory.ImPe = pack_set(ImPe)
-
-	KAS1 = unpack_set(theory.KAS1)
-	ksu = new_ksu_for_KAS1(KAS1)
-	ksu['element'] = 'E500'
-	ksu['description'] = 'Contactar a ' + details['name']
-	ksu['frequency'] = details['contact_frequency']
-	ksu['next_exe'] = today + int(details['contact_frequency'])
-	ksu['effort_points'] = 3
-	ksu['target_person'] = person_id
-	update_set(KAS1,ksu)
-	theory.KAS1 = pack_set(KAS1)
-	
-	history = unpack_set(theory.history)
-	event = new_event(history)
-	event['type'] = 'Created'
-	update_set(history, event)
-	theory.history = pack_set(history)	
-
-	theory.put()
-	return
 
 
 
@@ -553,11 +526,11 @@ def event_template():
 	return event
 
 
-
 def ksu_template():
 	template = {'ksu_id': None,	
-				'ksu_subtype':None,			
+				'ksu_subtype':None,		
 		    	'element': None,
+		    	'lever':None,
 		    	'description': None,
 		    	'comments': None,
 		    	'local_tags': None,
@@ -674,6 +647,12 @@ def new_event(history):
 
 
 
+def created_event(theory, ksu):
+
+	return
+
+
+
 def effort_event(post_details):
 	event = event_template()
 	event['ksu_id'] = post_details['ksu_id']
@@ -718,6 +697,60 @@ def new_ksu_for_KAS2(KAS2):
 	ksu['best_time'] = None
 	ksu['target_exe'] = None
 	return ksu
+
+
+
+
+
+#--- Add items to sets. IT DOES NOT STORE THEM, IS STILL NECESARY TO ADD THE FUNCTION 	theory.put() ---
+
+
+def add_Created_event(theory, ksu):
+	history = unpack_set(theory.history)
+	event = new_event(history)
+	event['type'] = 'Created'
+	event['ksu_id'] = ksu['ksu_id']
+	update_set(history, event)
+	theory.history = pack_set(history)
+	return event
+
+
+
+def add_Person_ksu(theory, post_details):
+	ImPe = unpack_set(theory.ImPe)
+	person = new_ksu_for_ImPe(ImPe)
+	person['name'] = post_details['name']
+	person['contact_frequency'] = post_details['contact_frequency']
+	person['next_contact'] = today + int(post_details['contact_frequency'])
+	update_set(ImPe,person)
+	theory.ImPe = pack_set(ImPe)
+	return person
+
+
+def add_ImPe_Contact_ksu(theory, person):
+	KAS1 = unpack_set(theory.KAS1)
+	ksu = new_ksu_for_KAS1(KAS1)
+	ksu['element'] = 'E500'
+	ksu['description'] = 'Contactar a ' + person['name']
+	ksu['frequency'] = person['contact_frequency']
+	if person['last_contact']:
+		ksu['latest_exe'] = person['last_contact']
+		ksu['next_exe'] = person['last_contact'] + int(person['contact_frequency'])
+	else:
+		ksu['next_exe'] = today + int(person['contact_frequency'])
+	ksu['effort_points'] = 3
+	ksu['target_person'] = person['ksu_id']
+	ksu['ksu_subtype'] = 'ImPe_Contact'
+	person['child_ksus'] = person['child_ksus'].append(ksu['ksu_id'])
+	update_set(KAS1,ksu)
+	theory.KAS1 = pack_set(KAS1)
+	return ksu
+
+
+
+
+
+
 
 
 
