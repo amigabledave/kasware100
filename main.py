@@ -182,38 +182,39 @@ class ImportantPeople(Handler):
 	
 	def post(self):
 		theory = self.theory
-		name = self.request.get('person_name')
-		frequency = self.request.get('contact_frequency')
-		details = dict(contact_frequency=frequency, name=name)
+		details = get_post_details(self)
 		add_important_person_to_theory(theory, details)
 		self.redirect('/important-people')
 
 
 
-
 def add_important_person_to_theory(theory, details):
-	KAS1 = unpack_set(theory.KAS1)
 	ImPe = unpack_set(theory.ImPe)
-	history = unpack_set(theory.history)
-	ksu = new_ksu_for_KAS1(KAS1)
-	ksu['element'] = 'E500'
-	ksu['description'] = 'Contactar a ' + details['name']
-	ksu['next_exe'] = today + int(details['contact_frequency'])
-	ksu['effort_points'] = 3
-	event = new_event(history)
-	event['type'] = 'Created'
-	update_set(history, event)
-	for key, value in details.iteritems():
-		ksu[key] = value
-	update_set(KAS1,ksu)	
 	person = new_ksu_for_ImPe(ImPe)
 	person['name'] = details['name']
 	person['contact_frequency'] = details['contact_frequency']
 	person['next_contact'] = today + int(details['contact_frequency'])
+	person_id = person['ksu_id']
 	update_set(ImPe,person)
-	theory.history = pack_set(history)
 	theory.ImPe = pack_set(ImPe)
+
+	KAS1 = unpack_set(theory.KAS1)
+	ksu = new_ksu_for_KAS1(KAS1)
+	ksu['element'] = 'E500'
+	ksu['description'] = 'Contactar a ' + details['name']
+	ksu['frequency'] = details['contact_frequency']
+	ksu['next_exe'] = today + int(details['contact_frequency'])
+	ksu['effort_points'] = 3
+	ksu['target_person'] = person_id
+	update_set(KAS1,ksu)
 	theory.KAS1 = pack_set(KAS1)
+	
+	history = unpack_set(theory.history)
+	event = new_event(history)
+	event['type'] = 'Created'
+	update_set(history, event)
+	theory.history = pack_set(history)	
+
 	theory.put()
 	return
 
@@ -255,8 +256,8 @@ class Mission(Handler):
 		ksu_set = unpack_set(theory.KAS1)
 		master_log = unpack_set(theory.master_log)
 		history = unpack_set(theory.history)
-		target_ksu = get_digit_from_id(self.request.get('ksu_id'))
-		ksu = ksu_set[target_ksu]
+		target_ksu_id = self.request.get('ksu_id')
+		ksu = ksu_set[target_ksu_id]
 		post_details = get_post_details(self)
 		event = effort_event(post_details)
 		update_set(history, event)
@@ -277,6 +278,7 @@ def todays_mission(theory):
 	ksu_set = unpack_set(theory.KAS1)
 	result = []
 	for ksu in ksu_set:
+		ksu = ksu_set[ksu]
 		if ksu['next_exe']:
 			delay = today - int(ksu['next_exe'])
 			status = ksu['status']
@@ -298,8 +300,7 @@ class EditKSU(Handler):
 
 
 
-#--- Effort Report Handler --- BUG ALERT! Pending to update given the new KSU structure
-
+#--- Effort Report Handler --- 
 
 class EffortReport(Handler):
 	def get(self):
@@ -309,13 +310,8 @@ class EffortReport(Handler):
 
 
 
-
 def get_attribute_from_id(ksu_set, ksu_id, ksu_attribute):
-	result = None
-	for ksu in ksu_set:
-		if ksu['ksu_id'] == ksu_id:
-			result = ksu[ksu_attribute]
-	return result
+	return ksu_set[ksu_id][ksu_attribute]
 
 
 
@@ -361,15 +357,7 @@ def mission_email(ksu_set):
 
 
 
-
-class LoadCSV(Handler):
-	def get(self):
-		theory = self.theory
-		add_ksus_to_set_from_csv(csv_path, theory)
-		self.redirect('/important-people')
-
-
-
+#--- CSV load & backup ---
 
 class PythonBackup(Handler):
 	def get(self):
@@ -381,7 +369,12 @@ class PythonBackup(Handler):
 			self.redirect('/login')
 
 
-#--- CSV load & backup ---
+class LoadCSV(Handler):
+	def get(self):
+		theory = self.theory
+		add_ksus_to_set_from_csv(csv_path, theory)
+		self.redirect('/important-people')
+
 
 class CSVBackup(Handler):
 	def get(self):
@@ -500,7 +493,7 @@ def validate_password(username, password, h):
 #--- Essentials ---
 
 def get_post_details(self):
-	result = new_event()
+	result = {}
 	arguments = self.request.arguments()
 	for argument in arguments:
 		result[str(argument)] = self.request.get(str(argument))
@@ -682,7 +675,7 @@ def new_event(history):
 
 
 def effort_event(post_details):
-	event = new_event()
+	event = event_template()
 	event['ksu_id'] = post_details['ksu_id']
 	event['type'] = 'Effort'
 	event['description'] = post_details['event_comments']
