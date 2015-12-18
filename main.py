@@ -196,7 +196,7 @@ def pretty_dates(ksu_set):
 			if date_attribute in valid_attributes:	
 				if ksu[date_attribute]:
 					number_date = int(ksu[date_attribute])
-					pretty_date = datetime.fromordinal(number_date).strftime('%b %d')
+					pretty_date = datetime.fromordinal(number_date).strftime('%b %d, %Y')
 					# pretty_date = datetime.fromordinal(number_date).strftime('%a-%d-%m-%Y')
 					ksu[date_attribute] = pretty_date
 	return ksu_set
@@ -248,8 +248,6 @@ class EditKSU(Handler):
 
 
 
-
-
 #--- Effort Report Handler --- 
 
 class EffortReport(Handler):
@@ -282,7 +280,46 @@ def create_effort_report(theory, date):
 
 
 
-#--- Email Handler ---
+#--- Development Handlers --------
+
+#--- Load CSV  ---
+
+class LoadCSV(Handler):
+	def get(self):
+		developer_Action_Load_ImPe_CSV(self,ImPe_csv_path)
+		self.redirect('/important-people')
+
+
+
+#--- Create CSV Backup ---
+
+class CSVBackup(Handler):
+	def get(self):
+		theory = self.theory
+		if theory:
+			KAS1 = unpack_set(theory.KAS1)
+			output = create_csv_backup(KAS1, ['id','description','frequency','latest_exe','status'])
+			self.write(output)
+		else:
+			self.redirect('/login')
+
+
+def create_csv_backup(ksu_set, required_attributes):
+	result = ""
+	i = 0
+	for attribute in required_attributes:
+		result += attribute + ',' 
+	for ksu in ksu_set:
+		ksu = ksu_set[ksu]
+		result += '<br>'
+		for attribute in required_attributes:
+			result += str(ksu[attribute]) + ','
+	return result
+
+
+
+
+#--- Send Email ---
 
 
 class Email(Handler):
@@ -307,90 +344,7 @@ def mission_email(ksu_set):
 
 
 
-#--- CSV load & backup ---
-
-class PythonBackup(Handler):
-	def get(self):
-		theory = self.theory
-		if theory:
-			KAS1 = unpack_set(theory.KAS1)
-			self.write(KAS1)
-		else:
-			self.redirect('/login')
-
-
-class LoadCSV(Handler):
-	def get(self):
-		theory = self.theory
-		add_ksus_to_set_from_csv(csv_path, theory)
-		self.redirect('/important-people')
-
-
-class CSVBackup(Handler):
-	def get(self):
-		theory = self.theory
-		if theory:
-			KAS1 = unpack_set(theory.KAS1)
-			output = create_csv_backup(KAS1, ['id','description','frequency','latest_exe','status','imp_person_name'])
-			self.write(output)
-		else:
-			self.redirect('/login')
-
-
-def digest_csv(csv_path):
-	f = open(csv_path, 'rU')
-	f.close
-	csv_f = csv.reader(f, dialect=csv.excel_tab)
-	result = []
-	attributes = csv_f.next()[0].split(',')
-	for row in csv_f:
-		digested_ksu = {}
-		i = 0
-		raw_ksu = row[0].split(',')
-		for attribute in raw_ksu:
-			digested_ksu[attributes[i]] = attribute
-			i += 1
-		result.append(digested_ksu)
-	return result
-
-
-
-def add_ksus_to_set_from_csv(csv_path, theory):
-	ksu_set = unpack_set(theory.KAS1)
-	history = unpack_set(theory.history)
-	digested_csv = digest_csv(csv_path)
-	for pseudo_ksu in digested_csv:
-		ksu = new_ksu_for_KAS1(ksu_set)
-		event = new_event()
-		event['id'] = ksu['id']
-		event['type'] = 'Created'
-		update_set(history, event)
-		for key, value in pseudo_ksu.iteritems():
-			ksu[key] = value
-		ksu_set.append(ksu)
-	theory.history = pack_set(history)
-	theory.KAS1 = pack_set(ksu_set)
-	theory.put()
-	return
-
-
-def create_csv_backup(ksu_set, required_attributes):
-	result = ""
-	i = 0
-	for attribute in required_attributes:
-		result += attribute + ',' 
-	for ksu in ksu_set:
-		result += '<br>'
-		for attribute in required_attributes:
-			result += str(ksu[attribute]) + ','
-	return result
-
-
-
-
-
-#--- Development Handlers ----
-
+#--- View Raw Data ---
 
 class History(Handler):
 	def get(self):
@@ -400,6 +354,20 @@ class History(Handler):
 			self.write(history)
 		else:
 			self.redirect('/login')
+
+
+class PythonBackup(Handler):
+	def get(self):
+		theory = self.theory
+		if theory:
+			self.write(unpack_set(theory.KAS1))
+			# self.write(unpack_set(theory.ImPe))
+		else:
+			self.redirect('/login')
+
+
+
+
 
 
 
@@ -669,6 +637,8 @@ def add_Person_ksu(theory, post_details):
 	person['name'] = post_details['name']
 	person['contact_frequency'] = post_details['contact_frequency']
 	person['next_contact'] = today + int(post_details['contact_frequency'])
+	if post_details['last_contact']:
+		person['last_contact'] = post_details['last_contact']
 	update_set(ImPe,person)
 	theory.ImPe = pack_set(ImPe)
 	return person
@@ -682,7 +652,7 @@ def add_ImPe_Contact_ksu(theory, person):
 	ksu['frequency'] = person['contact_frequency']
 	if person['last_contact']:
 		ksu['latest_exe'] = person['last_contact']
-		ksu['next_exe'] = person['last_contact'] + int(person['contact_frequency'])
+		ksu['next_exe'] = int(person['last_contact']) + int(person['contact_frequency'])
 	else:
 		ksu['next_exe'] = today + int(person['contact_frequency'])
 	ksu['effort_points'] = 3
@@ -715,6 +685,32 @@ def user_Action_Create_ImPe_ksu(self):
 	ksu = add_ImPe_Contact_ksu(theory, person)
 	add_Created_event(theory, ksu)
 	theory.put()
+
+
+
+
+#--- Developer Actions ---
+
+def developer_Action_Load_ImPe_CSV(self,csv_path):
+	theory = self.theory
+	f = open(csv_path, 'rU')
+	f.close
+	csv_f = csv.reader(f, dialect=csv.excel_tab)
+	attributes = csv_f.next()[0].split(',')
+	for row in csv_f:
+		digested_ksu = {}
+		i = 0
+		raw_ksu = row[0].split(',')
+		for attribute in raw_ksu:
+			digested_ksu[attributes[i]] = attribute
+			i += 1
+		details = digested_ksu
+		person = add_Person_ksu(theory, details)
+		ksu = add_ImPe_Contact_ksu(theory, person)
+		add_Created_event(theory, ksu)
+	theory.put()
+	return 
+
 
 
 
@@ -788,7 +784,7 @@ secret = 'elzecreto'
 
 # csv_path = '/Users/amigabledave/kasware100/csv_files/important_people.csv'
 
-csv_path = os.path.join(os.path.dirname(__file__), 'csv_files', 'important_people.csv')
+ImPe_csv_path = os.path.join(os.path.dirname(__file__), 'csv_files', 'Backup_ImPe.csv')
 
 
 # --- Regular expressions ---
