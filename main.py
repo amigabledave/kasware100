@@ -489,6 +489,7 @@ def ksu_template():
 def important_person_template():
 	person = {'id':None,
 			  'name':None,
+			  'target_person':None, # Attribute needed just to avoid KeyErrors
 			  'group':None,
 			  'contact_frequency':None,
 			  'last_contact':None,
@@ -712,6 +713,7 @@ def user_Action_Create_ImPe_ksu(self):
 	details = get_post_details(self)
 	person = add_Person_ksu(theory, details)
 	ksu = add_ImPe_Contact_ksu(theory, person)
+	add_Created_event(theory,person)
 	add_Created_event(theory, ksu)
 	theory.put()
 
@@ -736,6 +738,7 @@ def developer_Action_Load_ImPe_CSV(self,csv_path):
 		details = digested_ksu
 		person = add_Person_ksu(theory, details)
 		ksu = add_ImPe_Contact_ksu(theory, person)
+		add_Created_event(theory,person)
 		add_Created_event(theory, ksu)
 	theory.put()
 	return 
