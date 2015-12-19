@@ -346,26 +346,14 @@ def mission_email(ksu_set):
 
 #--- View Raw Data ---
 
-class History(Handler):
-	def get(self):
-		theory = self.theory
-		if theory:
-			history = unpack_set(theory.history)
-			self.write(history)
-		else:
-			self.redirect('/login')
-
-
 class PythonBackup(Handler):
-	def get(self):
+	def get(self, set_name):
 		theory = self.theory
 		if theory:
-			# self.write(unpack_set(theory.KAS1))
-			# self.write(unpack_set(theory.ImPe))
-			self.write(unpack_set(theory.master_log))
+			ksu_set = unpack_set(eval('theory.' + set_name))
+			self.write(ksu_set)
 		else:
 			self.redirect('/login')
-
 
 
 
@@ -824,6 +812,7 @@ ImPe_csv_path = os.path.join(os.path.dirname(__file__), 'csv_files', 'Backup_ImP
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 PASS_RE = re.compile(r"^.{3,20}$")
 EMAIL_RE = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
+PAGE_RE = r'((?:[a-zA-Z0-9_-]+/?)*)'
 
 
 
@@ -839,8 +828,8 @@ app = webapp2.WSGIApplication([
 							 ('/editKSU', EditKSU),
 							 ('/effort-report',EffortReport),
 							 ('/email',Email),
-							 ('/loadCSV', LoadCSV),
-							 ('/python-backup',PythonBackup),
+							 ('/LoadCSV', LoadCSV),
 							 ('/csv-backup',CSVBackup),
-							 ('/history', History)
+							 ('/PythonBackup/' + PAGE_RE, PythonBackup)
+
 							 ], debug=True)
