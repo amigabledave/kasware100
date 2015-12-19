@@ -16,13 +16,10 @@ print today_pretty
 
 # date_object = datetime.strptime('Jun 1 2005  1:33PM', '%b %d %Y %I:%M%p')
 
-date_object = datetime.strptime('15-12-2015','%d-%m-%Y')
-
-
-time_object = datetime.strptime('12:00','%I:%M')
-
+date_object = datetime.strptime('01-01-2016','%d-%m-%Y')
 print date_object.toordinal()
-print time_object.toordinal()
+
+
 
 
 

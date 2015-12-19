@@ -360,12 +360,11 @@ class PythonBackup(Handler):
 	def get(self):
 		theory = self.theory
 		if theory:
-			self.write(unpack_set(theory.KAS1))
+			# self.write(unpack_set(theory.KAS1))
 			# self.write(unpack_set(theory.ImPe))
+			self.write(unpack_set(theory.master_log))
 		else:
 			self.redirect('/login')
-
-
 
 
 
@@ -397,7 +396,7 @@ def get_digit_from_id(ksu_id):
 
 
 def get_type_from_id(ksu_id):
-	return int(ksu_id.split("_")[0])
+	return ksu_id.split("_")[0]
 
 
 
@@ -416,15 +415,42 @@ def update_ksu_next_exe(theory, post_details):
 	return
 
 
+
 def update_master_log(theory, event):
 	master_log = unpack_set(theory.master_log)
+
 	date = event['date']
 	event_type = event['type']
-	event_value = int(event['value'])
-	log = master_log[date]
-	log[event_type] = log[event_type] + event_value
+	if event_type == 'Effort' or event_type == 'Happiness':
+		event_value = int(event['value'])
+		log = master_log[date]
+		log[event_type] = log[event_type] + event_value
+
+	ksu_id = event['ksu_id']
+	event_id = event['id']
+	if ksu_id in master_log:
+		ksu_history = master_log[ksu_id]
+		ksu_history.append(event_id)
+	else:
+		ksu_history = [event_id]
+	master_log[ksu_id] = ksu_history
+
+	set_name = get_type_from_id(ksu_id)
+	ksu_set = unpack_set(eval("theory." + set_name)) 
+	ksu = ksu_set[ksu_id]
+	person_id = ksu['target_person']
+	if person_id:
+		if person_id in master_log:
+			person_history = master_log[person_id]
+			person_history.append(event_id)
+		else:
+			person_history = [event_id]
+		master_log[person_id] = person_history
+
 	theory.master_log = pack_set(master_log)
 	return
+
+
 
 
 
@@ -498,7 +524,7 @@ def new_history():
 
 
 
-def new_master_log(start_date=735942, end_date=736680):
+def new_master_log(start_date=(735964-31), end_date=(735964+366)): #start_date = Dec 1, 2015 |  end_date = Dec 31, 2016
 	result = {}
 	for date in range(start_date, end_date):
 		entry = {'Effort':0,'Happiness':0}
@@ -612,6 +638,7 @@ def add_Created_event(theory, ksu):
 	event['type'] = 'Created'
 	event['ksu_id'] = ksu['id']
 	update_set(history, event)
+	update_master_log(theory, event)
 	theory.history = pack_set(history)
 	return event
 
@@ -626,6 +653,7 @@ def add_Effort_event(theory, post_details):
 	event['duration'] = post_details['event_duration']
 	event['value'] = post_details['event_value']
 	update_set(history, event)
+	update_master_log(theory, event)
 	theory.history = pack_set(history)
 	return event
 
@@ -637,11 +665,13 @@ def add_Person_ksu(theory, post_details):
 	person['name'] = post_details['name']
 	person['contact_frequency'] = post_details['contact_frequency']
 	person['next_contact'] = today + int(post_details['contact_frequency'])
-	if post_details['last_contact']:
+	if 'last_contact' in post_details:
 		person['last_contact'] = post_details['last_contact']
 	update_set(ImPe,person)
 	theory.ImPe = pack_set(ImPe)
 	return person
+
+
 
 
 def add_ImPe_Contact_ksu(theory, person):
@@ -673,8 +703,7 @@ def user_Action_Effort_Done(self):
 	theory = self.theory
 	post_details = get_post_details(self)
 	update_ksu_next_exe(theory, post_details)
-	event = add_Effort_event(theory, post_details)
-	update_master_log(theory, event)
+	add_Effort_event(theory, post_details)
 	theory.put()
 
 
