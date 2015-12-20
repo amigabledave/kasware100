@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+	<div class="col-md-12"> <h3> New KAS1 KSU </h3></div>
+</div>
+
+<br>	
+
+
+<form class="form-horizontal">
+ 
+	<div class="form-group">
+		<div class="col-md-9"> 
+			<label> Action Description </label>
+			<input type="text" class="form-control tile-ksu-edit" name="description" placeholder="e.g. Llamar a Mama" >
+		</div>
+
+
+		<div class="col-md-1"> 
+			<label> Prio. Lvl. </label> 
+			<select class="form-control"> 
+				{% for i in range(1,10) %}
+					<option> {{i}} </option>
+				{% endfor %}
+			</select>
+		</div>
+
+
+		<div class="col-md-2">
+	 		<div class="checkbox"> 
+	 			<label> <input type="checkbox"> <b> Is Critical </b> </label> 
+	 		</div>
+
+	 		<div class="checkbox"> 
+	 			<label> <input type="checkbox"> <b> Is Private </b> </label> 
+	 		</div>
+		</div>
+	</div>
+
+
+
+
+
+
+
+	<div class="form-group">
+
+		<div class="col-md-2">
+			<label>Element</label>
+				<select class="form-control">
+				{% for e in constants['l_Elements'] %}
+					<option> {{e}} </option>
+				{% endfor %}
+			</select>
+		</div>	
+
+		<div class="col-md-2">
+			<label>Purpose</label>
+				<select class="form-control">
+				{% for p in constants['l_Purposes'] %}
+					<option> {{p}} </option>
+				{% endfor %}
+			</select>
+		</div>	
+
+		<div class="col-md-2">
+			<label> Parent KSU </label>
+			<input type="text" class="form-control" name="" placeholder="Optional">
+		</div>
+
+
+		<div class="col-md-2">
+			<label> Local Tag </label>
+			<input type="text" class="form-control" name="" placeholder="Optional">
+		</div>
+
+		<div class="col-md-2">
+			<label> Global Tag </label>
+			<input type="text" class="form-control" name="" placeholder="Optional">
+		</div>
+
+		<div class="col-md-2">
+			<label> Target Person </label>
+			<input type="text" class="form-control" name="" placeholder="Optional">
+		</div>
+
+	</div>
+
+
+
+
+	<div class="form-group">
+
+		<div class="col-md-2"> 
+			<label> Effort Rewards Points </label>
+			<input type="text" class="form-control" name="description" placeholder="e.g. 13" >
+		</div>
+
+		<div class="col-md-2">
+			<label> Frequency in Days </label>
+			<input type="text" class="form-control" name="frequency" placeholder="e.g. 7">
+		</div>
+
+		<div class="col-md-2">
+			<label> Next Scheduled Event </label>
+			<input type="text" class="form-control" value="" name="" placeholder="DD-MM-YYYY">
+		</div>
+
+
+		<div class="col-md-2">
+			<label> Prefered Day </label>
+				<select class="form-control">
+					{% for d in constants['l_Days'] %}
+						<option> {{d}} </option>
+					{% endfor %}
+				</select> 
+		</div>
+
+		<div class="col-md-2">
+			<label> Preferred Time (24hrs.)</label>
+			<input type="text" class="form-control" name="best_time" placeholder="00:00">
+		</div>
+	</div>
+
+
+
+	<div class="form-group">
+		<div class="col-md-10">
+			<label> Comments </label>
+			<textarea class="form-control" name="" placeholder="Additional usefull information"> </textarea> 
+		</div>
+	
+		<div class="col-md-2">
+			<div class="radio">
+			  <label>
+			    <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>
+			    <b> Active </b>
+			  </label>
+			</div>
+			<div class="radio">
+			  <label>
+			    <input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
+			    <b> On Hold </b>
+			  </label>
+			</div>
+			</div>
+	</div>
+
+
+
+  	<div class="form-group">
+  		<div class="col-md-4"></div>
+		<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space">     Commit    </button> </div>	
+		<div class="col-md-2"> <button type="button" class="btn btn-danger btn-lg  respect-space">    Discard   </button> </div>
+		<div class="col-md-4"></div>
+	</div>
+
+</form>
+
+
+<hr>
+
+
+{% endblock %}

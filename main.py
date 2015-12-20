@@ -238,6 +238,15 @@ def todays_mission(theory):
 
 
 
+#--- New KSU Handler ---
+
+class NewKSU(Handler):
+	def get(self):
+		self.print_html('ksu-new-form.html', constants=constants)
+
+
+
+
 
 #--- Edit KSU Handler ---
 
@@ -460,7 +469,7 @@ def ksu_template():
 	template = {'id': None,	
 				'subtype':None,		
 		    	'element': None,
-		    	'lever':None,
+		    	'purpose':None,
 		    	'description': None,
 		    	'comments': None,
 		    	'local_tags': None,
@@ -774,27 +783,53 @@ def validate_password(username, password, h):
 today = datetime.today().toordinal()
 
 
-list_Elements = ['1. Inner Peace',
-				 '2. Fun & Excitement',
-				 '3. Meaning & Direction', 
-				 '4. Health & Vitality',
-				 '5. Love & Friendship',
-				 '6. Knowledge & Skills',
-				 '7. Outer Peace',
-				 '8. Monetary Resources',
-				 '9. Non-Monetary Resources']
 
 
-dictionary_Elements = {'E100': '1. Inner Peace',
-					 'E200': '2. Fun & Excitement', 
-					 'E300': '3. Meaning & Direction', 
-					 'E400': '4. Health & Vitality', 
-					 'E500': '5. Love & Friendship', 
-					 'E600': '6. Knowledge & Skills', 
-					 'E700': '7. Outer Peace', 
-					 'E800': '8. Monetary Resources',
-				 	 'E900': '9. Non-Monetary Resources'}
+l_Elements = ['1. Inner Peace',
+			 '2. Fun & Excitement',
+			 '3. Meaning & Direction', 
+			 '4. Health & Vitality',
+			 '5. Love & Friendship',
+			 '6. Knowledge & Skills',
+			 '7. Outer Peace',
+			 '8. Monetary Resources',
+			 '9. Non-Monetary Resources']
 
+
+
+l_Purposes = ['1. Create Moments',
+			 '2. Generate Resources',
+			 '3. Avoid Shit']
+
+
+
+l_Days = [ None,
+		  'Sunday',
+		  'Monday',
+		  'Tuesday',
+		  'Wednesday',
+		  'Thursday',
+		  'Friday',
+		  'Saturday']
+
+
+
+d_Elements = {'E100': '1. Inner Peace',
+			 'E200': '2. Fun & Excitement', 
+			 'E300': '3. Meaning & Direction', 
+			 'E400': '4. Health & Vitality', 
+			 'E500': '5. Love & Friendship', 
+			 'E600': '6. Knowledge & Skills', 
+			 'E700': '7. Outer Peace', 
+			 'E800': '8. Monetary Resources',
+		 	 'E900': '9. Non-Monetary Resources'}
+
+
+
+constants = {'l_Elements':l_Elements,
+			 'l_Purposes':l_Purposes,
+			 'l_Days':l_Days,
+			 'd_Elements':d_Elements}
 
 
 
@@ -825,6 +860,7 @@ app = webapp2.WSGIApplication([
                              ('/logout', Logout),
                              ('/mission', Mission),
 							 ('/important-people',ImportantPeople),
+							 ('/NewKSU', NewKSU),
 							 ('/editKSU', EditKSU),
 							 ('/effort-report',EffortReport),
 							 ('/email',Email),
