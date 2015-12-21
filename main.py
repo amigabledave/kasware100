@@ -204,7 +204,7 @@ def todays_mission(theory):
 
 #--- Set Viewer Handler ---
 
-class ViewSet(Handler):
+class SetViewer(Handler):
 	def get(self, set_name):
 		theory = self.theory
 		if theory:
@@ -902,7 +902,7 @@ app = webapp2.WSGIApplication([
 							 ('/login', Login),
                              ('/logout', Logout),
                              ('/mission', Mission),
-                             ('/ViewSet/'+ PAGE_RE, ViewSet),
+                             ('/SetViewer/'+ PAGE_RE, SetViewer),
 							 ('/important-people',ImportantPeople),
 							 ('/NewKSU', NewKSU),
 							 ('/editKSU', EditKSU),
