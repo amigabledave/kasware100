@@ -39,10 +39,10 @@ class Theory(db.Model):
 		return Theory(username=username, 
 					  password_hash=password_hash,
 					  email=email, 
-					  KAS1=new_KAS1(),
-					  ImPe=new_Important_People_Set(),
-					  master_log=new_master_log(),
-					  history=new_history())
+					  KAS1=new_set_KAS1(),
+					  ImPe=new_set_ImPe(),
+					  master_log=new_set_master_log(),
+					  history=new_set_history())
 
 	@classmethod
 	def valid_login(cls, username, password):
@@ -168,6 +168,58 @@ class Logout(Handler):
 
 
 
+#--- Mission Handler ---
+
+
+class Mission(Handler):
+
+	def get(self):
+		theory = self.theory
+		if theory:
+			mission = todays_mission(theory)
+			self.print_html('todays-mission.html', mission=mission)
+		else:
+			self.redirect('/login')
+
+
+	def post(self):
+		user_Action_Effort_Done(self)
+		self.redirect('/mission')
+
+
+
+def todays_mission(theory):
+	ksu_set = unpack_set(theory.KAS1)
+	result = []
+	for ksu in ksu_set:
+		ksu = ksu_set[ksu]
+		if ksu['next_exe']:
+			delay = today - int(ksu['next_exe'])
+			status = ksu['status']
+			if delay >= 0 and status=='Active':
+				result.append(ksu)
+	return result
+
+
+
+#--- Set Viewer Handler ---
+
+class ViewSet(Handler):
+	def get(self, set_name):
+		theory = self.theory
+		if theory:
+			ksu_set = unpack_set(eval('theory.' + set_name))
+			set_details = ksu_set['set_details']
+			ksu_set = pretty_dates(ksu_set)
+			ksu_set = hide_invisible(ksu_set)
+			ksu_set = list(ksu_set.values())
+			viewer_details = d_Viewer[set_name]
+			self.print_html('set-viewer.html', viewer_details=viewer_details, ksu_set=ksu_set)
+		else:
+			self.redirect('/login')
+
+
+
 
 #--- Important People Handler ---
 
@@ -203,38 +255,15 @@ def pretty_dates(ksu_set):
 	
 
 
-
-#--- Mission Handler ---
-
-
-class Mission(Handler):
-
-	def get(self):
-		theory = self.theory
-		if theory:
-			mission = todays_mission(theory)
-			self.print_html('todays-mission.html', mission=mission)
-		else:
-			self.redirect('/login')
-
-
-	def post(self):
-		user_Action_Effort_Done(self)
-		self.redirect('/mission')
-
-
-
-def todays_mission(theory):
-	ksu_set = unpack_set(theory.KAS1)
-	result = []
+def hide_invisible(ksu_set):
+	result = {}
 	for ksu in ksu_set:
 		ksu = ksu_set[ksu]
-		if ksu['next_exe']:
-			delay = today - int(ksu['next_exe'])
-			status = ksu['status']
-			if delay >= 0 and status=='Active':
-				result.append(ksu)
+		if ksu['is_visible']:
+			result[ksu['id']] = ksu
 	return result
+
+
 
 
 
@@ -353,9 +382,11 @@ def mission_email(ksu_set):
 
 
 
-#--- View Raw Data ---
+#--- Raw Data Viewer ---
+
 
 class PythonBackup(Handler):
+
 	def get(self, set_name):
 		theory = self.theory
 		if theory:
@@ -363,6 +394,7 @@ class PythonBackup(Handler):
 			self.write(ksu_set)
 		else:
 			self.redirect('/login')
+
 
 
 
@@ -487,6 +519,7 @@ def important_person_template():
 	person = {'id':None,
 			  'name':None,
 			  'target_person':None, # Attribute needed just to avoid KeyErrors
+			  'is_visible': True, # Attribute needed just to avoid KeyErrors
 			  'group':None,
 			  'contact_frequency':None,
 			  'last_contact':None,
@@ -509,7 +542,7 @@ def important_person_template():
 
 
 
-def new_history():
+def new_set_history():
 	result = {}
 	event = event_template()
 	event['id'] = 'Event_0'
@@ -522,7 +555,7 @@ def new_history():
 
 
 
-def new_master_log(start_date=(735964-31), end_date=(735964+366)): #start_date = Dec 1, 2015 |  end_date = Dec 31, 2016
+def new_set_master_log(start_date=(735964-31), end_date=(735964+366)): #start_date = Dec 1, 2015 |  end_date = Dec 31, 2016
 	result = {}
 	for date in range(start_date, end_date):
 		entry = {'Effort':0,'Happiness':0}
@@ -532,7 +565,7 @@ def new_master_log(start_date=(735964-31), end_date=(735964+366)): #start_date =
 
 
 
-def new_KAS1():
+def new_set_KAS1():
 	result = {}
 	ksu = ksu_template()
 	ksu['set_size'] = 0
@@ -554,16 +587,16 @@ def new_KAS1():
 
 
 
-def new_Important_People_Set():
+def new_set_ImPe():
 	result = {}
 	ksu = important_person_template()
 	ksu['set_size'] = 0
 	ksu['id'] = 'ImPe_0'
 	ksu['set_type'] = 'ImPe'
-	ksu['description'] = 'Important People Set'
+	ksu['description'] = 'My Important People'
+	ksu['is_visible'] = False
 	result['set_details'] = ksu
 	return pack_set(result)
-
 
 
 
@@ -606,7 +639,6 @@ def new_ksu_for_ImPe(Important_People_set):
 	ksu_id = create_id(Important_People_set)
 	ksu['id'] = ksu_id
 	return ksu
-
 
 
 def new_ksu_for_KAS2(KAS2):
@@ -784,7 +816,6 @@ today = datetime.today().toordinal()
 
 
 
-
 l_Elements = ['1. Inner Peace',
 			 '2. Fun & Excitement',
 			 '3. Meaning & Direction', 
@@ -833,6 +864,18 @@ constants = {'l_Elements':l_Elements,
 
 
 
+d_Viewer ={'KAS1':{'set_name':'My Key Base Actions Set  (KAS1)',
+				   'attributes':['description','frequency','latest_exe','next_exe','comments'],
+				   'fields':{'description':'Description','frequency':'E. Freq.','latest_exe':'Last Event','next_exe':'Next Event','comments':'Comments'},
+				   'columns':{'description':3,'frequency':1,'latest_exe':2,'next_exe':2,'comments':3}},
+		   
+		   'ImPe': {'set_name':'My Important People',
+					'attributes':['name', 'contact_frequency', 'last_contact', 'next_contact', 'comments'],
+				    'fields':{'name':'Name', 'contact_frequency':'C. Freq.', 'last_contact':'Last Contact', 'next_contact':'Next Contact', 'comments':'Comments'},
+				    'columns':{'name':3, 'contact_frequency':1, 'last_contact':2, 'next_contact':2, 'comments':3}}}
+
+
+
 secret = 'elzecreto'
 
 
@@ -859,6 +902,7 @@ app = webapp2.WSGIApplication([
 							 ('/login', Login),
                              ('/logout', Logout),
                              ('/mission', Mission),
+                             ('/ViewSet/'+ PAGE_RE, ViewSet),
 							 ('/important-people',ImportantPeople),
 							 ('/NewKSU', NewKSU),
 							 ('/editKSU', EditKSU),

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+	<div class="col-md-12"> <h2> {{viewer_details['set_name']}} </h2></div>
+</div>
+
+<br>
+
+<!-- Field Headers -->
+
+
+<div class="row">
+	{% for a in viewer_details['attributes'] %}
+		<div class="col-md-{{viewer_details['columns'][a]}}">  <div class="field-header">  {{viewer_details['fields'][a]}} </div> </div>
+	{% endfor %}
+</div>
+
+
+<hr class="thick-hr-1px">
+
+<!-- Rows. One per KSU -->
+
+{% for ksu in ksu_set %}
+
+	<div class="row">
+		{% for a in viewer_details['attributes'] %}
+			<div class="col-md-{{viewer_details['columns'][a]}}">  {% if ksu[a] %} {{ksu[a]}} {% endif %} </div>
+		{% endfor %}	
+	</div>
+	<hr>
+
+{% endfor %}
+
+
+
+
+{% endblock %}
