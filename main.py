@@ -233,7 +233,7 @@ class ImportantPeople(Handler):
 		self.print_html('important-people.html', people=people)
 	
 	def post(self):
-		user_Action_Create_ImPe_ksu(self)
+		user_Action_Create_ksu_in_ImPe(self)
 		self.redirect('/important-people')
 
 
@@ -270,8 +270,15 @@ def hide_invisible(ksu_set):
 #--- New KSU Handler ---
 
 class NewKSU(Handler):
+	
 	def get(self):
 		self.print_html('ksu-new-form.html', constants=constants)
+	
+	def post(self):
+		# details = get_post_details(self)
+		# self.write(details)
+		user_Action_Create_ksu_in_KAS1(self)
+		self.redirect('/SetViewer/KAS1')
 
 
 
@@ -508,7 +515,7 @@ def ksu_template():
 		    	'global_tags': None,
 		    	'target_person':None,
 		    	'parent_id': None,
-		    	'priority_lvl':9,
+		    	'relative_imp':9,
 		    	'is_critical': False,
 		    	'is_visible': True,
 		    	'is_private': False}
@@ -689,7 +696,25 @@ def add_Effort_event(theory, post_details):
 
 
 
-def add_Person_ksu(theory, post_details):
+
+def add_ksu_to_KAS1(theory, details):
+	#need to validate user input
+	#need to prepare user input
+	KAS1 = unpack_set(theory.KAS1)
+	ksu = new_ksu_for_KAS1(KAS1)
+	for (attribute, value) in details.items():
+		ksu[attribute] = value
+	if ksu['last_event']:
+		ksu['next_event'] = int(ksu['last_event']) + int(ksu['frequency'])
+	else:
+		ksu['next_event'] = today
+	update_set(KAS1,ksu)
+	theory.KAS1 = pack_set(KAS1)
+	return ksu
+
+
+
+def add_ksu_to_ImPe(theory, post_details):
 	ImPe = unpack_set(theory.ImPe)
 	person = new_ksu_for_ImPe(ImPe)
 	person['name'] = post_details['name']
@@ -704,7 +729,7 @@ def add_Person_ksu(theory, post_details):
 
 
 
-def add_ImPe_Contact_ksu(theory, person):
+def add_ImPe_Contact_ksu_in_KAS1(theory, person):
 	KAS1 = unpack_set(theory.KAS1)
 	ksu = new_ksu_for_KAS1(KAS1)
 	ksu['element'] = 'E500'
@@ -737,11 +762,23 @@ def user_Action_Effort_Done(self):
 	theory.put()
 
 
-def user_Action_Create_ImPe_ksu(self):
+
+def user_Action_Create_ksu_in_KAS1(self):
 	theory = self.theory
 	details = get_post_details(self)
-	person = add_Person_ksu(theory, details)
-	ksu = add_ImPe_Contact_ksu(theory, person)
+	#need to add function that validates and prepare inputs
+	ksu = add_ksu_to_KAS1(theory, details)
+	add_Created_event(theory, ksu)
+	theory.put()
+
+
+
+
+def user_Action_Create_ksu_in_ImPe(self):
+	theory = self.theory
+	details = get_post_details(self)
+	person = add_ksu_to_ImPe(theory, details)
+	ksu = add_ImPe_Contact_ksu_in_KAS1(theory, person)
 	add_Created_event(theory,person)
 	add_Created_event(theory, ksu)
 	theory.put()
@@ -765,8 +802,8 @@ def developer_Action_Load_ImPe_CSV(self,csv_path):
 			digested_ksu[attributes[i]] = attribute
 			i += 1
 		details = digested_ksu
-		person = add_Person_ksu(theory, details)
-		ksu = add_ImPe_Contact_ksu(theory, person)
+		person = add_ksu_to_ImPe(theory, details)
+		ksu = add_ImPe_Contact_ksu_in_KAS1(theory, person)
 		add_Created_event(theory,person)
 		add_Created_event(theory, ksu)
 	theory.put()
@@ -866,9 +903,9 @@ constants = {'l_Elements':l_Elements,
 
 
 d_Viewer ={'KAS1':{'set_name':'My Key Base Actions Set  (KAS1)',
-				   'attributes':['description','frequency','last_event','next_event','comments'],
-				   'fields':{'description':'Description','frequency':'E. Freq.','last_event':'Last Event','next_event':'Next Event','comments':'Comments'},
-				   'columns':{'description':3,'frequency':1,'last_event':2,'next_event':2,'comments':3}},
+				   'attributes':['description','frequency','effort_reward','next_event','comments'],
+				   'fields':{'description':'Description','frequency':'Frequency','effort_reward':'Reward','next_event':'Next Event','comments':'Comments'},
+				   'columns':{'description':5,'frequency':1,'effort_reward':1,'next_event':2,'comments':2}},
 		   
 		   'ImPe': {'set_name':'My Important People',
 					'attributes':['name', 'contact_frequency', 'last_contact', 'next_contact', 'comments'],
