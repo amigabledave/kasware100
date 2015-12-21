@@ -193,8 +193,8 @@ def todays_mission(theory):
 	result = []
 	for ksu in ksu_set:
 		ksu = ksu_set[ksu]
-		if ksu['next_exe']:
-			delay = today - int(ksu['next_exe'])
+		if ksu['next_event']:
+			delay = today - int(ksu['next_event'])
 			status = ksu['status']
 			if delay >= 0 and status=='Active':
 				result.append(ksu)
@@ -240,7 +240,7 @@ class ImportantPeople(Handler):
 
 
 def pretty_dates(ksu_set):
-	date_attributes = ['latest_exe', 'next_exe', 'last_contact', 'next_contact']
+	date_attributes = ['last_event', 'next_event', 'last_contact', 'next_contact']
 	for date_attribute in date_attributes:
 		for ksu in ksu_set:
 			ksu = ksu_set[ksu]
@@ -336,7 +336,7 @@ class CSVBackup(Handler):
 		theory = self.theory
 		if theory:
 			KAS1 = unpack_set(theory.KAS1)
-			output = create_csv_backup(KAS1, ['id','description','frequency','latest_exe','status'])
+			output = create_csv_backup(KAS1, ['id','description','frequency','last_event','status'])
 			self.write(output)
 		else:
 			self.redirect('/login')
@@ -434,12 +434,12 @@ def get_type_from_id(ksu_id):
 #--- Update Stuff ---
 
 
-def update_ksu_next_exe(theory, post_details):
+def update_ksu_next_event(theory, post_details):
 	ksu_set = unpack_set(theory.KAS1)
 	ksu_id = post_details['ksu_id']
 	ksu = ksu_set[ksu_id]
-	ksu['next_exe'] = today + int(ksu['frequency'])
-	ksu['latest_exe'] = today
+	ksu['next_event'] = today + int(ksu['frequency'])
+	ksu['last_event'] = today
 	theory.KAS1 = pack_set(ksu_set)
 	return
 
@@ -578,8 +578,8 @@ def new_set_KAS1():
 	ksu['frequency'] = None
 	ksu['best_day'] = None
 	ksu['best_time'] = None
-	ksu['latest_exe'] = None
-	ksu['next_exe'] = None
+	ksu['last_event'] = None
+	ksu['next_event'] = None
 	ksu['target_exe'] = None
 	ksu['is_visible'] = False
 	result['set_details'] = ksu
@@ -629,8 +629,8 @@ def new_ksu_for_KAS1(KAS1):
 	ksu['frequency'] = None
 	ksu['best_day'] = None
 	ksu['best_time'] = None
-	ksu['latest_exe'] = None
-	ksu['next_exe'] = None
+	ksu['last_event'] = None
+	ksu['next_event'] = None
 	return ksu
 
 
@@ -711,10 +711,10 @@ def add_ImPe_Contact_ksu(theory, person):
 	ksu['description'] = 'Contactar a ' + person['name']
 	ksu['frequency'] = person['contact_frequency']
 	if person['last_contact']:
-		ksu['latest_exe'] = person['last_contact']
-		ksu['next_exe'] = int(person['last_contact']) + int(person['contact_frequency'])
+		ksu['last_event'] = person['last_contact']
+		ksu['next_event'] = int(person['last_contact']) + int(person['contact_frequency'])
 	else:
-		ksu['next_exe'] = today + int(person['contact_frequency'])
+		ksu['next_event'] = today + int(person['contact_frequency'])
 	ksu['effort_points'] = 3
 	ksu['target_person'] = person['id']
 	ksu['subtype'] = 'ImPe_Contact'
@@ -732,7 +732,7 @@ def add_ImPe_Contact_ksu(theory, person):
 def user_Action_Effort_Done(self):
 	theory = self.theory
 	post_details = get_post_details(self)
-	update_ksu_next_exe(theory, post_details)
+	update_ksu_next_event(theory, post_details)
 	add_Effort_event(theory, post_details)
 	theory.put()
 
@@ -865,14 +865,22 @@ constants = {'l_Elements':l_Elements,
 
 
 d_Viewer ={'KAS1':{'set_name':'My Key Base Actions Set  (KAS1)',
-				   'attributes':['description','frequency','latest_exe','next_exe','comments'],
-				   'fields':{'description':'Description','frequency':'E. Freq.','latest_exe':'Last Event','next_exe':'Next Event','comments':'Comments'},
-				   'columns':{'description':3,'frequency':1,'latest_exe':2,'next_exe':2,'comments':3}},
+				   'attributes':['description','frequency','last_event','next_event','comments'],
+				   'fields':{'description':'Description','frequency':'E. Freq.','last_event':'Last Event','next_event':'Next Event','comments':'Comments'},
+				   'columns':{'description':3,'frequency':1,'last_event':2,'next_event':2,'comments':3}},
 		   
 		   'ImPe': {'set_name':'My Important People',
 					'attributes':['name', 'contact_frequency', 'last_contact', 'next_contact', 'comments'],
 				    'fields':{'name':'Name', 'contact_frequency':'C. Freq.', 'last_contact':'Last Contact', 'next_contact':'Next Contact', 'comments':'Comments'},
 				    'columns':{'name':3, 'contact_frequency':1, 'last_contact':2, 'next_contact':2, 'comments':3}}}
+
+
+
+
+
+
+
+
 
 
 
@@ -911,5 +919,4 @@ app = webapp2.WSGIApplication([
 							 ('/LoadCSV', LoadCSV),
 							 ('/csv-backup',CSVBackup),
 							 ('/PythonBackup/' + PAGE_RE, PythonBackup)
-
 							 ], debug=True)

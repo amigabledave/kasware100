@@ -12,19 +12,19 @@
 		<div class="row">
 
 			<div class="col-md-2"> <h1 class="main-title"> KASware </h1></div>
-			<div class="col-md-1">  </div>
+			<div class="col-md-2">  </div>
 			
 			{% if theory %}
-				<div class="col-md-6"> <div class="score-title"> Today's Results: <a href=""> Happiness</a>  = ? |  <a href="/effort-report">Effort</a>  = {{todays_effort}} </div></div>
-				<div class="col-md-1">  </div>
+				<div class="col-md-4"> <div class="score-title"> Today's Results: <a href=""> Happiness</a>  = ? |  <a href="/effort-report">Effort</a>  = {{todays_effort}} </div></div>
+				<div class="col-md-2">  </div>
 				<div class="col-md-1"> <a href="" class="corner-link">{{theory.username}} </a> </div>			
 				<div class="col-md-1"> <a href="/logout" class="corner-link"> (Logout) </a> </div>
 				</div>
 
 				<div class="row">
 					<div class="col-md-1"> <a href="/mission"> Mission </a></div>
-					<div class="col-md-1"> <a href="/ViewSet/KAS1"> KAS1 </a></div>	
-					<div class="col-md-1"> <a href="/ViewSet/ImPe"> People </a></div>	
+					<div class="col-md-1"> <a href="/SetViewer/KAS1"> KAS1 </a></div>	
+					<div class="col-md-1"> <a href="/SetViewer/ImPe"> People </a></div>	
 				</div>
 
 			{% else %}
