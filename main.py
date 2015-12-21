@@ -308,9 +308,9 @@ def create_effort_report(theory, date):
 	for event in history:
 		event = history[event]
 		if event['date'] == date and event['type']=='Effort':			
-			report_item = {'effort_description':None,'effort_points':0}
+			report_item = {'effort_description':None,'effort_reward':0}
 			report_item['effort_description'] = get_attribute_from_id(KAS1, event['ksu_id'], 'description')
-			report_item['effort_points'] = event['value']
+			report_item['effort_reward'] = event['value']
 			result.append(report_item)
 	return result
 
@@ -573,7 +573,7 @@ def new_set_KAS1():
 	ksu['set_type'] = 'KAS1'
 	ksu['description'] = 'KAS1 Key Base Actions Set'
 	ksu['status'] = 'Active' # ['Active', 'Hold', 'Deleted']
-	ksu['effort_points'] = 0
+	ksu['effort_reward'] = 0
 	ksu['in_mission'] = False
 	ksu['frequency'] = None
 	ksu['best_day'] = None
@@ -624,7 +624,7 @@ def new_ksu_for_KAS1(KAS1):
 	ksu_id = create_id(KAS1)
 	ksu['id'] = ksu_id
 	ksu['status'] = 'Active' # ['Active', 'Hold', 'Deleted']
-	ksu['effort_points'] = 0
+	ksu['effort_reward'] = 0
 	ksu['in_mission'] = False
 	ksu['frequency'] = None
 	ksu['best_day'] = None
@@ -646,7 +646,7 @@ def new_ksu_for_KAS2(KAS2):
 	ksu_id = create_id(kas2)
 	ksu['id'] = ksu_id
 	ksu['status'] = 'Pending' # ['Done', 'Pending', 'Deleted']
-	ksu['effort_points'] = 0
+	ksu['effort_reward'] = 0
 	ksu['in_mission'] = False
 	ksu['best_time'] = None
 	ksu['target_exe'] = None
@@ -715,7 +715,7 @@ def add_ImPe_Contact_ksu(theory, person):
 		ksu['next_event'] = int(person['last_contact']) + int(person['contact_frequency'])
 	else:
 		ksu['next_event'] = today + int(person['contact_frequency'])
-	ksu['effort_points'] = 3
+	ksu['effort_reward'] = 3
 	ksu['target_person'] = person['id']
 	ksu['subtype'] = 'ImPe_Contact'
 	person['child_ksus'] = person['child_ksus'].append(ksu['id'])
@@ -810,6 +810,7 @@ def validate_password(username, password, h):
 
 
 
+
 # --- Global Variables ------------------------------------------------------------------------------
 
 today = datetime.today().toordinal()
@@ -875,15 +876,6 @@ d_Viewer ={'KAS1':{'set_name':'My Key Base Actions Set  (KAS1)',
 				    'columns':{'name':3, 'contact_frequency':1, 'last_contact':2, 'next_contact':2, 'comments':3}}}
 
 
-
-
-
-
-
-
-
-
-
 secret = 'elzecreto'
 
 
@@ -899,6 +891,7 @@ USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 PASS_RE = re.compile(r"^.{3,20}$")
 EMAIL_RE = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
 PAGE_RE = r'((?:[a-zA-Z0-9_-]+/?)*)'
+
 
 
 
