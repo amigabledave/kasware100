@@ -12,26 +12,15 @@
 <form class="form-horizontal" method="post">
  
 	<div class="form-group">
-		<div class="col-md-9"> 
+		<div class="col-md-10"> 
 			<label> Action Description </label>
 			<input type="text" class="form-control tile-ksu-edit" name="description" placeholder="e.g. Hacer algo nice por mi chica" required>
 		</div>
 
 
-		<div class="col-md-1"> 
-			<label> Rel. Imp. </label> 
-			<select class="form-control" name="relative_imp"> 
-				{% for i in range(1,9) %}
-					<option> {{i}} </option>
-				{% endfor %}
-					<option selected="selected"> 9 </option>
-			</select>
-		</div>
-
-
 		<div class="col-md-2">
 	 		<div class="checkbox"> 
-	 			<label> <input type="checkbox" name="is_critical"> <b> Is Critical </b> </label> 
+	 			<label> <input type="checkbox" name="is_critical" value="True"> <b> Is Critical </b> </label> 
 	 		</div>
 
 	 		<div class="checkbox"> 
@@ -57,14 +46,17 @@
 			</select>
 		</div>	
 
-		<div class="col-md-2">
-			<label>Purpose</label>
-				<select class="form-control" name="purpose">
-				{% for p in constants['l_Purposes'] %}
-					<option> {{p}} </option>
+
+		<div class="col-md-2"> 
+			<label> Relative Importance </label> 
+			<select class="form-control" name="relative_imp"> 
+				{% for i in range(1,9) %}
+					<option> {{i}} </option>
 				{% endfor %}
+					<option selected="selected"> 9 </option>
 			</select>
-		</div>	
+		</div>
+
 
 		<div class="col-md-2">
 			<label> Parent KSU </label>

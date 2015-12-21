@@ -275,10 +275,11 @@ class NewKSU(Handler):
 		self.print_html('ksu-new-form.html', constants=constants)
 	
 	def post(self):
-		# details = get_post_details(self)
-		# self.write(details)
-		user_Action_Create_ksu_in_KAS1(self)
-		self.redirect('/SetViewer/KAS1')
+		details = get_post_details(self)
+		details = prepare_details(details)
+		self.write(details)
+		# user_Action_Create_ksu_in_KAS1(self)
+		# self.redirect('/SetViewer/KAS1')
 
 
 
@@ -435,7 +436,11 @@ def get_type_from_id(ksu_id):
 	return ksu_id.split("_")[0]
 
 
-
+def reverse_dict(dictionary):
+	result = {}
+	for (key, value) in dictionary.items():
+		result[value] = key
+	return result
 
 
 #--- Update Stuff ---
@@ -508,7 +513,6 @@ def ksu_template():
 	template = {'id': None,	
 				'subtype':None,		
 		    	'element': None,
-		    	'purpose':None,
 		    	'description': None,
 		    	'comments': None,
 		    	'local_tags': None,
@@ -864,11 +868,15 @@ l_Elements = ['1. Inner Peace',
 			 '8. Monetary Resources',
 			 '9. Non-Monetary Resources']
 
-
-
-l_Purposes = ['1. Create Moments',
-			 '2. Generate Resources',
-			 '3. Avoid Shit']
+d_Elements = {'E100': '1. Inner Peace',
+			  'E200': '2. Fun & Excitement', 
+			  'E300': '3. Meaning & Direction', 
+			  'E400': '4. Health & Vitality', 
+			  'E500': '5. Love & Friendship', 
+			  'E600': '6. Knowledge & Skills', 
+			  'E700': '7. Outer Peace', 
+			  'E800': '8. Monetary Resources',
+		 	  'E900': '9. Non-Monetary Resources'}
 
 
 
@@ -883,23 +891,21 @@ l_Days = [ None,
 
 
 
-d_Elements = {'E100': '1. Inner Peace',
-			 'E200': '2. Fun & Excitement', 
-			 'E300': '3. Meaning & Direction', 
-			 'E400': '4. Health & Vitality', 
-			 'E500': '5. Love & Friendship', 
-			 'E600': '6. Knowledge & Skills', 
-			 'E700': '7. Outer Peace', 
-			 'E800': '8. Monetary Resources',
-		 	 'E900': '9. Non-Monetary Resources'}
-
-
-
 constants = {'l_Elements':l_Elements,
-			 'l_Purposes':l_Purposes,
 			 'l_Days':l_Days,
 			 'd_Elements':d_Elements}
 
+
+
+def prepare_details(post_details):
+	details = {}
+	for (attribute, value) in post_details.items():
+		if attribute in d_Reverse:
+			details[attribute] = d_Reverse[attribute][value] 
+	return details
+
+
+d_Reverse = {'element':reverse_dict(d_Elements)}
 
 
 d_Viewer ={'KAS1':{'set_name':'My Key Base Actions Set  (KAS1)',
