@@ -1,15 +1,25 @@
 dictionary = {'uno':1,'dos':2,'letra a':'a'}
 
 
-d_Elements = {'E100': '1. Inner Peace',
-			 'E200': '2. Fun & Excitement', 
-			 'E300': '3. Meaning & Direction', 
-			 'E400': '4. Health & Vitality', 
-			 'E500': '5. Love & Friendship', 
-			 'E600': '6. Knowledge & Skills', 
-			 'E700': '7. Outer Peace', 
-			 'E800': '8. Monetary Resources',
-		 	 'E900': '9. Non-Monetary Resources'}
+d_Elements = {'E100': '1. Inner Peace & Consciousness',
+			  'E200': '2. Fun & Excitement', 
+			  'E300': '3. Meaning & Direction', 
+			  'E400': '4. Health & Vitality', 
+			  'E500': '5. Love & Friendship', 
+			  'E600': '6. Knowledge & Skills', 
+			  'E700': '7. Outer Peace', 
+			  'E800': '8. Monetary Resources',
+		 	  'E900': '9. Non-Monetary Resources'}
+
+
+
+def reverse_dict(dictionary):
+	result = {}
+	for (key, value) in dictionary.items():
+		result[value] = key
+	return result
+
+print reverse_dict(d_Elements)
 
 
 
@@ -27,11 +37,3 @@ d_Elements = {'E100': '1. Inner Peace',
 # 	print str(key) + " corresponde a " + str(value)
 
 
-def reverse_dict(dictionary):
-	result = {}
-	for (key, value) in dictionary.items():
-		result[value] = key
-	return result
-
-print list(d_Elements.values())
-print reverse_dict(d_Elements)

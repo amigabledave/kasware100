@@ -858,26 +858,26 @@ today = datetime.today().toordinal()
 
 
 
-l_Elements = ['1. Inner Peace',
-			 '2. Fun & Excitement',
-			 '3. Meaning & Direction', 
-			 '4. Health & Vitality',
-			 '5. Love & Friendship',
-			 '6. Knowledge & Skills',
-			 '7. Outer Peace',
-			 '8. Monetary Resources',
-			 '9. Non-Monetary Resources']
+l_Elements = ['1. Inner Peace & Consciousness',
+			  '2. Fun & Excitement',
+			  '3. Meaning & Direction', 
+			  '4. Health & Vitality',
+			  '5. Love & Friendship',
+			  '6. Knowledge & Skills',
+			  '7. Outer Order & Peace',
+			  '8. Stuff',
+			  '9. Money & Power']
 
-d_Elements = {'E100': '1. Inner Peace',
+
+d_Elements = {'E100': '1. Inner Peace & Consciousness',
 			  'E200': '2. Fun & Excitement', 
 			  'E300': '3. Meaning & Direction', 
 			  'E400': '4. Health & Vitality', 
 			  'E500': '5. Love & Friendship', 
 			  'E600': '6. Knowledge & Skills', 
-			  'E700': '7. Outer Peace', 
-			  'E800': '8. Monetary Resources',
-		 	  'E900': '9. Non-Monetary Resources'}
-
+			  'E700': '7. Outer Order & Peace', 
+			  'E800': '8. Stuff',
+		 	  'E900': '9. Money & Power'}
 
 
 l_Days = [ None,

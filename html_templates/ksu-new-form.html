@@ -40,8 +40,12 @@
 		<div class="col-md-2">
 			<label>Element</label>
 				<select class="form-control" name="element">
-				{% for e in constants['l_Elements'] %}
-					<option> {{e}} </option>
+				{% for i in range(0,9) %}
+					{% if i == 8 %}
+					<option selected="selected"> {{constants['l_Elements'][i]}} </option>
+					{% else %}
+					<option> {{constants['l_Elements'][i]}} </option>
+					{% endif %}
 				{% endfor %}
 			</select>
 		</div>	
