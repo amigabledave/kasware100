@@ -95,6 +95,7 @@ class Handler(webapp2.RequestHandler):
 
 
 
+
 class Home(Handler):
     def get(self):
         self.print_html('home.html')
@@ -174,21 +175,21 @@ class Logout(Handler):
 class Mission(Handler):
 
 	def get(self):
-		theory = self.theory
-		if theory:
-			mission = todays_mission(theory)
-			self.print_html('todays-mission.html', mission=mission)
-		else:
-			self.redirect('/login')
-
+		if user_bouncer(self):
+			return
+		mission = todays_mission(self)
+		self.print_html('todays-mission.html', mission=mission)
 
 	def post(self):
+		if user_bouncer(self):
+			return
 		user_Action_Effort_Done(self)
 		self.redirect('/mission')
 
 
 
-def todays_mission(theory):
+def todays_mission(self):
+	theory = self.theory
 	ksu_set = unpack_set(theory.KAS1)
 	result = []
 	for ksu in ksu_set:
@@ -206,17 +207,17 @@ def todays_mission(theory):
 
 class SetViewer(Handler):
 	def get(self, set_name):
+		if user_bouncer(self):
+			return
 		theory = self.theory
-		if theory:
-			ksu_set = unpack_set(eval('theory.' + set_name))
-			set_details = ksu_set['set_details']
-			ksu_set = pretty_dates(ksu_set)
-			ksu_set = hide_invisible(ksu_set)
-			ksu_set = list(ksu_set.values())
-			viewer_details = d_Viewer[set_name]
-			self.print_html('set-viewer.html', viewer_details=viewer_details, ksu_set=ksu_set)
-		else:
-			self.redirect('/login')
+		ksu_set = unpack_set(eval('theory.' + set_name))
+		set_details = ksu_set['set_details']
+		ksu_set = pretty_dates(ksu_set)
+		ksu_set = hide_invisible(ksu_set)
+		ksu_set = list(ksu_set.values())
+		viewer_details = d_Viewer[set_name]
+		self.print_html('set-viewer.html', viewer_details=viewer_details, ksu_set=ksu_set)
+
 
 
 
@@ -227,12 +228,16 @@ class SetViewer(Handler):
 class ImportantPeople(Handler):
 	
 	def get(self):
+		if user_bouncer(self):
+			return
 		theory = self.theory
 		people = pretty_dates(unpack_set(theory.ImPe))
 		people = list(people.values())
 		self.print_html('important-people.html', people=people)
 	
 	def post(self):
+		if user_bouncer(self):
+			return
 		user_Action_Create_ksu_in_ImPe(self)
 		self.redirect('/important-people')
 
@@ -272,9 +277,13 @@ def hide_invisible(ksu_set):
 class NewKSU(Handler):
 	
 	def get(self):
+		if user_bouncer(self):
+			return
 		self.print_html('ksu-new-form.html', constants=constants)
 	
 	def post(self):
+		if user_bouncer(self):
+			return
 		user_Action_Create_ksu_in_KAS1(self)
 		self.redirect('/SetViewer/KAS1')
 
@@ -286,6 +295,8 @@ class NewKSU(Handler):
 
 class EditKSU(Handler):
 	def get(self):
+		if user_bouncer(self):
+			return
 		self.print_html('ksu-edit-form.html', elements=list_Elements)
 
 
@@ -295,6 +306,8 @@ class EditKSU(Handler):
 
 class EffortReport(Handler):
 	def get(self):
+		if user_bouncer(self):
+			return
 		theory = self.theory
 		report = create_effort_report(theory,today)
 		self.print_html('effort-report.html', report=report)
@@ -329,6 +342,8 @@ def create_effort_report(theory, date):
 
 class LoadCSV(Handler):
 	def get(self):
+		if user_bouncer(self):
+			return
 		developer_Action_Load_ImPe_CSV(self,ImPe_csv_path)
 		self.redirect('/important-people')
 
@@ -338,13 +353,12 @@ class LoadCSV(Handler):
 
 class CSVBackup(Handler):
 	def get(self):
-		theory = self.theory
-		if theory:
-			KAS1 = unpack_set(theory.KAS1)
-			output = create_csv_backup(KAS1, ['id','description','frequency','last_event','status'])
-			self.write(output)
-		else:
-			self.redirect('/login')
+		if user_bouncer(self):
+			return
+		KAS1 = unpack_set(theory.KAS1)
+		output = create_csv_backup(KAS1, ['id','description','frequency','last_event','status'])
+		self.write(output)
+
 
 
 def create_csv_backup(ksu_set, required_attributes):
@@ -393,12 +407,11 @@ def mission_email(ksu_set):
 class PythonBackup(Handler):
 
 	def get(self, set_name):
-		theory = self.theory
-		if theory:
-			ksu_set = unpack_set(eval('theory.' + set_name))
-			self.write(ksu_set)
-		else:
-			self.redirect('/login')
+		if user_bouncer(self):
+			return
+		ksu_set = unpack_set(eval('theory.' + set_name))
+		self.write(ksu_set)
+
 
 
 
@@ -408,6 +421,15 @@ class PythonBackup(Handler):
 # --- Additional Helper Functions -----------------------------------------------------------------------------
 
 #--- Essentials ---
+
+def user_bouncer(self):
+	theory = self.theory
+	if theory:
+		return False
+	else:
+		self.redirect('/login')
+		return True
+
 
 
 def get_post_details(self):
