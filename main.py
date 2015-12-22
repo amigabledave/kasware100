@@ -248,7 +248,7 @@ def pretty_dates(ksu_set):
 			if date_attribute in valid_attributes:	
 				if ksu[date_attribute]:
 					number_date = int(ksu[date_attribute])
-					pretty_date = datetime.fromordinal(number_date).strftime('%b %d, %Y')
+					pretty_date = datetime.fromordinal(number_date).strftime('%a, %b %d, %Y')
 					# pretty_date = datetime.fromordinal(number_date).strftime('%a-%d-%m-%Y')
 					ksu[date_attribute] = pretty_date
 	return ksu_set
@@ -275,11 +275,8 @@ class NewKSU(Handler):
 		self.print_html('ksu-new-form.html', constants=constants)
 	
 	def post(self):
-		details = get_post_details(self)
-		details = prepare_details(details)
-		self.write(details)
-		# user_Action_Create_ksu_in_KAS1(self)
-		# self.redirect('/SetViewer/KAS1')
+		user_Action_Create_ksu_in_KAS1(self)
+		self.redirect('/SetViewer/KAS1')
 
 
 
@@ -436,11 +433,16 @@ def get_type_from_id(ksu_id):
 	return ksu_id.split("_")[0]
 
 
-def reverse_dict(dictionary):
-	result = {}
-	for (key, value) in dictionary.items():
-		result[value] = key
-	return result
+def prepare_details_for_saving(post_details):
+	details = {}
+	checkboxes = ['is_critical', 'is_private']
+	for (attribute, value) in post_details.items():
+		if attribute in checkboxes:
+			details[attribute] = True
+		elif value and value!='' and value!='None':
+			details[attribute] = value
+	return details
+
 
 
 #--- Update Stuff ---
@@ -703,7 +705,7 @@ def add_Effort_event(theory, post_details):
 
 def add_ksu_to_KAS1(theory, details):
 	#need to validate user input
-	#need to prepare user input
+	details = prepare_details_for_saving(details)
 	KAS1 = unpack_set(theory.KAS1)
 	ksu = new_ksu_for_KAS1(KAS1)
 	for (attribute, value) in details.items():
@@ -746,6 +748,7 @@ def add_ImPe_Contact_ksu_in_KAS1(theory, person):
 		ksu['next_event'] = today + int(person['contact_frequency'])
 	ksu['effort_reward'] = 3
 	ksu['target_person'] = person['id']
+	ksu['parent_id'] = person['id']
 	ksu['subtype'] = 'ImPe_Contact'
 	person['child_ksus'] = person['child_ksus'].append(ksu['id'])
 	update_set(KAS1,ksu)
@@ -770,7 +773,6 @@ def user_Action_Effort_Done(self):
 def user_Action_Create_ksu_in_KAS1(self):
 	theory = self.theory
 	details = get_post_details(self)
-	#need to add function that validates and prepare inputs
 	ksu = add_ksu_to_KAS1(theory, details)
 	add_Created_event(theory, ksu)
 	theory.put()
@@ -857,18 +859,6 @@ def validate_password(username, password, h):
 today = datetime.today().toordinal()
 
 
-
-l_Elements = ['1. Inner Peace & Consciousness',
-			  '2. Fun & Excitement',
-			  '3. Meaning & Direction', 
-			  '4. Health & Vitality',
-			  '5. Love & Friendship',
-			  '6. Knowledge & Skills',
-			  '7. Outer Order & Peace',
-			  '8. Stuff',
-			  '9. Money & Power']
-
-
 d_Elements = {'E100': '1. Inner Peace & Consciousness',
 			  'E200': '2. Fun & Excitement', 
 			  'E300': '3. Meaning & Direction', 
@@ -880,32 +870,23 @@ d_Elements = {'E100': '1. Inner Peace & Consciousness',
 		 	  'E900': '9. Money & Power'}
 
 
-l_Days = [ None,
-		  'Sunday',
-		  'Monday',
-		  'Tuesday',
-		  'Wednesday',
-		  'Thursday',
-		  'Friday',
-		  'Saturday']
+l_Elements = sorted(d_Elements.items())
 
+
+d_Days = {'1':'1. Sunday',
+		  '2':'2. Monday',
+		  '3':'3. Tuesday',
+		  '4':'4. Wednesday',
+		  '5':'5. Thursday',
+		  '6':'6. Friday',
+		  '7':'7. Saturday'}
+
+l_Days = sorted(d_Days.items())
 
 
 constants = {'l_Elements':l_Elements,
-			 'l_Days':l_Days,
-			 'd_Elements':d_Elements}
+			 'l_Days':l_Days,}
 
-
-
-def prepare_details(post_details):
-	details = {}
-	for (attribute, value) in post_details.items():
-		if attribute in d_Reverse:
-			details[attribute] = d_Reverse[attribute][value] 
-	return details
-
-
-d_Reverse = {'element':reverse_dict(d_Elements)}
 
 
 d_Viewer ={'KAS1':{'set_name':'My Key Base Actions Set  (KAS1)',

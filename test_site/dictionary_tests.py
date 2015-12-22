@@ -13,13 +13,12 @@ d_Elements = {'E100': '1. Inner Peace & Consciousness',
 
 
 
-def reverse_dict(dictionary):
-	result = {}
-	for (key, value) in dictionary.items():
-		result[value] = key
-	return result
-
-print reverse_dict(d_Elements)
+# def reverse_dict(dictionary):
+# 	result = {}
+# 	for (key, value) in dictionary.items():
+# 		result[value] = key
+# 	return result
+# print reverse_dict(d_Elements)
 
 
 
@@ -35,5 +34,9 @@ print reverse_dict(d_Elements)
 
 # for (key,value) in dictionary.iteritems(): 
 # 	print str(key) + " corresponde a " + str(value)
+
+print sorted(d_Elements.items())[3][1]
+
+
 
 

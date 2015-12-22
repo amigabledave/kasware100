@@ -32,9 +32,6 @@
 
 
 
-
-
-
 	<div class="form-group">
 
 		<div class="col-md-2">
@@ -42,9 +39,9 @@
 				<select class="form-control" name="element">
 				{% for i in range(0,9) %}
 					{% if i == 8 %}
-					<option selected="selected"> {{constants['l_Elements'][i]}} </option>
+					<option selected="selected" value="{{constants['l_Elements'][i][0]}}"> {{constants['l_Elements'][i][1]}} </option>
 					{% else %}
-					<option> {{constants['l_Elements'][i]}} </option>
+					<option value="{{constants['l_Elements'][i][0]}}"> {{constants['l_Elements'][i][1]}}" </option>
 					{% endif %}
 				{% endfor %}
 			</select>
@@ -109,8 +106,9 @@
 		<div class="col-md-2">
 			<label> Prefered Day </label>
 				<select class="form-control" name="best_day">
+					<option value="None" selected="selected"> None </option>
 					{% for d in constants['l_Days'] %}
-						<option> {{d}} </option>
+						<option value="{{d[0]}}"> {{d[1]}} </option>
 					{% endfor %}
 				</select> 
 		</div>
@@ -126,7 +124,7 @@
 	<div class="form-group">
 		<div class="col-md-10">
 			<label> Comments </label>
-			<textarea class="form-control" name="comments"> </textarea> 
+			<textarea class="form-control" name="comments"></textarea> 
 		</div>
 	
 		<div class="col-md-2">
