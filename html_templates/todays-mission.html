@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="row">
-	<div class="col-md-12"> <h3>Todays Mission</h3></div>
+	<div class="col-md-12"> <h2>Todays Mission</h2></div>
 </div>
 	
 {% for ksu in mission %}
@@ -14,18 +14,24 @@
 		
 	<form class="form-horizontal" method="post">
 
-		<div class="col-md-4"> <h5> {{ksu['description']}} </h5></div>
+		<div class="col-md-4">  {{ksu['description']}} </div>
 
 		<div class="col-md-2"> 
-			<input type="text" class="form-control" name="event_comments" placeholder="Event comments"> 
-			<input type="text" class="form-control hidden" name="event_value" value="{{ksu['effort_reward']}}">
-			<input type="text" class="form-control hidden" name="imp_person_name" value="{{ksu['imp_person_name']}}">
+			<label> Bonus FRPs 
+				<input type="text" class="form-control" name="event_bonus" value="0"> 
+			</label>
+		</div>
+		
+		<div class="col-md-2"> 
+			<label> Comments
+				<input type="text" class="form-control" name="event_comments" placeholder=""> 
+			</label>
+			
 			<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}"> 
-			<input type="text" class="form-control hidden" name="event_duration" value="0"> 
 		</div>
 
 		<div class="col-md-1">
-			<input type="submit" class="btn btn-primary btn-sm btn-success" name="event_description" value="Done">
+			<input type="submit" class="btn btn-primary btn-lg btn-success" name="event_description" value="Done">
 		</div>
 		  		
 	</form>	

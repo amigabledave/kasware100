@@ -543,7 +543,7 @@ def ksu_template():
 		    	'global_tags': None,
 		    	'target_person':None,
 		    	'parent_id': None,
-		    	'relative_imp':9,
+		    	'relative_imp':5, # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 5
 		    	'is_critical': False,
 		    	'is_visible': True,
 		    	'is_private': False}
@@ -608,7 +608,7 @@ def new_set_KAS1():
 	ksu['set_type'] = 'KAS1'
 	ksu['description'] = 'KAS1 Key Base Actions Set'
 	ksu['status'] = 'Active' # ['Active', 'Hold', 'Deleted']
-	ksu['effort_reward'] = 0
+	ksu['time_cost'] = 0
 	ksu['in_mission'] = False
 	ksu['frequency'] = None
 	ksu['best_day'] = None
@@ -659,7 +659,7 @@ def new_ksu_for_KAS1(KAS1):
 	ksu_id = create_id(KAS1)
 	ksu['id'] = ksu_id
 	ksu['status'] = 'Active' # ['Active', 'Hold', 'Deleted']
-	ksu['effort_reward'] = 0
+	ksu['time_cost'] = 0 # Reasonable Time Requirements in Minutes
 	ksu['in_mission'] = False
 	ksu['frequency'] = None
 	ksu['best_day'] = None
@@ -681,10 +681,11 @@ def new_ksu_for_KAS2(KAS2):
 	ksu_id = create_id(kas2)
 	ksu['id'] = ksu_id
 	ksu['status'] = 'Pending' # ['Done', 'Pending', 'Deleted']
-	ksu['effort_reward'] = 0
+	ksu['time_cost'] = 0 # Reasonable Time Requirements in Minutes
 	ksu['in_mission'] = False
 	ksu['best_time'] = None
 	ksu['target_exe'] = None
+	ksu['pipeline'] = 9
 	return ksu
 
 
@@ -712,11 +713,15 @@ def add_Created_event(theory, ksu):
 def add_Effort_event(theory, post_details):
 	history = unpack_set(theory.history)
 	event = new_event(history)
-	event['ksu_id'] = post_details['ksu_id']
+	ksu_id = post_details['ksu_id']
+	set_name = get_type_from_id(ksu_id) 
+	ksu_set = unpack_set(eval('theory.' + set_name))
+	ksu = ksu_set[ksu_id]
+	event['ksu_id'] = ksu_id
 	event['type'] = 'Effort'
 	event['description'] = post_details['event_comments']
-	event['duration'] = post_details['event_duration']
-	event['value'] = post_details['event_value']
+	event['duration'] = ksu['time_cost']
+	event['value'] = int(ksu['time_cost'])*int(ksu['relative_imp']) + int(post_details['event_bonus'])
 	update_set(history, event)
 	update_master_log(theory, event)
 	theory.history = pack_set(history)
@@ -768,7 +773,7 @@ def add_ImPe_Contact_ksu_in_KAS1(theory, person):
 		ksu['next_event'] = int(person['last_contact']) + int(person['contact_frequency'])
 	else:
 		ksu['next_event'] = today + int(person['contact_frequency'])
-	ksu['effort_reward'] = 3
+	ksu['time_cost'] = 3
 	ksu['target_person'] = person['id']
 	ksu['parent_id'] = person['id']
 	ksu['subtype'] = 'ImPe_Contact'
@@ -881,6 +886,8 @@ def validate_password(username, password, h):
 today = datetime.today().toordinal()
 
 
+l_Fibonacci = [1,2,3,5,8,13,21,34,55,89,144]
+
 d_Elements = {'E100': '1. Inner Peace & Consciousness',
 			  'E200': '2. Fun & Excitement', 
 			  'E300': '3. Meaning & Direction', 
@@ -906,15 +913,16 @@ d_Days = {'1':'1. Sunday',
 l_Days = sorted(d_Days.items())
 
 
-constants = {'l_Elements':l_Elements,
+constants = {'l_Fibonacci':l_Fibonacci,
+			 'l_Elements':l_Elements,
 			 'l_Days':l_Days,}
 
 
 
 d_Viewer ={'KAS1':{'set_name':'My Key Base Actions Set  (KAS1)',
-				   'attributes':['description','frequency','effort_reward','next_event','comments'],
-				   'fields':{'description':'Description','frequency':'Frequency','effort_reward':'Reward','next_event':'Next Event','comments':'Comments'},
-				   'columns':{'description':5,'frequency':1,'effort_reward':1,'next_event':2,'comments':2}},
+				   'attributes':['description','frequency','relative_imp','time_cost','next_event','comments'],
+				   'fields':{'description':'Description','frequency':'Frequency','relative_imp':'Rel. Imp.','time_cost':'Time C.','next_event':'Next Event','comments':'Comments'},
+				   'columns':{'description':5,'frequency':1,'relative_imp':1,'time_cost':1,'next_event':2,'comments':1}},
 		   
 		   'ImPe': {'set_name':'My Important People',
 					'attributes':['name', 'contact_frequency', 'last_contact', 'next_contact', 'comments'],

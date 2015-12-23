@@ -51,10 +51,14 @@
 		<div class="col-md-2"> 
 			<label> Relative Importance </label> 
 			<select class="form-control" name="relative_imp"> 
-				{% for i in range(1,9) %}
-					<option> {{i}} </option>
+				{% for i in constants['l_Fibonacci'] %}
+					{% if i == 5 %}
+						<option selected="selected">{{i}}</option>
+					{% else %}		
+						<option> {{i}} </option>
+					{% endif %}
 				{% endfor %}
-					<option selected="selected"> 9 </option>
+					
 			</select>
 		</div>
 
@@ -88,8 +92,12 @@
 	<div class="form-group">
 
 		<div class="col-md-2"> 
-			<label> Effort Rewards Points </label>
-			<input type="text" class="form-control" name="effort_reward" placeholder="e.g. 13" required>
+			<label> Reasonable Time Cost </label>
+			<select class="form-control" name="time_cost">
+				{% for t in constants['l_Fibonacci'] %}
+					<option> {{t}} </option>
+				{% endfor %}
+			</select>
 		</div>
 
 		<div class="col-md-2">
