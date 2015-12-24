@@ -35,7 +35,14 @@ d_Elements = {'E100': '1. Inner Peace & Consciousness',
 # for (key,value) in dictionary.iteritems(): 
 # 	print str(key) + " corresponde a " + str(value)
 
-print sorted(d_Elements.items())[3][1]
+# print sorted(d_Elements.items())[3][1]
+
+
+
+d_vacio = {None:None}
+
+print d_vacio
+
 
 
 

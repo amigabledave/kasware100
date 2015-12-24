@@ -145,6 +145,8 @@ class Signup(Handler):
 				self.redirect('/important-people')
 
 
+
+
 class Login(Handler):
 	def get(self):
 		self.print_html('login-form.html')
@@ -279,14 +281,31 @@ class NewKSU(Handler):
 	def get(self):
 		if user_bouncer(self):
 			return
-		self.print_html('ksu-new-form.html', constants=constants)
+		input_details = input_details_template()	
+		self.print_html('ksu-new-form.html', constants=constants, input_details=input_details)
 	
 	def post(self):
 		if user_bouncer(self):
 			return
-		user_Action_Create_ksu_in_KAS1(self)
-		self.redirect('/SetViewer/KAS1')
+		post_details = get_post_details(self)
+		post_details = prepare_details_for_validation(post_details)
+		if valid_input(post_details)[0]:
+			user_Action_Create_ksu_in_KAS1(self)
+			self.redirect('/SetViewer/KAS1')
+		else:
+			input_error = valid_input(post_details)[1]
+			input_details = input_details_template()
+			input_details['input_error'] = input_error
+			input_details = update_input_details(input_details, post_details)
+			self.print_html('ksu-new-form.html', constants=constants, input_details=input_details)
+			
 
+
+def update_input_details(input_details, post_details):
+	for (attribute, value) in post_details.items():
+		if value and value!='' and value!='None':
+			input_details[attribute] = value
+	return input_details
 
 
 
@@ -455,15 +474,92 @@ def get_type_from_id(ksu_id):
 	return ksu_id.split("_")[0]
 
 
+def prepare_details_for_validation(post_details):
+	details = {}
+	checkboxes = ['is_critical', 'is_private']
+	for (attribute, value) in post_details.items():
+		if value and value!='' and value!='None':
+			details[attribute] = value
+	return details
+
+
 def prepare_details_for_saving(post_details):
 	details = {}
 	checkboxes = ['is_critical', 'is_private']
 	for (attribute, value) in post_details.items():
 		if attribute in checkboxes:
 			details[attribute] = True
+		elif attribute == 'last_event':
+			if valid_date(value):
+				details[attribute] = valid_date(value)
 		elif value and value!='' and value!='None':
 			details[attribute] = value
 	return details
+
+
+#--- user input validation ---
+
+
+
+d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
+		'username_error': 'Invalid Username Syntax',
+		
+		'password': re.compile(r"^.{3,20}$"),
+		'password_error': 'Invalid Password Syntax',
+		
+		'email': re.compile(r'^[\S]+@[\S]+\.[\S]+$'),
+		'email_error': 'Invalid Email Syntax',
+
+		'description': re.compile(r"^.{5,100}$"),
+		'description_error': 'Descriotion max lenght is 100 characters and min 5.',
+
+		'frequency': re.compile(r"^[0-9]{1,3}$"),
+		'frequency_error': 'Frequency should be an integer with maximum 3 digits',
+
+		'last_event_error':'Last event format must be DD-MM-YYYY',
+
+		'comments': re.compile(r"^.{0,200}$"),
+		'comments_error': 'Comments cannot excede 200 characters'}
+
+
+validation_attributes = ['username', 'password', 'description', 'frequency', 'last_event', 'comments']
+
+
+def valid_date(datestring):
+    try:
+        datetime.strptime(datestring, '%d-%m-%Y')
+        return datetime.strptime(datestring, '%d-%m-%Y').toordinal()
+    except ValueError:
+        return False
+
+
+
+def input_error(target_attribute, user_input):
+
+	if target_attribute not in validation_attributes:
+		return None
+	error_key = target_attribute + '_error' 
+		
+	if target_attribute == 'last_event':
+		if valid_date(user_input):
+			return None
+		else:
+			return d_RE[error_key]
+
+	if d_RE[target_attribute].match(user_input):
+		return None
+	else:
+		return d_RE[error_key]
+
+
+
+def valid_input(post_details):
+	for (attribute, value) in post_details.items():
+		user_error = input_error(attribute, value)
+		if user_error:
+			return False, user_error
+	return	True, None
+
 
 
 
@@ -521,6 +617,15 @@ def update_master_log(theory, event):
 
 
 #--- Dictionary Templates ---
+
+def input_details_template():
+	post = {'description':None,
+			'frequency':None,
+			'input_error':None,
+			'last_event':None,
+			'comments':None}
+	return post
+
 
 def event_template():
 	event = {'id': None,
@@ -911,6 +1016,7 @@ d_Days = {'1':'1. Sunday',
 		  '7':'7. Saturday'}
 
 l_Days = sorted(d_Days.items())
+
 
 
 constants = {'l_Fibonacci':l_Fibonacci,
