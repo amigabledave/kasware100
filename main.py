@@ -671,7 +671,6 @@ def important_person_template():
 			  'birthday':None,
 			  'comments':None,
 			  'important_since':today,
-			  'child_ksus':[],
 			  'related_ksus':[]}
 	return person
 
@@ -877,12 +876,11 @@ def add_ImPe_Contact_ksu_in_KAS1(theory, person):
 		ksu['last_event'] = person['last_contact']
 		ksu['next_event'] = int(person['last_contact']) + int(person['contact_frequency'])
 	else:
-		ksu['next_event'] = today + int(person['contact_frequency'])
+		ksu['next_event'] = today
 	ksu['time_cost'] = 3
 	ksu['target_person'] = person['id']
 	ksu['parent_id'] = person['id']
 	ksu['subtype'] = 'ImPe_Contact'
-	person['child_ksus'] = person['child_ksus'].append(ksu['id'])
 	update_set(KAS1,ksu)
 	theory.KAS1 = pack_set(KAS1)
 	return ksu
