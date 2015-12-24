@@ -576,6 +576,23 @@ def update_ksu_next_event(theory, post_details):
 	return
 
 
+def update_associates(theory, post_details):
+	ksu_id = post_details['ksu_id']
+	ksu_set = unpack_set(eval('theory.'+get_type_from_id(ksu_id)))
+	ksu = ksu_set[ksu_id]
+	ksu_subtype = ksu['subtype']
+	if ksu_subtype == 'ImPe_Contact':
+		person_id = ksu['parent_id']
+		ksu_set = unpack_set(theory.ImPe)
+		person = ksu_set[person_id]
+		person['last_contact'] = ksu['last_event']
+		person['next_contact'] = ksu['next_event']
+		theory.ImPe = pack_set(ksu_set)
+		return
+	return
+	
+
+
 
 def update_master_log(theory, event):
 	master_log = unpack_set(theory.master_log)
@@ -856,9 +873,11 @@ def add_ksu_to_ImPe(theory, post_details):
 	person = new_ksu_for_ImPe(ImPe)
 	person['name'] = post_details['name']
 	person['contact_frequency'] = post_details['contact_frequency']
-	person['next_contact'] = today + int(post_details['contact_frequency'])
 	if 'last_contact' in post_details:
 		person['last_contact'] = post_details['last_contact']
+		person['next_contact'] = int(person['last_contact']) + int(person['contact_frequency'])
+	else:
+		person['next_contact'] = today
 	update_set(ImPe,person)
 	theory.ImPe = pack_set(ImPe)
 	return person
@@ -895,6 +914,7 @@ def user_Action_Effort_Done(self):
 	theory = self.theory
 	post_details = get_post_details(self)
 	update_ksu_next_event(theory, post_details)
+	update_associates(theory, post_details)
 	add_Effort_event(theory, post_details)
 	theory.put()
 
