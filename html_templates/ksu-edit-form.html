@@ -3,38 +3,30 @@
 {% block content %}
 
 <div class="row">
-	<div class="col-md-12"> <h3>Edit your KSU </h3></div>
+	<div class="col-md-12"> <h2> Edit Key Base Action in KAS1 </h2></div>
 </div>
 
 <br>	
 
 
-<form class="form-horizontal">
+<form class="form-horizontal" method="post">
+
+	<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}"> 
  
 	<div class="form-group">
-		<div class="col-md-9"> 
+		<div class="col-md-10"> 
 			<label> Action Description </label>
-			<input type="text" class="form-control tile-ksu-edit" name="description" placeholder="Contactar a Dave" >
-		</div>
-
-
-		<div class="col-md-1"> 
-			<label> Prio. Lvl. </label> 
-			<select class="form-control"> 
-				{% for i in range(1,10) %}
-					<option> {{i}} </option>
-				{% endfor %}
-			</select>
+			<input type="text" class="form-control tile-ksu-edit" name="description" placeholder="e.g. Hacer algo nice por mi chica" required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">
 		</div>
 
 
 		<div class="col-md-2">
 	 		<div class="checkbox"> 
-	 			<label> <input type="checkbox"> <b> Is Critical </b> </label> 
+	 			<label> <input type="checkbox" name="is_critical" {% if ksu['is_critical']%}checked{% endif %}> <b> Is Critical </b> </label> 
 	 		</div>
 
 	 		<div class="checkbox"> 
-	 			<label> <input type="checkbox"> <b> Is Private </b> </label> 
+	 			<label> <input type="checkbox" name="is_private"{% if ksu['is_private']%}checked{% endif %}> <b> Is Private </b> </label> 
 	 		</div>
 		</div>
 	</div>
@@ -42,21 +34,38 @@
 
 
 
-
-
-
 	<div class="form-group">
 
-		<div class="col-md-3">
+		<div class="col-md-2">
 			<label>Element</label>
-				<select class="form-control">
-				{% for e in elements %}
-					<option> {{e}} </option>
+				<select class="form-control" name="element">
+				{% for element in constants['l_Elements'] %}
+					{% if element[0] == ksu['element'] %}
+					<option selected="selected" value="{{element[0]}}"> {{element[1]}} </option>
+					{% else %}
+					<option value="{{element[0]}}"> {{element[1]}} </option>
+					{% endif %}
 				{% endfor %}
 			</select>
 		</div>	
 
-		<div class="col-md-3">
+
+		<div class="col-md-2"> 
+			<label> Relative Importance </label> 
+			<select class="form-control" name="relative_imp"> 
+				{% for i in constants['l_Fibonacci'] %}
+					{% if i == ksu['relative_imp'] %}
+						<option selected="selected">{{i}}</option>
+					{% else %}		
+						<option> {{i}} </option>
+					{% endif %}
+				{% endfor %}
+					
+			</select>
+		</div>
+
+
+		<div class="col-md-2">
 			<label> Parent KSU </label>
 			<input type="text" class="form-control" name="" placeholder="Optional">
 		</div>
@@ -64,17 +73,17 @@
 
 		<div class="col-md-2">
 			<label> Local Tag </label>
-			<input type="text" class="form-control" name="" placeholder="Optional">
+			<input type="text" class="form-control" name="local_tags" placeholder="Optional">
 		</div>
 
 		<div class="col-md-2">
 			<label> Global Tag </label>
-			<input type="text" class="form-control" name="" placeholder="Optional">
+			<input type="text" class="form-control" name="global_tags" placeholder="Optional">
 		</div>
 
 		<div class="col-md-2">
 			<label> Target Person </label>
-			<input type="text" class="form-control" name="" placeholder="Optional">
+			<input type="text" class="form-control" name="target_person" placeholder="Optional">
 		</div>
 
 	</div>
@@ -85,32 +94,39 @@
 	<div class="form-group">
 
 		<div class="col-md-2"> 
-			<label> Effort Rewards Points </label>
-			<input type="text" class="form-control" name="description" placeholder="13" >
+			<label> Reasonable Time Cost </label>
+			<select class="form-control" name="time_cost">
+				{% for t in constants['l_Fibonacci'] %}
+					{% if t == ksu['time_cost']  %}
+						<option selected="selected">{{t}}</option>
+					{% else %}
+						<option> {{t}} </option>
+					{% endif %}
+				{% endfor %}
+			</select>
 		</div>
 
 		<div class="col-md-2">
 			<label> Frequency in Days </label>
-			<input type="text" class="form-control" name="frequency" placeholder="7">
+			<input type="text" class="form-control" name="frequency" placeholder="e.g. 7" required value="{% if ksu['frequency']%}{{ksu['frequency']}}{% endif %}">
 		</div>
 
 		<div class="col-md-2">
-			<label> Next Scheduled Event </label>
-			<input type="text" class="form-control" value="03-03-2016" name="">
+			<label> Last Event </label>
+			<input type="text" class="form-control" name="last_event" placeholder="DD-MM-YYYY" value="{% if ksu['last_event']%}{{ksu['last_event']}}{% endif %}">
 		</div>
 
 
 		<div class="col-md-2">
 			<label> Prefered Day </label>
-				<select class="form-control">
-					<option> None </option>
-					<option> Sunday </option>
-					<option> Monday </option>
-					<option> Tuesday </option>
-					<option> Wednesday </option>
-					<option> Thursday </option>
-					<option> Friday </option>
-					<option> Saturday </option>
+				<select class="form-control" name="best_day">
+					{% for d in constants['l_Days'] %}
+						{% if d[0] == ksu['best_day'] %}
+							<option value="{{d[0]}}" selected="selected"> {{d[1]}} </option>
+						{% else %}
+							<option value="{{d[0]}}"> {{d[1]}} </option>
+						{% endif %}
+					{% endfor %}
 				</select> 
 		</div>
 
@@ -118,52 +134,51 @@
 			<label> Preferred Time (24hrs.)</label>
 			<input type="text" class="form-control" name="best_time" placeholder="00:00">
 		</div>
-
-		<div class="col-md-2">
-			<div class="radio">
-			  <label>
-			    <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>
-			    <b> Active </b>
-			  </label>
-			</div>
-			<div class="radio">
-			  <label>
-			    <input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
-			    <b> On Hold </b>
-			  </label>
-			</div>
-
-
-
-
-		</div>
-
-
-
 	</div>
 
 
 
 	<div class="form-group">
-		<div class="col-md-12">
+		<div class="col-md-10">
 			<label> Comments </label>
-			<textarea class="form-control" name="" placeholder="Additional usefull information"> </textarea> 
+			<textarea class="form-control" name="comments">{% if ksu['comments']%}{{ksu['comments']}}{% endif %}</textarea> 
 		</div>
+	
+		<div class="col-md-2">
+			<div class="radio">
+			  <label>
+			    <input type="radio" name="status" id="optionsRadios1" value="Active" {% if ksu['status']=='Active'%}checked{% endif %}>
+			    <b> Active </b>
+			  </label>
+			</div>
+			<div class="radio">
+			  <label>
+			    <input type="radio" name="status" id="optionsRadios2" value="Hold"  {% if ksu['status']=='Hold'%}checked{% endif %}>
+			    <b> On Hold </b>
+			  </label>
+			</div>
+			</div>
 	</div>
 
 
-
   	<div class="form-group">
-		<div class="col-md-2">
-		  	<button type="submit" class="btn btn-success btn-lg">Save Changes</button>
-		</div>	
-		<div class="col-md-2">
-		<button type="button" class="btn btn-danger btn-lg"> Delete KSU </button>
-		</div>
+  		<div class="col-md-4"></div>
+		<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space">  Save Changes  </button> </div>	
+		<!-- <div class="col-md-2"> <button type="button" class="btn btn-danger btn-lg  respect-space">    Discard   </button> </div> -->
+		<div class="col-md-4"></div>
 	</div>
 
 </form>
 
+{% if input_error %}
+
+<div class="row">
+	<div class="col-md-4"></div>
+	<div class="col-md-4 error"> {{input_error}}</div>
+	<div class="col-md-4"></div>
+	
+</div>
+{% endif %}
 
 <hr>
 

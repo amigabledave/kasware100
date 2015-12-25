@@ -12,6 +12,7 @@
 
 
 <div class="row">
+	<div class="col-md-1"></div>
 	{% for a in viewer_details['attributes'] %}
 		<div class="col-md-{{viewer_details['columns'][a]}}">  <div class="field-header">  {{viewer_details['fields'][a]}} </div> </div>
 	{% endfor %}
@@ -25,11 +26,25 @@
 {% for ksu in ksu_set %}
 
 	<div class="row">
+
+		<div class="col-md-1">
+			<form class="form-horizontal" method="post">
+				<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}"> 
+			  	<input type="submit" class="btn btn-primary btn-sm" name="event_description" value="Edit">
+			</form>	
+		</div>
+
+
+
 		{% for a in viewer_details['attributes'] %}
 			<div class="col-md-{{viewer_details['columns'][a]}}">  {% if ksu[a] %} {{ksu[a]}} {% endif %} </div>
 		{% endfor %}	
+
+
+	
 	</div>
 	<hr>
+
 
 {% endfor %}
 

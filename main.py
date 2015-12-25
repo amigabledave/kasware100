@@ -220,6 +220,11 @@ class SetViewer(Handler):
 		viewer_details = d_Viewer[set_name]
 		self.print_html('set-viewer.html', viewer_details=viewer_details, ksu_set=ksu_set)
 
+	def post(self, set_name):
+		if user_bouncer(self):
+			return
+		ksu_id = self.request.get('ksu_id')
+		self.redirect('/EditKSU?ksu_id=' + ksu_id)
 
 
 
@@ -256,10 +261,24 @@ def pretty_dates(ksu_set):
 				if ksu[date_attribute]:
 					number_date = int(ksu[date_attribute])
 					pretty_date = datetime.fromordinal(number_date).strftime('%a, %b %d, %Y')
-					# pretty_date = datetime.fromordinal(number_date).strftime('%a-%d-%m-%Y')
 					ksu[date_attribute] = pretty_date
 	return ksu_set
 	
+
+def not_ugly_dates(ksu_set):
+	date_attributes = ['last_event', 'next_event', 'last_contact', 'next_contact']
+	for date_attribute in date_attributes:
+		for ksu in ksu_set:
+			ksu = ksu_set[ksu]
+			valid_attributes = list(ksu.keys())
+			if date_attribute in valid_attributes:	
+				if ksu[date_attribute]:
+					number_date = int(ksu[date_attribute])
+					pretty_date = datetime.fromordinal(number_date).strftime('%d-%m-%Y')
+					ksu[date_attribute] = pretty_date
+	return ksu_set
+
+
 
 
 def hide_invisible(ksu_set):
@@ -281,8 +300,8 @@ class NewKSU(Handler):
 	def get(self):
 		if user_bouncer(self):
 			return
-		input_details = input_details_template()	
-		self.print_html('ksu-new-form.html', constants=constants, input_details=input_details)
+		input_details = input_details_template()
+		self.print_html('ksu-new-edit-form.html', constants=constants, input_details=input_details)
 	
 	def post(self):
 		if user_bouncer(self):
@@ -297,7 +316,7 @@ class NewKSU(Handler):
 			input_details = input_details_template()
 			input_details['input_error'] = input_error
 			input_details = update_input_details(input_details, post_details)
-			self.print_html('ksu-new-form.html', constants=constants, input_details=input_details)
+			self.print_html('ksu-new-edit-form.html', constants=constants, input_details=input_details)
 			
 
 
@@ -316,7 +335,32 @@ class EditKSU(Handler):
 	def get(self):
 		if user_bouncer(self):
 			return
-		self.print_html('ksu-edit-form.html', elements=list_Elements)
+		# ksu = new_ksu_for_KAS1(unpack_set(self.theory.KAS1))
+		ksu_id = self.request.get('ksu_id')
+		KAS1 = not_ugly_dates(unpack_set(self.theory.KAS1))
+		ksu = KAS1[ksu_id]
+		self.print_html('ksu-edit-form.html', constants=constants, ksu=ksu)
+
+	def post(self):
+		if user_bouncer(self):
+			return
+		post_details = get_post_details(self)
+		post_details = prepare_details_for_validation(post_details)
+		if valid_input(post_details)[0]:
+			user_Action_Update_ksu_in_KAS1(self)
+			self.redirect('/SetViewer/KAS1')
+		else:
+			input_error = valid_input(post_details)[1]
+			KAS1 = not_ugly_dates(unpack_set(self.theory.KAS1))
+			ksu_id = post_details['ksu_id']
+			ksu = KAS1[ksu_id]
+			ksu = update_ksu_with_post_details(ksu, post_details)
+			self.print_html('ksu-edit-form.html', constants=constants, ksu=ksu, input_error=input_error)
+
+
+
+
+
 
 
 
@@ -566,6 +610,14 @@ def valid_input(post_details):
 #--- Update Stuff ---
 
 
+def update_ksu_with_post_details(ksu, safe_post_details):
+	details = prepare_details_for_saving(safe_post_details)
+	for (attribute, value) in details.items():
+		ksu[attribute] = value
+	return ksu
+
+
+
 def update_ksu_next_event(theory, post_details):
 	ksu_set = unpack_set(theory.KAS1)
 	ksu_id = post_details['ksu_id']
@@ -780,9 +832,9 @@ def new_ksu_for_KAS1(KAS1):
 	ksu_id = create_id(KAS1)
 	ksu['id'] = ksu_id
 	ksu['status'] = 'Active' # ['Active', 'Hold', 'Deleted']
-	ksu['time_cost'] = 0 # Reasonable Time Requirements in Minutes
+	ksu['time_cost'] = 13 # Reasonable Time Requirements in Minutes
 	ksu['in_mission'] = False
-	ksu['frequency'] = None
+	ksu['frequency'] = 7
 	ksu['best_day'] = None
 	ksu['best_time'] = None
 	ksu['last_event'] = None
@@ -928,6 +980,17 @@ def user_Action_Create_ksu_in_KAS1(self):
 	theory.put()
 
 
+def user_Action_Update_ksu_in_KAS1(self):
+	theory = self.theory
+	safe_post_details = get_post_details(self)
+	KAS1 = unpack_set(theory.KAS1)
+	ksu_id = safe_post_details['ksu_id']
+	ksu = KAS1[ksu_id]
+	ksu = update_ksu_with_post_details(ksu, safe_post_details)
+	update_set(KAS1, ksu)
+	theory.KAS1 = pack_set(KAS1)
+	theory.put()
+	return
 
 
 def user_Action_Create_ksu_in_ImPe(self):
@@ -1009,7 +1072,7 @@ def validate_password(username, password, h):
 today = datetime.today().toordinal()
 
 
-l_Fibonacci = [1,2,3,5,8,13,21,34,55,89,144]
+l_Fibonacci = ['1','2','3','5','8','13','21','34','55','89','144']
 
 d_Elements = {'E100': '1. Inner Peace & Consciousness',
 			  'E200': '2. Fun & Excitement', 
@@ -1025,7 +1088,8 @@ d_Elements = {'E100': '1. Inner Peace & Consciousness',
 l_Elements = sorted(d_Elements.items())
 
 
-d_Days = {'1':'1. Sunday',
+d_Days = {'None':'None',
+		  '1':'1. Sunday',
 		  '2':'2. Monday',
 		  '3':'3. Tuesday',
 		  '4':'4. Wednesday',
@@ -1046,7 +1110,7 @@ constants = {'l_Fibonacci':l_Fibonacci,
 d_Viewer ={'KAS1':{'set_name':'My Key Base Actions Set  (KAS1)',
 				   'attributes':['description','frequency','relative_imp','time_cost','next_event','comments'],
 				   'fields':{'description':'Description','frequency':'Frequency','relative_imp':'Rel. Imp.','time_cost':'Time C.','next_event':'Next Event','comments':'Comments'},
-				   'columns':{'description':5,'frequency':1,'relative_imp':1,'time_cost':1,'next_event':2,'comments':1}},
+				   'columns':{'description':4,'frequency':1,'relative_imp':1,'time_cost':1,'next_event':2,'comments':2}},
 		   
 		   'ImPe': {'set_name':'My Important People',
 					'attributes':['name', 'contact_frequency', 'last_contact', 'next_contact', 'comments'],
@@ -1084,7 +1148,7 @@ app = webapp2.WSGIApplication([
                              ('/SetViewer/'+ PAGE_RE, SetViewer),
 							 ('/important-people',ImportantPeople),
 							 ('/NewKSU', NewKSU),
-							 ('/editKSU', EditKSU),
+							 ('/EditKSU', EditKSU),
 							 ('/effort-report',EffortReport),
 							 ('/email',Email),
 							 ('/LoadCSV', LoadCSV),
