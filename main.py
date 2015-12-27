@@ -319,7 +319,7 @@ class NewKSU(Handler):
 			ksu = new_ksu_for_KAS1(ksu_set)
 			ksu = update_ksu_with_post_details(ksu, post_details)
 			show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
-			self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, title='New KSU', input_error=input_error)
+			self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, title='Create', input_error=input_error)
 
 		
 
@@ -331,24 +331,31 @@ class EditKSU(Handler):
 		ksu_id = self.request.get('ksu_id')
 		KAS1 = not_ugly_dates(unpack_set(self.theory.KAS1))
 		ksu = KAS1[ksu_id]
-		self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, title='Edit KSU')
+		self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, title='Edit')
 
 	def post(self):
 		if user_bouncer(self):
 			return
 		post_details = get_post_details(self)
-		post_details = prepare_details_for_validation(post_details)
-		if valid_input(post_details)[0]:
-			user_Action_Edit_ksu_in_KAS1(self)
-			self.redirect('/SetViewer/KAS1')
+		if post_details['event_description'] == 'Create':
+			post_details = prepare_details_for_validation(post_details)
+			if valid_input(post_details)[0]:
+				user_Action_Edit_ksu_in_KAS1(self)
+				self.redirect('/SetViewer/KAS1')
+			else:
+				input_error = valid_input(post_details)[1]
+				KAS1 = not_ugly_dates(unpack_set(self.theory.KAS1))
+				ksu_id = post_details['ksu_id']
+				ksu = KAS1[ksu_id]
+				ksu = update_ksu_with_post_details(ksu, post_details)			
+				show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
+				self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, title='Edit KSU', input_error=input_error)
 		else:
-			input_error = valid_input(post_details)[1]
-			KAS1 = not_ugly_dates(unpack_set(self.theory.KAS1))
-			ksu_id = post_details['ksu_id']
-			ksu = KAS1[ksu_id]
-			ksu = update_ksu_with_post_details(ksu, post_details)			
-			show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
-			self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, title='Edit KSU', input_error=input_error)
+			ksu_set = get_type_from_id(post_details['ksu_id'])
+			self.redirect('/SetViewer/' + ksu_set)
+		
+
+
 
 
 

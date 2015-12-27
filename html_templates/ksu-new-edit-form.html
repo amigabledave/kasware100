@@ -160,13 +160,14 @@
 			</div>
 	</div>
 
-
-  	<div class="form-group">
-  		<div class="col-md-4"></div>
-		<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space">  Save Changes  </button> </div>	
-		<!-- <div class="col-md-2"> <button type="button" class="btn btn-danger btn-lg  respect-space">    Discard   </button> </div> -->
-		<div class="col-md-4"></div>
-	</div>
+	{% if title=='Edit' %}
+	  	<div class="form-group">
+	  		<div class="col-md-4"></div>
+			<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="event_description" value="Create">   Save Changes   </button> </div>	
+			<div class="col-md-2"> <button type="submit" class="btn btn-danger btn-lg  respect-space" name="event_description" value="Discard"> Discard Changes </button> </div>
+			<div class="col-md-4"></div>
+		</div>
+	{% endif%}
 
 </form>
 
