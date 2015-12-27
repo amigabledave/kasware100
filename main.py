@@ -300,8 +300,10 @@ class NewKSU(Handler):
 	def get(self):
 		if user_bouncer(self):
 			return
+		ksu_set = unpack_set(self.theory.KAS1)
+		ksu = new_ksu_for_KAS1(ksu_set)
 		input_details = input_details_template()
-		self.print_html('ksu-new-edit-form.html', constants=constants, input_details=input_details)
+		self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, title='New KSU')
 	
 	def post(self):
 		if user_bouncer(self):
@@ -313,11 +315,11 @@ class NewKSU(Handler):
 			self.redirect('/SetViewer/KAS1')
 		else:
 			input_error = valid_input(post_details)[1]
-			input_details = input_details_template()
-			input_details['input_error'] = input_error
-			input_details = update_input_details(input_details, post_details)
-			self.print_html('ksu-new-edit-form.html', constants=constants, input_details=input_details)
-			
+			ksu_set = unpack_set(self.theory.KAS1)
+			ksu = new_ksu_for_KAS1(ksu_set)
+			ksu = update_ksu_with_post_details(ksu, post_details)
+			self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, title='New KSU', input_error=input_error)
+		
 
 
 def update_input_details(input_details, post_details):
@@ -338,7 +340,7 @@ class EditKSU(Handler):
 		ksu_id = self.request.get('ksu_id')
 		KAS1 = not_ugly_dates(unpack_set(self.theory.KAS1))
 		ksu = KAS1[ksu_id]
-		self.print_html('ksu-edit-form.html', constants=constants, ksu=ksu)
+		self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, title='Edit KSU')
 
 	def post(self):
 		if user_bouncer(self):
@@ -354,7 +356,7 @@ class EditKSU(Handler):
 			ksu_id = post_details['ksu_id']
 			ksu = KAS1[ksu_id]
 			ksu = update_ksu_with_post_details(ksu, post_details)
-			self.print_html('ksu-edit-form.html', constants=constants, ksu=ksu, input_error=input_error)
+			self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, title='Edit KSU', input_error=input_error)
 
 
 
@@ -717,7 +719,7 @@ def ksu_template():
 		    	'global_tags': None,
 		    	'target_person':None,
 		    	'parent_id': None,
-		    	'relative_imp':5, # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 5
+		    	'relative_imp':3, # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 3
 		    	'is_critical': False,
 		    	'is_visible': True,
 		    	'is_private': False}

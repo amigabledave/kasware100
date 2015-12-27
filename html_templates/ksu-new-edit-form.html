@@ -3,28 +3,30 @@
 {% block content %}
 
 <div class="row">
-	<div class="col-md-12"> <h2> New Key Base Action in KAS1 </h2></div>
+	<div class="col-md-12"> <h2> {{ title + " With ID: " + ksu['id']}} </h2></div>
 </div>
 
 <br>	
 
 
 <form class="form-horizontal" method="post">
+
+	<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}"> 
  
 	<div class="form-group">
 		<div class="col-md-10"> 
 			<label> Action Description </label>
-			<input type="text" class="form-control tile-ksu-edit" name="description" placeholder="e.g. Hacer algo nice por mi chica" required value="{% if input_details['description']%}{{input_details['description']}}{% endif %}">
+			<input type="text" class="form-control tile-ksu-edit" name="description" placeholder="e.g. Hacer algo nice por mi chica" required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">
 		</div>
 
 
 		<div class="col-md-2">
 	 		<div class="checkbox"> 
-	 			<label> <input type="checkbox" name="is_critical" value="True"> <b> Is Critical </b> </label> 
+	 			<label> <input type="checkbox" name="is_critical" {% if ksu['is_critical']%}checked{% endif %}> <b> Is Critical </b> </label> 
 	 		</div>
 
 	 		<div class="checkbox"> 
-	 			<label> <input type="checkbox" name="is_private"> <b> Is Private </b> </label> 
+	 			<label> <input type="checkbox" name="is_private"{% if ksu['is_private']%}checked{% endif %}> <b> Is Private </b> </label> 
 	 		</div>
 		</div>
 	</div>
@@ -37,11 +39,11 @@
 		<div class="col-md-2">
 			<label>Element</label>
 				<select class="form-control" name="element">
-				{% for i in range(0,9) %}
-					{% if i == 8 %}
-					<option selected="selected" value="{{constants['l_Elements'][i][0]}}"> {{constants['l_Elements'][i][1]}} </option>
+				{% for element in constants['l_Elements'] %}
+					{% if element[0] == ksu['element'] %}
+					<option selected="selected" value="{{element[0]}}"> {{element[1]}} </option>
 					{% else %}
-					<option value="{{constants['l_Elements'][i][0]}}"> {{constants['l_Elements'][i][1]}} </option>
+					<option value="{{element[0]}}"> {{element[1]}} </option>
 					{% endif %}
 				{% endfor %}
 			</select>
@@ -52,7 +54,7 @@
 			<label> Relative Importance </label> 
 			<select class="form-control" name="relative_imp"> 
 				{% for i in constants['l_Fibonacci'] %}
-					{% if i == 5 %}
+					{% if i == ksu['relative_imp'] %}
 						<option selected="selected">{{i}}</option>
 					{% else %}		
 						<option> {{i}} </option>
@@ -95,28 +97,35 @@
 			<label> Reasonable Time Cost </label>
 			<select class="form-control" name="time_cost">
 				{% for t in constants['l_Fibonacci'] %}
-					<option> {{t}} </option>
+					{% if t == ksu['time_cost']  %}
+						<option selected="selected">{{t}}</option>
+					{% else %}
+						<option> {{t}} </option>
+					{% endif %}
 				{% endfor %}
 			</select>
 		</div>
 
 		<div class="col-md-2">
 			<label> Frequency in Days </label>
-			<input type="text" class="form-control" name="frequency" placeholder="e.g. 7" required value="{% if input_details['frequency']%}{{input_details['frequency']}}{% endif %}">
+			<input type="text" class="form-control" name="frequency" placeholder="e.g. 7" required value="{% if ksu['frequency']%}{{ksu['frequency']}}{% endif %}">
 		</div>
 
 		<div class="col-md-2">
 			<label> Last Event </label>
-			<input type="text" class="form-control" name="last_event" placeholder="DD-MM-YYYY" value="{% if input_details['last_event']%}{{input_details['last_event']}}{% endif %}">
+			<input type="text" class="form-control" name="last_event" placeholder="DD-MM-YYYY" value="{% if ksu['last_event']%}{{ksu['last_event']}}{% endif %}">
 		</div>
 
 
 		<div class="col-md-2">
 			<label> Prefered Day </label>
 				<select class="form-control" name="best_day">
-					<option value="None" selected="selected"> None </option>
 					{% for d in constants['l_Days'] %}
-						<option value="{{d[0]}}"> {{d[1]}} </option>
+						{% if d[0] == ksu['best_day'] %}
+							<option value="{{d[0]}}" selected="selected"> {{d[1]}} </option>
+						{% else %}
+							<option value="{{d[0]}}"> {{d[1]}} </option>
+						{% endif %}
 					{% endfor %}
 				</select> 
 		</div>
@@ -132,19 +141,19 @@
 	<div class="form-group">
 		<div class="col-md-10">
 			<label> Comments </label>
-			<textarea class="form-control" name="comments">{% if input_details['comments']%}{{input_details['comments']}}{% endif %}</textarea> 
+			<textarea class="form-control" name="comments">{% if ksu['comments']%}{{ksu['comments']}}{% endif %}</textarea> 
 		</div>
 	
 		<div class="col-md-2">
 			<div class="radio">
 			  <label>
-			    <input type="radio" name="status" id="optionsRadios1" value="Active" checked>
+			    <input type="radio" name="status" id="optionsRadios1" value="Active" {% if ksu['status']=='Active'%}checked{% endif %}>
 			    <b> Active </b>
 			  </label>
 			</div>
 			<div class="radio">
 			  <label>
-			    <input type="radio" name="status" id="optionsRadios2" value="Hold">
+			    <input type="radio" name="status" id="optionsRadios2" value="Hold"  {% if ksu['status']=='Hold'%}checked{% endif %}>
 			    <b> On Hold </b>
 			  </label>
 			</div>
@@ -154,18 +163,18 @@
 
   	<div class="form-group">
   		<div class="col-md-4"></div>
-		<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space">     Commit    </button> </div>	
+		<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space">  Save Changes  </button> </div>	
 		<!-- <div class="col-md-2"> <button type="button" class="btn btn-danger btn-lg  respect-space">    Discard   </button> </div> -->
 		<div class="col-md-4"></div>
 	</div>
 
 </form>
 
-{% if input_details['input_error'] %}
+{% if input_error %}
 
 <div class="row">
 	<div class="col-md-4"></div>
-	<div class="col-md-4 error"> {{input_details['input_error']}}</div>
+	<div class="col-md-4 error"> {{input_error}}</div>
 	<div class="col-md-4"></div>
 	
 </div>
