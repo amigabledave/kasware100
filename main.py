@@ -293,7 +293,7 @@ def hide_invisible(ksu_set):
 
 
 
-#--- New KSU Handler ---
+#--- New & Edit KSU Handlers ---
 
 class NewKSU(Handler):
 	
@@ -318,13 +318,11 @@ class NewKSU(Handler):
 			ksu_set = unpack_set(self.theory.KAS1)
 			ksu = new_ksu_for_KAS1(ksu_set)
 			ksu = update_ksu_with_post_details(ksu, post_details)
+			show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
 			self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, title='New KSU', input_error=input_error)
+
 		
 
-
-
-
-#--- Edit KSU Handler ---
 
 class EditKSU(Handler):
 	def get(self):
@@ -348,11 +346,16 @@ class EditKSU(Handler):
 			KAS1 = not_ugly_dates(unpack_set(self.theory.KAS1))
 			ksu_id = post_details['ksu_id']
 			ksu = KAS1[ksu_id]
-			ksu = update_ksu_with_post_details(ksu, post_details)
+			ksu = update_ksu_with_post_details(ksu, post_details)			
+			show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
 			self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, title='Edit KSU', input_error=input_error)
 
 
 
+def show_date_as_inputed(ksu, post_details):
+	if 'last_event' in post_details:
+		ksu['last_event'] = post_details['last_event']
+	return
 
 
 
@@ -710,7 +713,7 @@ def ksu_template():
 		    	'global_tags': None,
 		    	'target_person':None,
 		    	'parent_id': None,
-		    	'relative_imp':3, # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 3
+		    	'relative_imp':"3", # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 3
 		    	'is_critical': False,
 		    	'is_visible': True,
 		    	'is_private': False}
@@ -825,10 +828,10 @@ def new_ksu_for_KAS1(KAS1):
 	ksu_id = create_id(KAS1)
 	ksu['id'] = ksu_id
 	ksu['status'] = 'Active' # ['Active', 'Hold', 'Deleted']
-	ksu['time_cost'] = 13 # Reasonable Time Requirements in Minutes
+	ksu['time_cost'] = "13" # Reasonable Time Requirements in Minutes
 	ksu['in_mission'] = False
-	ksu['frequency'] = 7
-	ksu['best_day'] = None
+	ksu['frequency'] = "7"
+	ksu['best_day'] = "None"
 	ksu['best_time'] = None
 	ksu['last_event'] = None
 	ksu['next_event'] = None
