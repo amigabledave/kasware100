@@ -335,7 +335,6 @@ class EditKSU(Handler):
 	def get(self):
 		if user_bouncer(self):
 			return
-		# ksu = new_ksu_for_KAS1(unpack_set(self.theory.KAS1))
 		ksu_id = self.request.get('ksu_id')
 		KAS1 = not_ugly_dates(unpack_set(self.theory.KAS1))
 		ksu = KAS1[ksu_id]
@@ -472,6 +471,7 @@ class PythonBackup(Handler):
 	def get(self, set_name):
 		if user_bouncer(self):
 			return
+		theory = self.theory	
 		ksu_set = unpack_set(eval('theory.' + set_name))
 		self.write(ksu_set)
 
@@ -882,6 +882,20 @@ def add_Created_event(theory, ksu):
 	return event
 
 
+def add_Edited_event(theory, ksu):
+	history = unpack_set(theory.history)
+	event = new_event(history)
+	event['type'] = 'Edited'
+	event['ksu_id'] = ksu['id']
+	update_set(history, event)
+	update_master_log(theory, event)
+	theory.history = pack_set(history)
+	return event
+
+
+
+
+
 
 def add_Effort_event(theory, post_details):
 	history = unpack_set(theory.history)
@@ -989,6 +1003,7 @@ def user_Action_Update_ksu_in_KAS1(self):
 	ksu = update_ksu_with_post_details(ksu, safe_post_details)
 	update_set(KAS1, ksu)
 	theory.KAS1 = pack_set(KAS1)
+	add_Edited_event(theory, ksu)
 	theory.put()
 	return
 
