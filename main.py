@@ -322,13 +322,6 @@ class NewKSU(Handler):
 		
 
 
-def update_input_details(input_details, post_details):
-	for (attribute, value) in post_details.items():
-		if value and value!='' and value!='None':
-			input_details[attribute] = value
-	return input_details
-
-
 
 
 #--- Edit KSU Handler ---
@@ -348,7 +341,7 @@ class EditKSU(Handler):
 		post_details = get_post_details(self)
 		post_details = prepare_details_for_validation(post_details)
 		if valid_input(post_details)[0]:
-			user_Action_Update_ksu_in_KAS1(self)
+			user_Action_Edit_ksu_in_KAS1(self)
 			self.redirect('/SetViewer/KAS1')
 		else:
 			input_error = valid_input(post_details)[1]
@@ -611,13 +604,11 @@ def valid_input(post_details):
 
 #--- Update Stuff ---
 
-
 def update_ksu_with_post_details(ksu, safe_post_details):
 	details = prepare_details_for_saving(safe_post_details)
 	for (attribute, value) in details.items():
 		ksu[attribute] = value
 	return ksu
-
 
 
 def update_ksu_next_event(theory, post_details):
@@ -865,6 +856,7 @@ def new_ksu_for_KAS2(KAS2):
 
 
 
+
 #--- Add items to sets. IT DOES NOT STORE THEM, IS STILL NECESARY TO ADD THE FUNCTION 	theory.put() ---
 
 def update_set(ksu_set, ksu):
@@ -895,10 +887,6 @@ def add_Edited_event(theory, ksu):
 	return event
 
 
-
-
-
-
 def add_Effort_event(theory, post_details):
 	history = unpack_set(theory.history)
 	event = new_event(history)
@@ -918,19 +906,27 @@ def add_Effort_event(theory, post_details):
 
 
 
-
 def add_ksu_to_KAS1(theory, details):
-	#need to validate user input
 	details = prepare_details_for_saving(details)
 	KAS1 = unpack_set(theory.KAS1)
 	ksu = new_ksu_for_KAS1(KAS1)
-	for (attribute, value) in details.items():
-		ksu[attribute] = value
+	ksu = update_ksu_with_post_details(ksu, details)
 	if ksu['last_event']:
 		ksu['next_event'] = int(ksu['last_event']) + int(ksu['frequency'])
 	else:
 		ksu['next_event'] = today
 	update_set(KAS1,ksu)
+	theory.KAS1 = pack_set(KAS1)
+	return ksu
+
+
+
+def add_edited_ksu_to_KAS1(theory, details):
+	KAS1 = unpack_set(theory.KAS1)
+	ksu_id = details['ksu_id']
+	ksu = KAS1[ksu_id]
+	ksu = update_ksu_with_post_details(ksu, details)
+	update_set(KAS1, ksu)
 	theory.KAS1 = pack_set(KAS1)
 	return ksu
 
@@ -951,9 +947,7 @@ def add_ksu_to_ImPe(theory, post_details):
 	return person
 
 
-
-
-def add_ImPe_Contact_ksu_in_KAS1(theory, person):
+def add_ImPe_Contact_ksu_to_KAS1(theory, person):
 	KAS1 = unpack_set(theory.KAS1)
 	ksu = new_ksu_for_KAS1(KAS1)
 	ksu['element'] = 'E500'
@@ -996,25 +990,22 @@ def user_Action_Create_ksu_in_KAS1(self):
 	theory.put()
 
 
-def user_Action_Update_ksu_in_KAS1(self):
+
+def user_Action_Edit_ksu_in_KAS1(self):
 	theory = self.theory
-	safe_post_details = get_post_details(self)
-	KAS1 = unpack_set(theory.KAS1)
-	ksu_id = safe_post_details['ksu_id']
-	ksu = KAS1[ksu_id]
-	ksu = update_ksu_with_post_details(ksu, safe_post_details)
-	update_set(KAS1, ksu)
-	theory.KAS1 = pack_set(KAS1)
+	details = get_post_details(self)
+	ksu = add_edited_ksu_to_KAS1(theory, details)
 	add_Edited_event(theory, ksu)
 	theory.put()
 	return
+
 
 
 def user_Action_Create_ksu_in_ImPe(self):
 	theory = self.theory
 	details = get_post_details(self)
 	person = add_ksu_to_ImPe(theory, details)
-	ksu = add_ImPe_Contact_ksu_in_KAS1(theory, person)
+	ksu = add_ImPe_Contact_ksu_to_KAS1(theory, person)
 	add_Created_event(theory,person)
 	add_Created_event(theory, ksu)
 	theory.put()
@@ -1039,7 +1030,7 @@ def developer_Action_Load_ImPe_CSV(self,csv_path):
 			i += 1
 		details = digested_ksu
 		person = add_ksu_to_ImPe(theory, details)
-		ksu = add_ImPe_Contact_ksu_in_KAS1(theory, person)
+		ksu = add_ImPe_Contact_ksu_to_KAS1(theory, person)
 		add_Created_event(theory,person)
 		add_Created_event(theory, ksu)
 	theory.put()
