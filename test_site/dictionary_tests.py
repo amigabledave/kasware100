@@ -39,10 +39,16 @@ d_Elements = {'E100': '1. Inner Peace & Consciousness',
 
 
 
-d_vacio = {None:None}
+# print d_Elements
 
-print d_vacio
+# del d_Elements['E100']
+# del d_Elements['E200']
+# del d_Elements['E300']
+# del d_Elements['E400']
+# del d_Elements['E500']
+# del d_Elements['E600']
 
+# print d_Elements
 
 
 

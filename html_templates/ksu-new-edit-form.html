@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="row">
-	<div class="col-md-12"> <h2> {{ title + " With ID: " + ksu['id']}} </h2></div>
+	<div class="col-md-12"> <h2> {{ title + "  " + ksu['id']}} </h2></div>
 </div>
 
 <br>	
@@ -160,14 +160,33 @@
 			</div>
 	</div>
 
-	{% if title=='Edit' %}
+
+	{% if title=='Create' %}
 	  	<div class="form-group">
 	  		<div class="col-md-4"></div>
-			<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="event_description" value="Create">   Save Changes   </button> </div>	
-			<div class="col-md-2"> <button type="submit" class="btn btn-danger btn-lg  respect-space" name="event_description" value="Discard"> Discard Changes </button> </div>
+			<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="event_description" value="Create">   Create   </button> </div>	
+			<div class="col-md-2"> <button type="submit" class="btn btn-danger btn-lg  respect-space" name="event_description" value="Discard">  Discard  </button> </div>
 			<div class="col-md-4"></div>
 		</div>
 	{% endif%}
+
+
+	{% if title=='Edit' %}
+	  	<div class="form-group">
+	  		<div class="col-md-3"></div>
+			<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="event_description" value="Save">   Save Changes   </button> </div>	
+			<div class="col-md-2"> <button type="submit" class="btn btn-warning btn-lg  respect-space" name="event_description" value="Discard"> Discard Changes </button> </div>
+			<div class="col-md-2"><button type="submit" class="btn btn-danger btn-lg  respect-space" name="event_description" value="Delete">    Delete KSU     </button></div>
+			<div class="col-md-3"></div>
+		</div>
+
+	{% endif%}
+
+
+
+
+
+
 
 </form>
 
