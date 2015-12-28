@@ -371,9 +371,6 @@ class EditKSU(Handler):
 
 
 
-
-
-
 def show_date_as_inputed(ksu, post_details):
 	if 'last_event' in post_details:
 		ksu['last_event'] = post_details['last_event']
@@ -636,6 +633,7 @@ def update_ksu_with_post_details(ksu, safe_post_details):
 	return ksu
 
 
+
 def update_ksu_next_event(theory, post_details):
 	ksu_set = unpack_set(theory.KAS1)
 	ksu_id = post_details['ksu_id']
@@ -644,7 +642,6 @@ def update_ksu_next_event(theory, post_details):
 	ksu['last_event'] = today
 	theory.KAS1 = pack_set(ksu_set)
 	return
-
 
 
 
@@ -667,19 +664,22 @@ def update_master_log(theory, event):
 		ksu_history = [event_id]
 	master_log[ksu_id] = ksu_history
 
-	set_name = get_type_from_id(ksu_id)
-	ksu_set = unpack_set(eval("theory." + set_name)) 
-	ksu = ksu_set[ksu_id]
-	person_id = ksu['target_person']
-	if person_id:
-		if person_id in master_log:
-			person_history = master_log[person_id]
-			person_history.append(event_id)
-		else:
-			person_history = [event_id]
-		master_log[person_id] = person_history
-
 	theory.master_log = pack_set(master_log)
+	return
+
+
+def update_set(ksu_set, ksu):
+	ksu_id = ksu['id']
+	ksu_set[ksu_id]=ksu
+	return
+
+
+def update_theory(theory, ksu_set):
+	set_name = ksu_set['set_details']['set_type']
+	if set_name == 'KAS1':
+		theory.KAS1 = pack_set(ksu_set)
+	if set_name == 'ImPe':
+		theory.ImPe = pack_set(ksu_set)
 	return
 
 
@@ -687,7 +687,7 @@ def update_master_log(theory, event):
 
 
 
-#--- Dictionary Templates ---
+#--- Templates ---
 
 #General Attributes
 i_BASE_KSU = {'id': None,
@@ -717,6 +717,12 @@ i_KAS1_KSU = {'frequency': "7",
 			  'best_time': None,
 			  'last_event': None,
 			  'next_event': None}
+
+
+
+i_KAS2_KSU = {'best_time': None,
+			  'target_exe': None,
+			  'pipeline':"9"}
 
 
 
@@ -772,47 +778,6 @@ def make_ksu_template(set_name):
 	return template
 
 
-#---- Old templates generators ---
-
-
-def ksu_template():
-	template = {'id': None,	
-				'subtype':None,		
-		    	'element': None,
-		    	'description': None,
-		    	'comments': None,
-		    	'local_tags': None,
-		    	'global_tags': None,
-		    	'target_person':None,
-		    	'parent_id': None,
-		    	'relative_imp':"3", # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 3
-		    	'is_critical': False,
-		    	'is_visible': True,
-		    	'is_private': False}
-	return template	
-
-
-def important_person_template():
-	person = {'id':None,
-			  'name':None, # To be replaced by general attribute "description"
-			  'target_person':None, # Attribute needed just to avoid KeyErrors
-			  'is_visible': True, # Attribute needed just to avoid KeyErrors
-			  'group':None, # To be replaced by general attribute "local tags"
-			  'contact_frequency':None,
-			  'last_contact':None,
-			  'next_contact':None,
-			  'fun_facts':None,
-			  'email':None,
-			  'phone':None,
-			  'facebook':None,
-			  'birthday':None,
-			  'comments':None,
-			  'important_since':today,
-			  'related_ksus':[]}
-	return person
-
-
-
 
 def event_template():
 	event = {'id': None,
@@ -825,8 +790,8 @@ def event_template():
 	return event
 
 
-#--- Create new Sets --- 
 
+#--- Create new Sets --- 
 
 
 def new_set_history():
@@ -854,20 +819,11 @@ def new_set_master_log(start_date=(735964-31), end_date=(735964+366)): #start_da
 
 def new_set_KAS1():
 	result = {}
-	ksu = ksu_template()
+	ksu = make_ksu_template('KAS1')
 	ksu['set_size'] = 0
 	ksu['id'] = 'KAS1_0'
 	ksu['set_type'] = 'KAS1'
 	ksu['description'] = 'KAS1 Key Base Actions Set'
-	ksu['status'] = 'Active' # ['Active', 'Hold', 'Deleted']
-	ksu['time_cost'] = 0
-	ksu['in_mission'] = False
-	ksu['frequency'] = None
-	ksu['best_day'] = None
-	ksu['best_time'] = None
-	ksu['last_event'] = None
-	ksu['next_event'] = None
-	ksu['target_exe'] = None
 	ksu['is_visible'] = False
 	result['set_details'] = ksu
 	return pack_set(result)
@@ -876,7 +832,7 @@ def new_set_KAS1():
 
 def new_set_ImPe():
 	result = {}
-	ksu = important_person_template()
+	ksu = make_ksu_template('ImPe')
 	ksu['set_size'] = 0
 	ksu['id'] = 'ImPe_0'
 	ksu['set_type'] = 'ImPe'
@@ -914,61 +870,7 @@ def new_ksu(self, set_name):
 	return ksu
 
 
-def new_ksu_for_KAS1(KAS1):
-	ksu = ksu_template()
-	ksu_id = create_id(KAS1)
-	ksu['id'] = ksu_id
-	ksu['status'] = 'Active' # ['Active', 'Hold', 'Deleted']
-	ksu['time_cost'] = "13" # Reasonable Time Requirements in Minutes
-	ksu['in_mission'] = False
-	ksu['frequency'] = "7"
-	ksu['best_day'] = "None"
-	ksu['best_time'] = None
-	ksu['last_event'] = None
-	ksu['next_event'] = None
-	return ksu
-
-
-def new_ksu_for_ImPe(Important_People_set):
-	ksu = important_person_template()
-	ksu_id = create_id(Important_People_set)
-	ksu['id'] = ksu_id
-	return ksu
-
-
-def new_ksu_for_KAS2(KAS2):
-	ksu = ksu_template()
-	ksu_id = create_id(kas2)
-	ksu['id'] = ksu_id
-	ksu['status'] = 'Pending' # ['Done', 'Pending', 'Deleted']
-	ksu['time_cost'] = 0 # Reasonable Time Requirements in Minutes
-	ksu['in_mission'] = False
-	ksu['best_time'] = None
-	ksu['target_exe'] = None
-	ksu['pipeline'] = 9
-	return ksu
-
-
-
-
 #--- Add items to sets. IT DOES NOT STORE THEM, IS STILL NECESARY TO ADD THE FUNCTION 	theory.put() ---
-
-def update_set(ksu_set, ksu):
-	ksu_id = ksu['id']
-	ksu_set[ksu_id]=ksu
-	return
-
-
-
-def update_theory(theory, ksu_set):
-	set_name = ksu_set['set_details']['set_type']
-	if set_name == 'KAS1':
-		theory.KAS1 = pack_set(ksu_set)
-	if set_name == 'ImPe':
-		theory.ImPe = pack_set(ksu_set)
-	return
-
-
 
 def add_Created_event(theory, ksu):
 	history = unpack_set(theory.history)
@@ -1003,8 +905,6 @@ def add_Deleted_event(theory, ksu):
 	update_master_log(theory, event)
 	theory.history = pack_set(history)
 	return event
-
-
 
 
 def add_Effort_event(theory, post_details):
@@ -1089,73 +989,6 @@ def add_deleted_ksu_to_set(self):
 
 
 
-
-def add_edited_ksu_to_KAS1(theory, details):
-	KAS1 = unpack_set(theory.KAS1)
-	ksu_id = details['ksu_id']
-	ksu = KAS1[ksu_id]
-	ksu = update_ksu_with_post_details(ksu, details)
-	update_set(KAS1, ksu)
-	theory.KAS1 = pack_set(KAS1)
-	return ksu
-
-
-
-def add_deleted_ksu_to_KAS1(theory, details):
-	KAS1 = unpack_set(theory.KAS1)
-	ksu_id = details['ksu_id']
-	ksu = KAS1[ksu_id]
-	ksu['status'] = 'Deleted'
-	ksu['is_visible'] = False
-	update_set(KAS1, ksu)
-	theory.KAS1 = pack_set(KAS1)
-	return ksu
-
-
-
-
-def add_ksu_to_ImPe(theory, post_details):
-	ImPe = unpack_set(theory.ImPe)
-	person = new_ksu_for_ImPe(ImPe)
-	person['name'] = post_details['name']
-	person['contact_frequency'] = post_details['contact_frequency']
-	if 'last_contact' in post_details:
-		person['last_contact'] = post_details['last_contact']
-		person['next_contact'] = int(person['last_contact']) + int(person['contact_frequency'])
-	else:
-		person['next_contact'] = today
-	update_set(ImPe,person)
-	theory.ImPe = pack_set(ImPe)
-	return person
-
-
-def add_ImPe_Contact_ksu_to_KAS1(theory, person): #old version TBDeleted
-	KAS1 = unpack_set(theory.KAS1)
-	ksu = new_ksu_for_KAS1(KAS1)
-	ksu['element'] = 'E500'
-	ksu['description'] = 'Contactar a ' + person['name']
-	ksu['frequency'] = person['contact_frequency']
-	if person['last_contact']:
-		ksu['last_event'] = person['last_contact']
-		ksu['next_event'] = int(person['last_contact']) + int(person['contact_frequency'])
-	else:
-		ksu['next_event'] = today
-	ksu['time_cost'] = 3
-	ksu['target_person'] = person['id']
-	ksu['parent_id'] = person['id']
-	ksu['subtype'] = 'ImPe_Contact'
-	update_set(KAS1,ksu)
-	theory.KAS1 = pack_set(KAS1)
-	return ksu
-
-
-
-
-
-
-
-
-
 #--- User Actions ---
 
 def user_Action_Effort_Done(self):
@@ -1178,6 +1011,7 @@ def user_Action_Create_ksu(self, set_name):
 	return
 
 
+
 def user_Action_Edit_ksu(self):
 	theory = self.theory
 	ksu = add_edited_ksu_to_set(self)
@@ -1185,6 +1019,7 @@ def user_Action_Edit_ksu(self):
 	trigger_additional_actions(self)
 	theory.put()
 	return
+
 
 
 def user_Action_Delete_ksu(self):
@@ -1195,47 +1030,6 @@ def user_Action_Delete_ksu(self):
 	theory.put()
 	return
 
-
-
-
-def user_Action_Create_ksu_in_KAS1(self): #TBDeleted
-	theory = self.theory
-	details = get_post_details(self)
-	ksu = add_ksu_to_KAS1(theory, details)
-	add_Created_event(theory, ksu)
-	theory.put()
-	return
-
-
-
-def user_Action_Edit_ksu_in_KAS1(self): #TBDeleted
-	theory = self.theory
-	details = get_post_details(self)
-	ksu = add_edited_ksu_to_KAS1(theory, details)
-	add_Edited_event(theory, ksu)
-	theory.put()
-	return
-
-
-
-def user_Action_Delete_ksu_in_KAS1(self): #TBDeleted
-	theory = self.theory
-	details = get_post_details(self)
-	ksu = add_deleted_ksu_to_KAS1(theory, details)
-	add_Deleted_event(theory, ksu)
-	theory.put()
-	return
-
-
-
-def user_Action_Create_ksu_in_ImPe(self): #TBDeleted
-	theory = self.theory
-	details = get_post_details(self)
-	person = add_ksu_to_ImPe(theory, details)
-	ksu = add_ImPe_Contact_ksu_to_KAS1(theory, person)
-	add_Created_event(theory,person)
-	add_Created_event(theory, ksu)
-	theory.put()
 
 
 
@@ -1262,9 +1056,6 @@ def trigger_additional_actions(self):
 			triggered_Action_delete_ImPe_Contact(self)
 
 	return
-
-
-
 
 
 def triggered_Action_create_ImPe_Contact(self):
@@ -1318,7 +1109,7 @@ def triggered_Action_delete_ImPe_Contact(self):
 
 
 
-def triggered_Action_Done_ImPe_Contact(self): #xx
+def triggered_Action_Done_ImPe_Contact(self):
 	theory = self.theory
 	post_details = get_post_details(self)
 	ksu_id = post_details['ksu_id']
@@ -1330,6 +1121,15 @@ def triggered_Action_Done_ImPe_Contact(self): #xx
 	person['last_contact'] = ksu['last_event']
 	person['next_contact'] = ksu['next_event']
 	theory.ImPe = pack_set(ImPe)
+
+	master_log = unpack_set(theory.master_log)
+	ksu_history = master_log[ksu_id]
+	last_event = ksu_history.pop()
+	ksu_history = ksu_history.append(last_event)
+	person_history = master_log[person_id]
+	person_history.append(last_event)
+	master_log[person_id] = person_history
+	theory.master_log = pack_set(master_log)
 	return
 
 
@@ -1338,6 +1138,7 @@ def triggered_Action_Done_ImPe_Contact(self): #xx
 
 #--- Developer Actions ---
 
+### BUG ALERT NEED TO UPDATE WITH NEW STRUCTURE
 def developer_Action_Load_ImPe_CSV(self,csv_path):
 	theory = self.theory
 	f = open(csv_path, 'rU')
