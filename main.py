@@ -339,7 +339,7 @@ class EditKSU(Handler):
 		ksu_id = self.request.get('ksu_id')
 		set_name = get_type_from_id(ksu_id)
 		ksu_set = unpack_set(eval('theory.' + set_name))
-		ksu_set = not_ugly_dates(unpack_set(ksu_set))
+		ksu_set = not_ugly_dates(ksu_set)
 		ksu = ksu_set[ksu_id]		
 		self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name, title='Edit')
 
@@ -351,18 +351,20 @@ class EditKSU(Handler):
 		if post_details['action_description'] == 'Save':
 			post_details = prepare_details_for_validation(post_details)
 			if valid_input(post_details)[0]:
-				user_Action_Edit_ksu_in_KAS1(self)
+				user_Action_Edit_ksu(self)
 			else:
 				input_error = valid_input(post_details)[1]
-				KAS1 = not_ugly_dates(unpack_set(self.theory.KAS1))
 				ksu_id = post_details['ksu_id']
-				ksu = KAS1[ksu_id]
+				set_name = get_type_from_id(ksu_id)
+				ksu_set = unpack_set(eval('theory.' + set_name))
+				ksu_set = not_ugly_dates(ksu_set)
+				ksu = ksu_set[ksu_id]
 				ksu = update_ksu_with_post_details(ksu, post_details)			
 				show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
 				self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name, title='Edit KSU', input_error=input_error)
 		
 		elif post_details['action_description'] == 'Delete':
-			user_Action_Delete_ksu_in_KAS1(self)
+			user_Action_Delete_ksu(self) #xx
 
 		self.redirect('/SetViewer/' + set_name)	
 
@@ -734,6 +736,11 @@ i_KAS1_KSU = {'frequency': "7",
 
 
 
+i_Wish_KSU = {'nature': None, # End Value or Resoruce -- Names to be improved
+			  'exitement_lvl': None,
+			  'pipeline': "9"} 
+
+
 i_ImPe_KSU = {'id':None,
 			  'name':None, # To be replaced by general attribute "description"
 			  'target_person':None, # Attribute needed just to avoid KeyErrors
@@ -968,6 +975,15 @@ def update_set(ksu_set, ksu):
 
 
 
+def update_theory(theory, ksu_set):
+	set_name = ksu_set['set_details']['set_type']
+	if set_name == 'KAS1':
+		theory.KAS1 = pack_set(ksu_set)
+	if set_name == 'ImPe':
+		theory.ImPe = pack_set(ksu_set)
+	return
+
+
 
 def add_Created_event(theory, ksu):
 	history = unpack_set(theory.history)
@@ -978,7 +994,6 @@ def add_Created_event(theory, ksu):
 	update_master_log(theory, event)
 	theory.history = pack_set(history)
 	return event
-
 
 
 
@@ -1057,16 +1072,35 @@ def add_ksu_to_set(self, set_name):
 			ksu['next_event'] = today
 
 	update_set(ksu_set, ksu)
-	
-	if set_name == 'KAS1':
-		theory.KAS1 = pack_set(ksu_set)
-
-	if set_name == 'ImPe':
-		theory.ImPe = pack_set(ksu_set)
-
+	update_theory(theory, ksu_set)
 	return ksu
 
 
+def add_edited_ksu_to_set(self):
+	theory = self.theory
+	post_details = get_post_details(self)
+	ksu_id = post_details['ksu_id']
+	set_name = get_type_from_id(ksu_id)
+	ksu_set = unpack_set(eval('theory.' + set_name))
+	ksu = ksu_set[ksu_id]
+	ksu = update_ksu_with_post_details(ksu, post_details)
+	update_set(ksu_set, ksu)
+	update_theory(theory, ksu_set)
+	return ksu
+
+
+def add_deleted_ksu_to_set(self): #xx
+	theory = self.theory
+	post_details = get_post_details(self)
+	ksu_id = post_details['ksu_id']
+	set_name = get_type_from_id(ksu_id)
+	ksu_set = unpack_set(eval('theory.' + set_name))
+	ksu = ksu_set[ksu_id]
+	ksu['status'] = 'Deleted'
+	ksu['is_visible'] = False
+	update_set(ksu_set, ksu)
+	update_theory(theory, ksu_set)
+	return ksu
 
 
 
@@ -1154,17 +1188,31 @@ def user_Action_Create_ksu(self, set_name):
 	return
 
 
+def user_Action_Edit_ksu(self):
+	theory = self.theory
+	ksu = add_edited_ksu_to_set(self)
+	add_Edited_event(theory, ksu)
+	theory.put()
+	return
 
-def user_Action_Create_ksu_in_KAS1(self):
+
+def user_Action_Delete_ksu(self): #xx
+	theory = self.theory
+	ksu = add_deleted_ksu_to_set(self)
+	add_Deleted_event(theory, ksu)
+	theory.put()
+	return
+
+
+
+
+def user_Action_Create_ksu_in_KAS1(self): #TBDeleted
 	theory = self.theory
 	details = get_post_details(self)
 	ksu = add_ksu_to_KAS1(theory, details)
 	add_Created_event(theory, ksu)
 	theory.put()
 	return
-
-
-
 
 
 
