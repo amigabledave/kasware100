@@ -2,8 +2,11 @@
 
 {% block content %}
 
+
+
+
 <div class="row">
-	<div class="col-md-12"> <h2> {{ title + "  " + ksu['id']}} </h2></div>
+	<div class="col-md-12"> <h2> {{ title + "  " + ksu['id'] + " in " +  set_name}} </h2></div>
 </div>
 
 <br>	
@@ -12,6 +15,9 @@
 <form class="form-horizontal" method="post">
 
 	<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}"> 
+
+
+{% if set_name == 'KAS1' %}
  
 	<div class="form-group">
 		<div class="col-md-10"> 
@@ -30,7 +36,6 @@
 	 		</div>
 		</div>
 	</div>
-
 
 
 
@@ -87,8 +92,6 @@
 		</div>
 
 	</div>
-
-
 
 
 	<div class="form-group">
@@ -161,6 +164,28 @@
 	</div>
 
 
+{% endif %}
+
+
+
+{% if set_name == 'ImPe' %}
+	
+	<div class="form-group">
+
+		<div class="col-md-10"> <label> Name </label>
+			<input type="text" class="form-control" name="name" placeholder="Person's Name">
+		</div>
+
+		<div class="col-md-2"><label> Contact Frequency </label>
+			<input type="text" class="form-control" name="contact_frequency" placeholder="e.g. 7 (days)">
+		</div>
+
+	</div>
+
+{% endif %}
+
+
+
 	{% if title=='Create' %}
 	  	<div class="form-group">
 	  		<div class="col-md-4"></div>
@@ -181,10 +206,6 @@
 		</div>
 
 	{% endif%}
-
-
-
-
 
 
 

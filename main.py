@@ -10,7 +10,7 @@ from google.appengine.api import mail
 template_dir = os.path.join(os.path.dirname(__file__), 'html_templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
-
+today = datetime.today().toordinal()
 
 # --- Datastore Entities ----------------------------------------------------------------------------
 
@@ -308,28 +308,27 @@ class NewKSU(Handler):
 			return
 		theory = self.theory
 		ksu_set = unpack_set(eval('theory.' + set_name))
-		ksu = new_ksu_for_KAS1(ksu_set)
-		input_details = input_details_template()
-		self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, title='Create')
-	
+		ksu = new_ksu(self, set_name)
+		self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name ,title='Create')
+
 	def post(self, set_name):
 		if user_bouncer(self):
 			return
 		post_details = get_post_details(self)
-		set_name = get_type_from_id(post_details['ksu_id'])
+		# set_name = get_type_from_id(post_details['ksu_id']) #Casi para borrar
 		if post_details['action_description'] == 'Create':
 			post_details = prepare_details_for_validation(post_details)
 			if valid_input(post_details)[0]:
-				user_Action_Create_ksu_in_KAS1(self)
+				user_Action_Create_ksu(self, set_name) #xxx
 			else:
 				input_error = valid_input(post_details)[1]
-				ksu_set = unpack_set(self.theory.KAS1)
-				ksu = new_ksu_for_KAS1(ksu_set)
+				ksu_set = unpack_set(eval('theory.' + set_name))
+				ksu = new_ksu(self, set_name)
 				ksu = update_ksu_with_post_details(ksu, post_details)
 				show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
-				self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, title='Create', input_error=input_error)
+				self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name, title='Create', input_error=input_error)
 		self.redirect('/SetViewer/' + set_name)
-		
+
 
 
 class EditKSU(Handler):
@@ -339,7 +338,8 @@ class EditKSU(Handler):
 		ksu_id = self.request.get('ksu_id')
 		KAS1 = not_ugly_dates(unpack_set(self.theory.KAS1))
 		ksu = KAS1[ksu_id]
-		self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, title='Edit')
+		set_name = get_type_from_id(ksu_id)
+		self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name, title='Edit')
 
 	def post(self):
 		if user_bouncer(self):
@@ -357,7 +357,7 @@ class EditKSU(Handler):
 				ksu = KAS1[ksu_id]
 				ksu = update_ksu_with_post_details(ksu, post_details)			
 				show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
-				self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, title='Edit KSU', input_error=input_error)
+				self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name, title='Edit KSU', input_error=input_error)
 		
 		elif post_details['action_description'] == 'Delete':
 			user_Action_Delete_ksu_in_KAS1(self)
@@ -701,24 +701,83 @@ def update_master_log(theory, event):
 
 #--- Dictionary Templates ---
 
-def input_details_template():
-	post = {'description':None,
-			'frequency':None,
-			'input_error':None,
-			'last_event':None,
-			'comments':None}
-	return post
+#General Attributes
+i_BASE_KSU = {'id': None,
+		      'parent_id': None,
+	    	  'element': None,
+	    	  'description': None,
+	    	  'comments': None,
+	    	  'local_tags': None,
+	    	  'global_tags': None}
 
 
-def event_template():
-	event = {'id': None,
-			 'type':None, # [Created, Edited ,Deleted, Happiness, Effort]
-			 'ksu_id':None,
-			 'description': None, # Comments regarding the event
-			 'date':today,
-			 'duration':0, #To record duration of happy moments
-			 'value':0} # In a fibonacci scale
-	return event
+#KAS Specifics
+i_KAS_KSU = { 'status':'Active', # ['Active', 'Hold', 'Deleted']
+	    	  'relative_imp':"3", # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 3
+	    	  'time_cost': "13", # Reasonable Time Requirements in Minutes
+	    	  'in_mission': False,
+	    	  'is_critical': False,
+	    	  'is_visible': True,
+	    	  'is_private': False, 
+	    	  'subtype':None,
+	    	  'target_person':None}
+
+
+#KAS1 Specifics			
+i_KAS1_KSU = {'frequency': "7",
+			  'best_day': "None",
+			  'best_time': None,
+			  'last_event': None,
+			  'next_event': None}
+
+
+
+i_ImPe_KSU = {'id':None,
+			  'name':None, # To be replaced by general attribute "description"
+			  'target_person':None, # Attribute needed just to avoid KeyErrors
+			  'is_visible': True, # Attribute needed just to avoid KeyErrors
+			  'group':None, # To be replaced by general attribute "local tags"
+			  'contact_frequency':None,
+			  'last_contact':None,
+			  'next_contact':None,
+			  'fun_facts':None,
+			  'email':None,
+			  'phone':None,
+			  'facebook':None,
+			  'birthday':None,
+			  'comments':None,
+			  'important_since':today,
+			  'related_ksus':[]}
+
+
+#Future ImPE Specifics
+# i_ImPe_KSU = {'contact_frequency':None, # Should be replaced with frequency
+# 			  'last_contact':None, # Should be replaced with last event
+# 			  'next_contact':None, # Should be replaced with next event
+# 			  'fun_facts':None,
+# 			  'email':None,
+# 			  'phone':None,
+# 			  'facebook':None,
+# 			  'birthday':None,
+# 			  'important_since':today,
+# 			  'related_ksus':[]}
+
+
+template_recipies = {'KAS1':[i_BASE_KSU, i_KAS_KSU, i_KAS1_KSU],
+					 'ImPe':[i_ImPe_KSU]} # In the future it will also use the base
+
+
+
+def make_ksu_template(set_name):
+	template = {}
+	template_recipe = template_recipies[set_name]
+	for ingredient in template_recipe:
+		for (attribute,value) in ingredient.items():
+			template[attribute] = value
+	return template
+
+
+#---- Old templates generators ---
 
 
 def ksu_template():
@@ -740,10 +799,10 @@ def ksu_template():
 
 def important_person_template():
 	person = {'id':None,
-			  'name':None,
+			  'name':None, # To be replaced by general attribute "description"
 			  'target_person':None, # Attribute needed just to avoid KeyErrors
 			  'is_visible': True, # Attribute needed just to avoid KeyErrors
-			  'group':None,
+			  'group':None, # To be replaced by general attribute "local tags"
 			  'contact_frequency':None,
 			  'last_contact':None,
 			  'next_contact':None,
@@ -758,6 +817,17 @@ def important_person_template():
 	return person
 
 
+
+
+def event_template():
+	event = {'id': None,
+			 'type':None, # [Created, Edited ,Deleted, Happiness, Effort]
+			 'ksu_id':None,
+			 'description': None, # Comments regarding the event
+			 'date':today,
+			 'duration':0, #To record duration of happy moments
+			 'value':0} # In a fibonacci scale
+	return event
 
 
 #--- Create new Sets --- 
@@ -839,6 +909,15 @@ def new_event(history):
 	event_id = create_id(history)
 	event['id'] = event_id
 	return event
+
+
+def new_ksu(self, set_name):
+	theory = self.theory
+	ksu_set = unpack_set(eval('theory.' + set_name))
+	ksu = make_ksu_template(set_name)
+	ksu_id = create_id(ksu_set)
+	ksu['id'] = ksu_id
+	return ksu
 
 
 def new_ksu_for_KAS1(KAS1):
@@ -959,6 +1038,38 @@ def add_ksu_to_KAS1(theory, details):
 	return ksu
 
 
+def add_ksu_to_set(self, set_name): #xxx
+	theory = self.theory
+	post_details = get_post_details(self)
+	ksu_set = unpack_set(eval('theory.' + set_name))
+	ksu = make_ksu_template(set_name)
+	ksu_id = create_id(ksu_set)
+	ksu['id'] = ksu_id
+	details = prepare_details_for_saving(post_details)
+	ksu = update_ksu_with_post_details(ksu, details)
+	
+	if 'last_event' in ksu:		
+		if ksu['last_event']:
+			ksu['next_event'] = int(ksu['last_event']) + int(ksu['frequency'])
+		else:
+			ksu['next_event'] = today
+
+	update_set(ksu_set, ksu)
+	
+	if set_name == 'KAS1':
+		theory.KAS1 = pack_set(ksu_set)
+		print "KAS1 is recording..."
+
+	if set_name == 'ImPe':
+		theory.ImPe == pack_set(ksu_set)
+		print "ImPe is recording..."
+
+	return ksu
+
+
+
+
+
 
 def add_edited_ksu_to_KAS1(theory, details):
 	KAS1 = unpack_set(theory.KAS1)
@@ -1031,6 +1142,16 @@ def user_Action_Effort_Done(self):
 	update_associates(theory, post_details)
 	add_Effort_event(theory, post_details)
 	theory.put()
+	return
+
+
+
+def user_Action_Create_ksu(self, set_name): #XXX
+	theory = self.theory
+	ksu = add_ksu_to_set(self, set_name)
+	add_Created_event(theory, ksu)
+	theory.put()
+	return
 
 
 
@@ -1040,6 +1161,10 @@ def user_Action_Create_ksu_in_KAS1(self):
 	ksu = add_ksu_to_KAS1(theory, details)
 	add_Created_event(theory, ksu)
 	theory.put()
+	return
+
+
+
 
 
 
@@ -1140,7 +1265,7 @@ def validate_password(username, password, h):
 
 # --- Global Variables ------------------------------------------------------------------------------
 
-today = datetime.today().toordinal()
+
 
 
 l_Fibonacci = ['1','2','3','5','8','13','21','34','55','89','144']

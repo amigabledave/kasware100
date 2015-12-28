@@ -52,4 +52,71 @@ d_Elements = {'E100': '1. Inner Peace & Consciousness',
 
 
 
+i_BASE_KSU = {'id': None,
+		      'parent_id': None,
+	    	  'element': None,
+	    	  'description': None,
+	    	  'comments': None,
+	    	  'local_tags': None,
+	    	  'global_tags': None}
+
+
+#KAS Specifics
+i_KAS_KSU = { 'status':'Active', # ['Active', 'Hold', 'Deleted']
+	    	  'relative_imp':"3", # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 3
+	    	  'time_cost': "13", # Reasonable Time Requirements in Minutes
+	    	  'in_mission': False,
+	    	  'is_critical': False,
+	    	  'is_visible': True,
+	    	  'is_private': False, 
+	    	  'subtype':None,
+	    	  'target_person':None}
+
+
+#KAS1 Specifics			
+i_KAS1_KSU = {'frequency': "7",
+			  'best_day': "None",
+			  'best_time': None,
+			  'last_event': None,
+			  'next_event': None}
+
+
+#ImPE Specifics
+i_ImPe_KSU = {'contact_frequency':None, # Should be replaced with frequency
+			  'last_contact':None, # Should be replaced with last event
+			  'next_contact':None, # Should be replaced with next event
+			  'fun_facts':None,
+			  'email':None,
+			  'phone':None,
+			  'facebook':None,
+			  'birthday':None,
+			  'important_since':None,
+			  'related_ksus':[]}
+
+
+template_recipies = {'KAS1':[i_BASE_KSU, i_KAS_KSU, i_KAS1_KSU],
+					 'ImPe':[i_BASE_KSU, i_ImPe_KSU]}
+
+
+
+def make_ksu_template(set_name):
+	template = {}
+	template_recipe = template_recipies[set_name]
+	for ingredient in template_recipies:
+		print ingredient
+		# for (attribute,value) in ingredient.items():
+		# 	template[attribute] = value
+	return template
+
+
+print make_ksu_template('KAS1')
+
+
+
+
+
+
+
+
+
 
