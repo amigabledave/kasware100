@@ -364,7 +364,7 @@ class EditKSU(Handler):
 				self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name, title='Edit KSU', input_error=input_error)
 		
 		elif post_details['action_description'] == 'Delete':
-			user_Action_Delete_ksu(self) #xx
+			user_Action_Delete_ksu(self)
 
 		self.redirect('/SetViewer/' + set_name)	
 
@@ -646,22 +646,6 @@ def update_ksu_next_event(theory, post_details):
 	return
 
 
-def update_associates(theory, post_details):
-	ksu_id = post_details['ksu_id']
-	ksu_set = unpack_set(eval('theory.' + get_type_from_id(ksu_id)))
-	ksu = ksu_set[ksu_id]
-	ksu_subtype = ksu['subtype']
-	if ksu_subtype == 'ImPe_Contact':
-		person_id = ksu['parent_id']
-		ksu_set = unpack_set(theory.ImPe)
-		person = ksu_set[person_id]
-		person['last_contact'] = ksu['last_event']
-		person['next_contact'] = ksu['next_event']
-		theory.ImPe = pack_set(ksu_set)
-		return
-	return
-	
-
 
 
 def update_master_log(theory, event):
@@ -708,6 +692,7 @@ def update_master_log(theory, event):
 #General Attributes
 i_BASE_KSU = {'id': None,
 		      'parent_id': None,
+		      'subtype':None,
 	    	  'element': None,
 	    	  'description': None,
 	    	  'comments': None,
@@ -723,7 +708,6 @@ i_KAS_KSU = { 'status':'Active', # ['Active', 'Hold', 'Deleted']
 	    	  'is_critical': False,
 	    	  'is_visible': True,
 	    	  'is_private': False, 
-	    	  'subtype':None,
 	    	  'target_person':None}
 
 
@@ -745,10 +729,12 @@ i_ImPe_KSU = {'id':None,
 			  'name':None, # To be replaced by general attribute "description"
 			  'target_person':None, # Attribute needed just to avoid KeyErrors
 			  'is_visible': True, # Attribute needed just to avoid KeyErrors
+			  'subtype':None, # Attribute needed just to avoid KeyErrors
 			  'group':None, # To be replaced by general attribute "local tags"
 			  'contact_frequency':"30",
 			  'last_contact':None,
 			  'next_contact':None,
+			  'contact_ksu_id':None,
 			  'fun_facts':None,
 			  'email':None,
 			  'phone':None,
@@ -759,7 +745,7 @@ i_ImPe_KSU = {'id':None,
 			  'related_ksus':[]}
 
 
-#Future ImPE Specifics
+#Future ImPe Specifics
 # i_ImPe_KSU = {'contact_frequency':None, # Should be replaced with frequency
 # 			  'last_contact':None, # Should be replaced with last event
 # 			  'next_contact':None, # Should be replaced with next event
@@ -898,7 +884,6 @@ def new_set_ImPe():
 	ksu['is_visible'] = False
 	result['set_details'] = ksu
 	return pack_set(result)
-
 
 
 
@@ -1089,7 +1074,7 @@ def add_edited_ksu_to_set(self):
 	return ksu
 
 
-def add_deleted_ksu_to_set(self): #xx
+def add_deleted_ksu_to_set(self):
 	theory = self.theory
 	post_details = get_post_details(self)
 	ksu_id = post_details['ksu_id']
@@ -1144,7 +1129,7 @@ def add_ksu_to_ImPe(theory, post_details):
 	return person
 
 
-def add_ImPe_Contact_ksu_to_KAS1(theory, person):
+def add_ImPe_Contact_ksu_to_KAS1(theory, person): #old version TBDeleted
 	KAS1 = unpack_set(theory.KAS1)
 	ksu = new_ksu_for_KAS1(KAS1)
 	ksu['element'] = 'E500'
@@ -1167,14 +1152,18 @@ def add_ImPe_Contact_ksu_to_KAS1(theory, person):
 
 
 
+
+
+
+
 #--- User Actions ---
 
 def user_Action_Effort_Done(self):
 	theory = self.theory
 	post_details = get_post_details(self)
 	update_ksu_next_event(theory, post_details)
-	update_associates(theory, post_details)
 	add_Effort_event(theory, post_details)
+	trigger_additional_actions(self)
 	theory.put()
 	return
 
@@ -1184,6 +1173,7 @@ def user_Action_Create_ksu(self, set_name):
 	theory = self.theory
 	ksu = add_ksu_to_set(self, set_name)
 	add_Created_event(theory, ksu)
+	trigger_additional_actions(self)
 	theory.put()
 	return
 
@@ -1192,14 +1182,16 @@ def user_Action_Edit_ksu(self):
 	theory = self.theory
 	ksu = add_edited_ksu_to_set(self)
 	add_Edited_event(theory, ksu)
+	trigger_additional_actions(self)
 	theory.put()
 	return
 
 
-def user_Action_Delete_ksu(self): #xx
+def user_Action_Delete_ksu(self):
 	theory = self.theory
 	ksu = add_deleted_ksu_to_set(self)
 	add_Deleted_event(theory, ksu)
+	trigger_additional_actions(self)
 	theory.put()
 	return
 
@@ -1216,7 +1208,7 @@ def user_Action_Create_ksu_in_KAS1(self): #TBDeleted
 
 
 
-def user_Action_Edit_ksu_in_KAS1(self):
+def user_Action_Edit_ksu_in_KAS1(self): #TBDeleted
 	theory = self.theory
 	details = get_post_details(self)
 	ksu = add_edited_ksu_to_KAS1(theory, details)
@@ -1226,7 +1218,7 @@ def user_Action_Edit_ksu_in_KAS1(self):
 
 
 
-def user_Action_Delete_ksu_in_KAS1(self):
+def user_Action_Delete_ksu_in_KAS1(self): #TBDeleted
 	theory = self.theory
 	details = get_post_details(self)
 	ksu = add_deleted_ksu_to_KAS1(theory, details)
@@ -1236,8 +1228,7 @@ def user_Action_Delete_ksu_in_KAS1(self):
 
 
 
-	
-def user_Action_Create_ksu_in_ImPe(self):
+def user_Action_Create_ksu_in_ImPe(self): #TBDeleted
 	theory = self.theory
 	details = get_post_details(self)
 	person = add_ksu_to_ImPe(theory, details)
@@ -1245,6 +1236,102 @@ def user_Action_Create_ksu_in_ImPe(self):
 	add_Created_event(theory,person)
 	add_Created_event(theory, ksu)
 	theory.put()
+
+
+
+#--- Additional Actions Triggered by User Actions
+
+def trigger_additional_actions(self):
+	post_details = get_post_details(self)
+	action_type = post_details['action_description']
+	ksu_id = post_details['ksu_id']
+	ksu_type = get_type_from_id(ksu_id)
+	ksu_subtype = post_details['subtype']
+	
+	if action_type == 'Create':
+		if ksu_type == 'ImPe':
+			triggered_Action_create_ImPe_Contact(self)
+
+	if action_type == 'Done':
+		if ksu_subtype == 'ImPe_Contact':
+			triggered_Action_Done_ImPe_Contact(self)
+
+
+	if action_type == 'Delete':
+		if ksu_type == 'ImPe':
+			triggered_Action_delete_ImPe_Contact(self)
+
+	return
+
+
+
+
+
+def triggered_Action_create_ImPe_Contact(self):
+	theory = self.theory
+	post_details = get_post_details(self)
+	ksu_id = post_details['ksu_id']
+	ImPe = unpack_set(theory.ImPe)
+	KAS1 = unpack_set(theory.KAS1)
+	person = ImPe[ksu_id]
+	ksu = make_ksu_template('KAS1')
+	ksu_id = create_id(KAS1)
+	ksu['id'] = ksu_id
+	ksu['element'] = 'E500'
+	ksu['description'] = 'Contactar a ' + person['name']
+	ksu['frequency'] = person['contact_frequency']
+	if person['last_contact']:
+		ksu['last_event'] = person['last_contact']
+		ksu['next_event'] = int(person['last_contact']) + int(person['contact_frequency'])
+	else:
+		ksu['next_event'] = today
+	ksu['time_cost'] = 3
+	ksu['target_person'] = person['id']
+	ksu['parent_id'] = person['id']
+	ksu['subtype'] = 'ImPe_Contact'
+	person['contact_ksu_id'] = ksu['id']
+	update_set(KAS1, ksu)
+	update_set(ImPe, person)
+	theory.KAS1 = pack_set(KAS1)
+	theory.ImPe = pack_set(ImPe)
+	add_Created_event(theory, ksu)
+	return ksu
+
+
+
+def triggered_Action_delete_ImPe_Contact(self):
+	theory = self.theory
+	post_details = get_post_details(self)
+	person_id = post_details['ksu_id']
+	ImPe = unpack_set(theory.ImPe)
+	KAS1 = unpack_set(theory.KAS1)
+	person = ImPe[person_id]
+	ksu_id = person['contact_ksu_id']
+	ksu = KAS1[ksu_id]
+	ksu['status'] = 'Deleted'
+	ksu['is_visible'] = False
+	update_set(KAS1, ksu)
+	theory.KAS1 = pack_set(KAS1)
+	add_Deleted_event(theory, ksu)
+	return
+
+
+
+
+def triggered_Action_Done_ImPe_Contact(self): #xx
+	theory = self.theory
+	post_details = get_post_details(self)
+	ksu_id = post_details['ksu_id']
+	KAS1 = unpack_set(theory.KAS1)
+	ksu = KAS1[ksu_id]
+	person_id = ksu['target_person']
+	ImPe = unpack_set(theory.ImPe)
+	person = ImPe[person_id]
+	person['last_contact'] = ksu['last_event']
+	person['next_contact'] = ksu['next_event']
+	theory.ImPe = pack_set(ImPe)
+	return
+
 
 
 
