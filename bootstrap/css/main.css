@@ -15,6 +15,26 @@
 }
 
 
+.section-title{
+    display: block;
+    color: #222;
+    font-size: 30px;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 5px;
+    margin-top: 15px;
+    text-decoration: none;
+}
+
+.new-ksu-button {
+    margin-top: 15px;
+    margin-left: 0px;
+}
+
+
+
+
+
 .score-title {
     display: block;
     color: #6600CC;
@@ -49,7 +69,6 @@
 .error {
     color: red;
 }
-
 
 
 

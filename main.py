@@ -223,8 +223,13 @@ class SetViewer(Handler):
 	def post(self, set_name):
 		if user_bouncer(self):
 			return
-		ksu_id = self.request.get('ksu_id')
-		self.redirect('/EditKSU?ksu_id=' + ksu_id)
+		post_details = get_post_details(self)
+		if post_details['action_description'] == 'NewKSU':
+			set_name = post_details['set_name']
+			self.redirect('/NewKSU/' + set_name)
+		elif post_details['action_description'] == 'EditKSU':
+			ksu_id = post_details['ksu_id']
+			self.redirect('/EditKSU?ksu_id=' + ksu_id)
 
 
 
@@ -265,6 +270,7 @@ def pretty_dates(ksu_set):
 	return ksu_set
 	
 
+
 def not_ugly_dates(ksu_set):
 	date_attributes = ['last_event', 'next_event', 'last_contact', 'next_contact']
 	for date_attribute in date_attributes:
@@ -297,20 +303,21 @@ def hide_invisible(ksu_set):
 
 class NewKSU(Handler):
 	
-	def get(self):
+	def get(self, set_name):
 		if user_bouncer(self):
 			return
-		ksu_set = unpack_set(self.theory.KAS1)
+		theory = self.theory
+		ksu_set = unpack_set(eval('theory.' + set_name))
 		ksu = new_ksu_for_KAS1(ksu_set)
 		input_details = input_details_template()
 		self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, title='Create')
 	
-	def post(self):
+	def post(self, set_name):
 		if user_bouncer(self):
 			return
 		post_details = get_post_details(self)
 		set_name = get_type_from_id(post_details['ksu_id'])
-		if post_details['event_description'] == 'Create':
+		if post_details['action_description'] == 'Create':
 			post_details = prepare_details_for_validation(post_details)
 			if valid_input(post_details)[0]:
 				user_Action_Create_ksu_in_KAS1(self)
@@ -339,7 +346,7 @@ class EditKSU(Handler):
 			return
 		post_details = get_post_details(self)
 		set_name = get_type_from_id(post_details['ksu_id'])
-		if post_details['event_description'] == 'Save':
+		if post_details['action_description'] == 'Save':
 			post_details = prepare_details_for_validation(post_details)
 			if valid_input(post_details)[0]:
 				user_Action_Edit_ksu_in_KAS1(self)
@@ -352,7 +359,7 @@ class EditKSU(Handler):
 				show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
 				self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, title='Edit KSU', input_error=input_error)
 		
-		elif post_details['event_description'] == 'Delete':
+		elif post_details['action_description'] == 'Delete':
 			user_Action_Delete_ksu_in_KAS1(self)
 
 		self.redirect('/SetViewer/' + set_name)	
@@ -637,7 +644,7 @@ def update_ksu_next_event(theory, post_details):
 
 def update_associates(theory, post_details):
 	ksu_id = post_details['ksu_id']
-	ksu_set = unpack_set(eval('theory.'+get_type_from_id(ksu_id)))
+	ksu_set = unpack_set(eval('theory.' + get_type_from_id(ksu_id)))
 	ksu = ksu_set[ksu_id]
 	ksu_subtype = ksu['subtype']
 	if ksu_subtype == 'ImPe_Contact':
@@ -1049,8 +1056,8 @@ def user_Action_Edit_ksu_in_KAS1(self):
 def user_Action_Delete_ksu_in_KAS1(self):
 	theory = self.theory
 	details = get_post_details(self)
-	ksu = add_deleted_ksu_to_KAS1(theory, details) # XXX Need to create this function
-	add_Deleted_event(theory, ksu) # XXX Need to create this function
+	ksu = add_deleted_ksu_to_KAS1(theory, details)
+	add_Deleted_event(theory, ksu)
 	theory.put()
 	return
 
@@ -1171,12 +1178,14 @@ constants = {'l_Fibonacci':l_Fibonacci,
 
 
 
-d_Viewer ={'KAS1':{'set_name':'My Key Base Actions Set  (KAS1)',
+d_Viewer ={'KAS1':{'set_title':'My Key Base Actions Set  (KAS1)',
+				   'set_name': 'KAS1',
 				   'attributes':['description','frequency','relative_imp','time_cost','next_event','comments'],
 				   'fields':{'description':'Description','frequency':'Frequency','relative_imp':'Rel. Imp.','time_cost':'Time C.','next_event':'Next Event','comments':'Comments'},
 				   'columns':{'description':4,'frequency':1,'relative_imp':1,'time_cost':1,'next_event':2,'comments':2}},
 		   
-		   'ImPe': {'set_name':'My Important People',
+		   'ImPe': {'set_title':'My Important People',
+		   			'set_name': 'ImPe',
 					'attributes':['name', 'contact_frequency', 'last_contact', 'next_contact', 'comments'],
 				    'fields':{'name':'Name', 'contact_frequency':'C. Freq.', 'last_contact':'Last Contact', 'next_contact':'Next Contact', 'comments':'Comments'},
 				    'columns':{'name':3, 'contact_frequency':1, 'last_contact':2, 'next_contact':2, 'comments':3}}}
@@ -1209,9 +1218,9 @@ app = webapp2.WSGIApplication([
 							 ('/login', Login),
                              ('/logout', Logout),
                              ('/mission', Mission),
-                             ('/SetViewer/'+ PAGE_RE, SetViewer),
+                             ('/SetViewer/' + PAGE_RE, SetViewer),
 							 ('/important-people',ImportantPeople),
-							 ('/NewKSU', NewKSU),
+							 ('/NewKSU/' + PAGE_RE, NewKSU),
 							 ('/EditKSU', EditKSU),
 							 ('/effort-report',EffortReport),
 							 ('/email',Email),
