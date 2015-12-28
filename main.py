@@ -319,7 +319,7 @@ class NewKSU(Handler):
 		if post_details['action_description'] == 'Create':
 			post_details = prepare_details_for_validation(post_details)
 			if valid_input(post_details)[0]:
-				user_Action_Create_ksu(self, set_name) #xxx
+				user_Action_Create_ksu(self, set_name)
 			else:
 				input_error = valid_input(post_details)[1]
 				ksu_set = unpack_set(eval('theory.' + set_name))
@@ -335,10 +335,12 @@ class EditKSU(Handler):
 	def get(self):
 		if user_bouncer(self):
 			return
+		theory = self.theory
 		ksu_id = self.request.get('ksu_id')
-		KAS1 = not_ugly_dates(unpack_set(self.theory.KAS1))
-		ksu = KAS1[ksu_id]
 		set_name = get_type_from_id(ksu_id)
+		ksu_set = unpack_set(eval('theory.' + set_name))
+		ksu_set = not_ugly_dates(unpack_set(ksu_set))
+		ksu = ksu_set[ksu_id]		
 		self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name, title='Edit')
 
 	def post(self):
@@ -737,7 +739,7 @@ i_ImPe_KSU = {'id':None,
 			  'target_person':None, # Attribute needed just to avoid KeyErrors
 			  'is_visible': True, # Attribute needed just to avoid KeyErrors
 			  'group':None, # To be replaced by general attribute "local tags"
-			  'contact_frequency':None,
+			  'contact_frequency':"30",
 			  'last_contact':None,
 			  'next_contact':None,
 			  'fun_facts':None,
@@ -1038,7 +1040,7 @@ def add_ksu_to_KAS1(theory, details):
 	return ksu
 
 
-def add_ksu_to_set(self, set_name): #xxx
+def add_ksu_to_set(self, set_name):
 	theory = self.theory
 	post_details = get_post_details(self)
 	ksu_set = unpack_set(eval('theory.' + set_name))
@@ -1058,11 +1060,9 @@ def add_ksu_to_set(self, set_name): #xxx
 	
 	if set_name == 'KAS1':
 		theory.KAS1 = pack_set(ksu_set)
-		print "KAS1 is recording..."
 
 	if set_name == 'ImPe':
-		theory.ImPe == pack_set(ksu_set)
-		print "ImPe is recording..."
+		theory.ImPe = pack_set(ksu_set)
 
 	return ksu
 
@@ -1146,7 +1146,7 @@ def user_Action_Effort_Done(self):
 
 
 
-def user_Action_Create_ksu(self, set_name): #XXX
+def user_Action_Create_ksu(self, set_name):
 	theory = self.theory
 	ksu = add_ksu_to_set(self, set_name)
 	add_Created_event(theory, ksu)

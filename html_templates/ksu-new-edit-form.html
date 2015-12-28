@@ -173,11 +173,11 @@
 	<div class="form-group">
 
 		<div class="col-md-10"> <label> Name </label>
-			<input type="text" class="form-control" name="name" placeholder="Person's Name">
+			<input type="text" class="form-control" name="name" placeholder="Person's Name" required>
 		</div>
 
 		<div class="col-md-2"><label> Contact Frequency </label>
-			<input type="text" class="form-control" name="contact_frequency" placeholder="e.g. 7 (days)">
+			<input type="text" class="form-control" name="contact_frequency" placeholder="e.g. 7" required value="{% if ksu['contact_frequency']%}{{ksu['contact_frequency']}}{% endif %}">
 		</div>
 
 	</div>
