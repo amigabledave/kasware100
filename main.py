@@ -18,12 +18,13 @@ class Theory(db.Model):
 	username = db.StringProperty(required=True)
 	password_hash = db.StringProperty(required=True)
 	email = db.StringProperty(required=True)
-	KAS1 = db.TextProperty(required=True)
-	ImPe = db.TextProperty(required=True)
-	master_log = db.TextProperty(required=True)
+	KAS1 = db.BlobProperty(required=True)
+	ImPe = db.BlobProperty(required=True)
+	Hist = db.BlobProperty(required=True)	
+	MLog = db.BlobProperty(required=True)
 	created = db.DateTimeProperty(auto_now_add=True)
 	last_modified = db.DateTimeProperty(auto_now=True)
-	history = db.TextProperty(required=True)
+	
 
 	@classmethod # This means you can call a method directly on the Class (no on a Class Instance)
 	def get_by_theory_id(cls, theory_id):
@@ -41,8 +42,8 @@ class Theory(db.Model):
 					  email=email, 
 					  KAS1=new_set_KAS1(),
 					  ImPe=new_set_ImPe(),
-					  master_log=new_set_master_log(),
-					  history=new_set_history())
+					  MLog=new_set_MLog(),
+					  Hist=new_set_Hist())
 
 	@classmethod
 	def valid_login(cls, username, password):
@@ -65,7 +66,7 @@ class Handler(webapp2.RequestHandler):
 		t = jinja_env.get_template(template)
 		if self.theory:
 			theory = self.theory
-			todays_effort = unpack_set(theory.master_log)[today]['Effort']
+			todays_effort = unpack_set(theory.MLog)[today]['Effort']
 			return t.render(theory=theory, todays_effort=todays_effort, **kw)
 		else:
 			return t.render(**kw)
@@ -401,9 +402,9 @@ def get_attribute_from_id(ksu_set, ksu_id, ksu_attribute):
 def create_effort_report(theory, date):
 	result = []
 	KAS1 = unpack_set(theory.KAS1)
-	history = unpack_set(theory.history)
-	for event in history:
-		event = history[event]
+	Hist = unpack_set(theory.Hist)
+	for event in Hist:
+		event = Hist[event]
 		if event['date'] == date and event['type']=='Effort':			
 			report_item = {'effort_description':None,'effort_reward':0}
 			report_item['effort_description'] = get_attribute_from_id(KAS1, event['ksu_id'], 'description')
@@ -518,6 +519,7 @@ def get_post_details(self):
 	for argument in arguments:
 		result[str(argument)] = self.request.get(str(argument))
 	return result
+
 
 def pack_set(ksu_set):
 	return pickle.dumps(ksu_set)
@@ -645,26 +647,26 @@ def update_ksu_next_event(theory, post_details):
 
 
 
-def update_master_log(theory, event):
-	master_log = unpack_set(theory.master_log)
+def update_MLog(theory, event):
+	MLog = unpack_set(theory.MLog)
 
 	date = event['date']
 	event_type = event['type']
 	if event_type == 'Effort' or event_type == 'Happiness':
 		event_value = int(event['value'])
-		log = master_log[date]
+		log = MLog[date]
 		log[event_type] = log[event_type] + event_value
 
 	ksu_id = event['ksu_id']
 	event_id = event['id']
-	if ksu_id in master_log:
-		ksu_history = master_log[ksu_id]
+	if ksu_id in MLog:
+		ksu_history = MLog[ksu_id]
 		ksu_history.append(event_id)
 	else:
 		ksu_history = [event_id]
-	master_log[ksu_id] = ksu_history
+	MLog[ksu_id] = ksu_history
 
-	theory.master_log = pack_set(master_log)
+	theory.MLog = pack_set(MLog)
 	return
 
 
@@ -794,7 +796,7 @@ def event_template():
 #--- Create new Sets --- 
 
 
-def new_set_history():
+def new_set_Hist():
 	result = {}
 	event = event_template()
 	event['id'] = 'Event_0'
@@ -807,7 +809,7 @@ def new_set_history():
 
 
 
-def new_set_master_log(start_date=(735964-31), end_date=(735964+366)): #start_date = Dec 1, 2015 |  end_date = Dec 31, 2016
+def new_set_MLog(start_date=(735964-31), end_date=(735964+366)): #start_date = Dec 1, 2015 |  end_date = Dec 31, 2016
 	result = {}
 	for date in range(start_date, end_date):
 		entry = {'Effort':0,'Happiness':0}
@@ -854,9 +856,9 @@ def create_id(ksu_set):
 	return ksu_id
 
 
-def new_event(history):
+def new_event(Hist):
 	event = event_template()
-	event_id = create_id(history)
+	event_id = create_id(Hist)
 	event['id'] = event_id
 	return event
 
@@ -873,43 +875,43 @@ def new_ksu(self, set_name):
 #--- Add items to sets. IT DOES NOT STORE THEM, IS STILL NECESARY TO ADD THE FUNCTION 	theory.put() ---
 
 def add_Created_event(theory, ksu):
-	history = unpack_set(theory.history)
-	event = new_event(history)
+	Hist = unpack_set(theory.Hist)
+	event = new_event(Hist)
 	event['type'] = 'Created'
 	event['ksu_id'] = ksu['id']
-	update_set(history, event)
-	update_master_log(theory, event)
-	theory.history = pack_set(history)
+	update_set(Hist, event)
+	update_MLog(theory, event)
+	theory.Hist = pack_set(Hist)
 	return event
 
 
 
 def add_Edited_event(theory, ksu):
-	history = unpack_set(theory.history)
-	event = new_event(history)
+	Hist = unpack_set(theory.Hist)
+	event = new_event(Hist)
 	event['type'] = 'Edited'
 	event['ksu_id'] = ksu['id']
-	update_set(history, event)
-	update_master_log(theory, event)
-	theory.history = pack_set(history)
+	update_set(Hist, event)
+	update_MLog(theory, event)
+	theory.Hist = pack_set(Hist)
 	return event
 
 
 
 def add_Deleted_event(theory, ksu):
-	history = unpack_set(theory.history)
-	event = new_event(history)
+	Hist = unpack_set(theory.Hist)
+	event = new_event(Hist)
 	event['type'] = 'Deleted'
 	event['ksu_id'] = ksu['id']
-	update_set(history, event)
-	update_master_log(theory, event)
-	theory.history = pack_set(history)
+	update_set(Hist, event)
+	update_MLog(theory, event)
+	theory.Hist = pack_set(Hist)
 	return event
 
 
 def add_Effort_event(theory, post_details):
-	history = unpack_set(theory.history)
-	event = new_event(history)
+	Hist = unpack_set(theory.Hist)
+	event = new_event(Hist)
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id) 
 	ksu_set = unpack_set(eval('theory.' + set_name))
@@ -919,9 +921,9 @@ def add_Effort_event(theory, post_details):
 	event['description'] = post_details['event_comments']
 	event['duration'] = ksu['time_cost']
 	event['value'] = int(ksu['time_cost'])*int(ksu['relative_imp']) + int(post_details['event_bonus'])
-	update_set(history, event)
-	update_master_log(theory, event)
-	theory.history = pack_set(history)
+	update_set(Hist, event)
+	update_MLog(theory, event)
+	theory.Hist = pack_set(Hist)
 	return event
 
 
@@ -1122,14 +1124,14 @@ def triggered_Action_Done_ImPe_Contact(self):
 	person['next_contact'] = ksu['next_event']
 	theory.ImPe = pack_set(ImPe)
 
-	master_log = unpack_set(theory.master_log)
-	ksu_history = master_log[ksu_id]
+	MLog = unpack_set(theory.MLog)
+	ksu_history = MLog[ksu_id]
 	last_event = ksu_history.pop()
 	ksu_history = ksu_history.append(last_event)
-	person_history = master_log[person_id]
+	person_history = MLog[person_id]
 	person_history.append(last_event)
-	master_log[person_id] = person_history
-	theory.master_log = pack_set(master_log)
+	MLog[person_id] = person_history
+	theory.MLog = pack_set(MLog)
 	return
 
 
