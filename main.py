@@ -143,7 +143,7 @@ class Signup(Handler):
 				theory = Theory.register(username, password, email)
 				theory.put()
 				self.login(theory)
-				self.redirect('/important-people')
+				self.redirect('/TodaysMission')
 
 
 
@@ -158,7 +158,7 @@ class Login(Handler):
 		theory = Theory.valid_login(username, password)
 		if theory:
 			self.login(theory)
-			self.redirect('/important-people')
+			self.redirect('/TodaysMission')
 		else:
 			message = "Incorrect Username or Password"
 			self.print_html('login-form.html', error = message)
@@ -181,13 +181,24 @@ class Mission(Handler):
 		if user_bouncer(self):
 			return
 		mission = todays_mission(self)
-		self.print_html('todays-mission.html', mission=mission)
+		theory = self.theory
+		todays_effort = unpack_set(theory.MLog)[today]['Effort']
+		
+		if len(mission) > 0:
+			message = None
+		if len(mission) == 0:
+			if int(todays_effort) > 0:
+				message = "Mission acomplished!!! Enjoy the rest of your day :)"
+			else:	
+				message = "Define your what would mean for you to be successful today and start working to acomplish it! :)"
+
+		self.print_html('todays-mission.html', mission=mission, message=message)
 
 	def post(self):
 		if user_bouncer(self):
 			return
 		user_Action_Effort_Done(self)
-		self.redirect('/mission')
+		self.redirect('/TodaysMission')
 
 
 
@@ -203,6 +214,7 @@ def todays_mission(self):
 			if delay >= 0 and status=='Active':
 				result.append(ksu)
 	return result
+
 
 
 
@@ -231,29 +243,6 @@ class SetViewer(Handler):
 		elif post_details['action_description'] == 'EditKSU':
 			ksu_id = post_details['ksu_id']
 			self.redirect('/EditKSU?ksu_id=' + ksu_id)
-
-
-
-
-#--- Important People Handler ---
-
-
-class ImportantPeople(Handler):
-	
-	def get(self):
-		if user_bouncer(self):
-			return
-		theory = self.theory
-		people = pretty_dates(unpack_set(theory.ImPe))
-		people = list(people.values())
-		self.print_html('important-people.html', people=people)
-	
-	def post(self):
-		if user_bouncer(self):
-			return
-		user_Action_Create_ksu_in_ImPe(self)
-		self.redirect('/important-people')
-
 
 
 
@@ -286,8 +275,6 @@ def not_ugly_dates(ksu_set):
 	return ksu_set
 
 
-
-
 def hide_invisible(ksu_set):
 	result = {}
 	for ksu in ksu_set:
@@ -295,8 +282,6 @@ def hide_invisible(ksu_set):
 		if ksu['is_visible']:
 			result[ksu['id']] = ksu
 	return result
-
-
 
 
 
@@ -1065,7 +1050,7 @@ def triggered_Action_create_ImPe_Contact(self):
 	ksu_id = create_id(KAS1)
 	ksu['id'] = ksu_id
 	ksu['element'] = 'E500'
-	ksu['description'] = 'Contactar a ' + person['description']
+	ksu['description'] = 'Contact ' + person['description']
 	ksu['frequency'] = person['contact_frequency']
 	if person['last_contact']:
 		ksu['last_event'] = person['last_contact']
@@ -1274,9 +1259,8 @@ app = webapp2.WSGIApplication([
 							 ('/signup', Signup),
 							 ('/login', Login),
                              ('/logout', Logout),
-                             ('/mission', Mission),
+                             ('/TodaysMission', Mission),
                              ('/SetViewer/' + PAGE_RE, SetViewer),
-							 ('/important-people',ImportantPeople),
 							 ('/NewKSU/' + PAGE_RE, NewKSU),
 							 ('/EditKSU', EditKSU),
 							 ('/effort-report',EffortReport),

@@ -5,7 +5,15 @@
 <div class="row">
 	<div class="col-md-12"> <h2>Todays Mission</h2></div>
 </div>
-	
+
+{% if message %}
+	<br><br>	
+	<div class="row">
+		<div class="col-md-12 mission-message"> {{message}} </div>
+	</div>
+
+{% endif %}
+
 {% for ksu in mission %}
 
 	<hr>
