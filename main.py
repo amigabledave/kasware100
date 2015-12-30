@@ -695,22 +695,22 @@ def update_theory(theory, ksu_set):
 i_BASE_KSU = {'id': None,
 		      'parent_id': None,
 		      'subtype':None,
-	    	  'element': None,
+		      'status':'Active', # ['Active', 'Hold', 'Deleted']
+		      'is_visible': True,
 	    	  'description': None,
-	    	  'comments': None,
+	    	  'element': None,
+	    	  'target_person':None,
 	    	  'local_tags': None,
-	    	  'global_tags': None}
+	    	  'global_tags': None,
+	    	  'comments': None}
 
 
 #KAS Specifics
-i_KAS_KSU = { 'status':'Active', # ['Active', 'Hold', 'Deleted']
-	    	  'relative_imp':"3", # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 3
+i_KAS_KSU = { 'relative_imp':"3", # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 3
 	    	  'time_cost': "13", # Reasonable Time Requirements in Minutes
 	    	  'in_mission': False,
 	    	  'is_critical': False,
-	    	  'is_visible': True,
-	    	  'is_private': False, 
-	    	  'target_person':None}
+	    	  'is_private': False}
 
 
 #KAS1 Specifics			
@@ -733,23 +733,17 @@ i_Wish_KSU = {'nature': None, # End Value or Resoruce -- Names to be improved
 			  'pipeline': "9"} 
 
 
-i_ImPe_KSU = {'id':None,
-			  'name':None, # To be replaced by general attribute "description"
-			  'target_person':None, # Attribute needed just to avoid KeyErrors
-			  'is_visible': True, # Attribute needed just to avoid KeyErrors
-			  'subtype':None, # Attribute needed just to avoid KeyErrors
-			  'group':None, # To be replaced by general attribute "local tags"
+
+i_ImPe_KSU = {'contact_ksu_id':None,
 			  'contact_frequency':"30",
 			  'last_contact':None,
 			  'next_contact':None,
-			  'contact_ksu_id':None,
+			  'important_since':today,
 			  'fun_facts':None,
 			  'email':None,
 			  'phone':None,
 			  'facebook':None,
 			  'birthday':None,
-			  'comments':None,
-			  'important_since':today,
 			  'related_ksus':[]}
 
 
@@ -767,7 +761,7 @@ i_ImPe_KSU = {'id':None,
 
 
 template_recipies = {'KAS1':[i_BASE_KSU, i_KAS_KSU, i_KAS1_KSU],
-					 'ImPe':[i_ImPe_KSU]} # In the future it will also use the base
+					 'ImPe':[i_BASE_KSU, i_ImPe_KSU]} # In the future it will also use the base
 
 
 
@@ -1071,7 +1065,7 @@ def triggered_Action_create_ImPe_Contact(self):
 	ksu_id = create_id(KAS1)
 	ksu['id'] = ksu_id
 	ksu['element'] = 'E500'
-	ksu['description'] = 'Contactar a ' + person['name']
+	ksu['description'] = 'Contactar a ' + person['description']
 	ksu['frequency'] = person['contact_frequency']
 	if person['last_contact']:
 		ksu['last_event'] = person['last_contact']
@@ -1249,9 +1243,9 @@ d_Viewer ={'KAS1':{'set_title':'My Key Base Actions Set  (KAS1)',
 		   
 		   'ImPe': {'set_title':'My Important People',
 		   			'set_name': 'ImPe',
-					'attributes':['name', 'contact_frequency', 'last_contact', 'next_contact', 'comments'],
-				    'fields':{'name':'Name', 'contact_frequency':'C. Freq.', 'last_contact':'Last Contact', 'next_contact':'Next Contact', 'comments':'Comments'},
-				    'columns':{'name':3, 'contact_frequency':1, 'last_contact':2, 'next_contact':2, 'comments':3}}}
+					'attributes':['description', 'contact_frequency', 'last_contact', 'next_contact', 'comments'],
+				    'fields':{'description':'Name', 'contact_frequency':'C. Freq.', 'last_contact':'Last Contact', 'next_contact':'Next Contact', 'comments':'Comments'},
+				    'columns':{'description':3, 'contact_frequency':1, 'last_contact':2, 'next_contact':2, 'comments':3}}}
 
 
 secret = 'elzecreto'
