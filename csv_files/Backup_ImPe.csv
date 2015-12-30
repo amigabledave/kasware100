@@ -1,4 +1,4 @@
-id,contact_frequency,last_contact,group,name
+id,contact_frequency,last_contact,local_tags,description
 ImPe_1,7,735963,Familia,Mama
 ImPe_2,7,735963,Familia,Papa
 ImPe_3,7,735963,None,Zuzana Prokesova (condesa)

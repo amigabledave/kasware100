@@ -1,4 +1,4 @@
-#KASware v1.0.0 | Copyright 2015 AmigableDave & Co.
+#KASware v1.0.0 | Copyright 2016 AmigableDave & Co.
 
 import re, os, webapp2, jinja2, logging, hashlib, random, string, csv, pickle
 from datetime import datetime, timedelta
@@ -410,7 +410,7 @@ class LoadCSV(Handler):
 		if user_bouncer(self):
 			return
 		developer_Action_Load_ImPe_CSV(self,ImPe_csv_path)
-		self.redirect('/important-people')
+		self.redirect('/TodaysMission')
 
 
 
@@ -831,7 +831,7 @@ def create_id(ksu_set):
 	set_type = set_details['set_type']
 	id_digit = int(set_details['set_size']) + 1
 	set_details['set_size'] = id_digit
-	ksu_id = set_type + '_'+ str(id_digit)
+	ksu_id = set_type + '_' + str(id_digit)
 	return ksu_id
 
 
@@ -1057,6 +1057,7 @@ def triggered_Action_create_ImPe_Contact(self):
 		ksu['next_event'] = int(person['last_contact']) + int(person['contact_frequency'])
 	else:
 		ksu['next_event'] = today
+	person['next_contact'] = ksu['next_event']	
 	ksu['time_cost'] = 3
 	ksu['target_person'] = person['id']
 	ksu['parent_id'] = person['id']
@@ -1119,8 +1120,8 @@ def triggered_Action_Done_ImPe_Contact(self):
 
 #--- Developer Actions ---
 
-### BUG ALERT NEED TO UPDATE WITH NEW STRUCTURE
-def developer_Action_Load_ImPe_CSV(self,csv_path):
+
+def developer_Action_Load_ImPe_CSV(self, csv_path): #xx
 	theory = self.theory
 	f = open(csv_path, 'rU')
 	f.close
@@ -1133,13 +1134,60 @@ def developer_Action_Load_ImPe_CSV(self,csv_path):
 		for attribute in raw_ksu:
 			digested_ksu[attributes[i]] = attribute
 			i += 1
-		details = digested_ksu
-		person = add_ksu_to_ImPe(theory, details)
-		ksu = add_ImPe_Contact_ksu_to_KAS1(theory, person)
-		add_Created_event(theory,person)
-		add_Created_event(theory, ksu)
+
+		ksu_details = digested_ksu
+		person = add_ksu_to_set_from_csv(theory, ksu_details, 'ImPe')
+		csv_triggered_Action_create_ImPe_Contact(theory, person)
+		
 	theory.put()
 	return 
+
+
+def add_ksu_to_set_from_csv(theory, ksu_details, set_name):
+	ksu_set = unpack_set(eval('theory.' + set_name))
+	ksu = make_ksu_template(set_name)
+	ksu_id = create_id(ksu_set)
+	ksu['id'] = ksu_id
+	details = prepare_details_for_saving(ksu_details)
+	ksu = update_ksu_with_post_details(ksu, details)	
+	if 'last_event' in ksu:		
+		if ksu['last_event']:
+			ksu['next_event'] = int(ksu['last_event']) + int(ksu['frequency'])
+		else:
+			ksu['next_event'] = today
+	update_set(ksu_set, ksu)
+	update_theory(theory, ksu_set)
+	add_Created_event(theory, ksu)
+	return ksu
+
+
+def csv_triggered_Action_create_ImPe_Contact(theory, person):
+	ImPe = unpack_set(theory.ImPe)
+	KAS1 = unpack_set(theory.KAS1)
+	ksu = make_ksu_template('KAS1')
+	ksu_id = create_id(KAS1)
+	ksu['id'] = ksu_id
+	ksu['element'] = 'E500'
+	ksu['description'] = 'Contact ' + person['description']
+	ksu['frequency'] = person['contact_frequency']
+	if person['last_contact']:
+		ksu['last_event'] = person['last_contact']
+		ksu['next_event'] = int(person['last_contact']) + int(person['contact_frequency'])
+	else:
+		ksu['next_event'] = today
+	person['next_contact'] = ksu['next_event'] 	
+	ksu['time_cost'] = 3
+	ksu['target_person'] = person['id']
+	ksu['parent_id'] = person['id']
+	ksu['subtype'] = 'ImPe_Contact'
+	person['contact_ksu_id'] = ksu['id']
+	update_set(KAS1, ksu)
+	update_set(ImPe, person)
+	theory.KAS1 = pack_set(KAS1)
+	theory.ImPe = pack_set(ImPe)
+	add_Created_event(theory, ksu)
+	return ksu
+
 
 
 
