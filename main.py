@@ -1,5 +1,5 @@
 #KASware v1.0.0 | Copyright 2016 AmigableDave & Co.
-
+#Comentando desde mi Windows PC :)
 import re, os, webapp2, jinja2, logging, hashlib, random, string, csv, pickle
 from datetime import datetime, timedelta
 from google.appengine.ext import db
