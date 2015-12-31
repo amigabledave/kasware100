@@ -637,10 +637,12 @@ def update_MLog(theory, event):
 
 	date = event['date']
 	event_type = event['type']
-	if event_type == 'Effort' or event_type == 'Happiness':
+
+	if event_type == 'Done':
+		event_units = event['units']
 		event_value = int(event['value'])
 		log = MLog[date]
-		log[event_type] = log[event_type] + event_value
+		log[event_units] = log[event_units] + event_value
 
 	ksu_id = event['ksu_id']
 	event_id = event['id']
@@ -693,12 +695,12 @@ i_BASE_KSU = {'id': None,
 i_BASE_Event = {'id':None,
 				'ksu_id':None,
 				'date':today,
-				'type':None} # Depends on the KSU [Created, Edited ,Deleted, Happiness, Effort]
+				'type':None} # Depends on the KSU [Created, Edited ,Deleted]
 
 
 
 #KAS Specifics
-i_KAS_KSU = { 'relative_imp':"3", # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 3
+i_KAS_KSU = { 'importance':"3", # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 3
 	    	  'time_cost': "13", # Reasonable Time Requirements in Minutes
 	    	  'in_mission': False,
 	    	  'is_critical': False,
@@ -720,7 +722,7 @@ i_KAS1_KSU = {'frequency': "7",
 
 
 i_KAS1_Event = {'duration':None, # To calculate Amount of SmartEffort Points Earned
-			    'relative_imp':None} # To calculate Amount of SmartEffort Points Earned
+			    'importance':None} # To calculate Amount of SmartEffort Points Earned
 
 
 
@@ -787,10 +789,10 @@ def new_set_Hist():
 
 
 
-def new_set_MLog(start_date=(735964-31), end_date=(735964+366)): #start_date = Dec 1, 2015 |  end_date = Dec 31, 2016
+def new_set_MLog(start_date=(735964-31), end_date=(735964+366)): #start_date = Dec 1, 2015 |  end_date = Dec 31, 2016  
 	result = {}
 	for date in range(start_date, end_date):
-		entry = {'Effort':0,'Happiness':0}
+		entry = {'Effort':0,'EndValue':0}
 		entry['date'] = datetime.fromordinal(date).strftime('%d-%m-%Y')
 		result[date] = entry
 	return pack_set(result)
@@ -894,7 +896,7 @@ def add_Deleted_event(theory, ksu):
 	return event
 
 
-def add_Effort_event(theory, post_details):
+def add_Effort_event(theory, post_details): #Duration & Importance to be updated from the post detail given that it could change
 	Hist = unpack_set(theory.Hist)
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
@@ -903,10 +905,11 @@ def add_Effort_event(theory, post_details):
 	ksu_set = unpack_set(eval('theory.' + set_name))
 	ksu = ksu_set[ksu_id]
 	event['ksu_id'] = ksu_id
-	event['type'] = 'Effort'
-	event['description'] = post_details['event_comments']
+	event['type'] = 'Done'
+	event['units'] = 'Effort'
 	event['duration'] = ksu['time_cost']
-	event['value'] = int(ksu['time_cost'])*int(ksu['relative_imp']) + int(post_details['event_bonus'])
+	event['importance'] = ksu['importance']
+	event['value'] = int(ksu['time_cost'])*int(ksu['importance'])
 	update_set(Hist, event)
 	update_MLog(theory, event)
 	theory.Hist = pack_set(Hist)
@@ -1128,7 +1131,7 @@ def triggered_Action_Done_ImPe_Contact(self):
 #--- Developer Actions ---
 
 
-def developer_Action_Load_ImPe_CSV(self, csv_path): #xx
+def developer_Action_Load_ImPe_CSV(self, csv_path):
 	theory = self.theory
 	f = open(csv_path, 'rU')
 	f.close
@@ -1277,9 +1280,9 @@ constants = {'l_Fibonacci':l_Fibonacci,
 
 d_Viewer ={'KAS1':{'set_title':'My Key Base Actions Set  (KAS1)',
 				   'set_name': 'KAS1',
-				   'attributes':['description','frequency','relative_imp','time_cost','next_event','comments'],
-				   'fields':{'description':'Description','frequency':'Frequency','relative_imp':'Rel. Imp.','time_cost':'Time C.','next_event':'Next Event','comments':'Comments'},
-				   'columns':{'description':4,'frequency':1,'relative_imp':1,'time_cost':1,'next_event':2,'comments':2}},
+				   'attributes':['description','frequency','importance','time_cost','next_event','comments'],
+				   'fields':{'description':'Description','frequency':'Frequency','importance':'Rel. Imp.','time_cost':'Time C.','next_event':'Next Event','comments':'Comments'},
+				   'columns':{'description':4,'frequency':1,'importance':1,'time_cost':1,'next_event':2,'comments':2}},
 		   
 		   'ImPe': {'set_title':'My Important People',
 		   			'set_name': 'ImPe',

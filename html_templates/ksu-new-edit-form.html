@@ -58,9 +58,9 @@
 
 		<div class="col-md-2"> 
 			<label> Relative Importance </label> 
-			<select class="form-control" name="relative_imp"> 
+			<select class="form-control" name="importance"> 
 				{% for i in constants['l_Fibonacci'] %}
-					{% if i == ksu['relative_imp'] %}
+					{% if i == ksu['importance'] %}
 						<option selected="selected">{{i}}</option>
 					{% else %}		
 						<option> {{i}} </option>
