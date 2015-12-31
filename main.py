@@ -690,6 +690,13 @@ i_BASE_KSU = {'id': None,
 	    	  'comments': None}
 
 
+i_BASE_Event = {'id':None,
+				'ksu_id':None,
+				'date':today,
+				'type':None} # Depends on the KSU [Created, Edited ,Deleted, Happiness, Effort]
+
+
+
 #KAS Specifics
 i_KAS_KSU = { 'relative_imp':"3", # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 3
 	    	  'time_cost': "13", # Reasonable Time Requirements in Minutes
@@ -698,12 +705,22 @@ i_KAS_KSU = { 'relative_imp':"3", # the higher the better. Used to calculate FRP
 	    	  'is_private': False}
 
 
+i_KAS_Event = {'units':None, # EndValue, SmartEffort, and other tipes to be determined
+			   'value':None} # Amoount of EndValue or SmartEffort Points Earned
+
+
+
 #KAS1 Specifics			
 i_KAS1_KSU = {'frequency': "7",
 			  'best_day': "None",
 			  'best_time': None,
 			  'last_event': None,
 			  'next_event': None}
+
+
+
+i_KAS1_Event = {'duration':None, # To calculate Amount of SmartEffort Points Earned
+			    'relative_imp':None} # To calculate Amount of SmartEffort Points Earned
 
 
 
@@ -732,43 +749,26 @@ i_ImPe_KSU = {'contact_ksu_id':None,
 			  'related_ksus':[]}
 
 
-#Future ImPe Specifics
-# i_ImPe_KSU = {'contact_frequency':None, # Should be replaced with frequency
-# 			  'last_contact':None, # Should be replaced with last event
-# 			  'next_contact':None, # Should be replaced with next event
-# 			  'fun_facts':None,
-# 			  'email':None,
-# 			  'phone':None,
-# 			  'facebook':None,
-# 			  'birthday':None,
-# 			  'important_since':today,
-# 			  'related_ksus':[]}
 
 
-template_recipies = {'KAS1':[i_BASE_KSU, i_KAS_KSU, i_KAS1_KSU],
-					 'ImPe':[i_BASE_KSU, i_ImPe_KSU]} # In the future it will also use the base
+template_recipies = {'KAS1_KSU':[i_BASE_KSU, i_KAS_KSU, i_KAS1_KSU],
+					 'KAS1_Event':[i_BASE_Event, i_KAS_Event, i_KAS1_Event],
+					 'ImPe_KSU':[i_BASE_KSU, i_ImPe_KSU],
+					 'ImPe_Event':[i_BASE_Event],
+					 'Hist_Event':[i_BASE_Event]}
 
 
 
-def make_ksu_template(set_name):
+
+def make_template(set_name, item_type): # Item type could be KSU or Event
 	template = {}
-	template_recipe = template_recipies[set_name]
+	target_template = set_name + '_' + item_type
+	template_recipe = template_recipies[target_template]
 	for ingredient in template_recipe:
 		for (attribute,value) in ingredient.items():
 			template[attribute] = value
 	return template
 
-
-
-def event_template():
-	event = {'id': None,
-			 'type':None, # [Created, Edited ,Deleted, Happiness, Effort]
-			 'ksu_id':None,
-			 'description': None, # Comments regarding the event
-			 'date':today,
-			 'duration':0, #To record duration of happy moments
-			 'value':0} # In a fibonacci scale
-	return event
 
 
 
@@ -777,12 +777,11 @@ def event_template():
 
 def new_set_Hist():
 	result = {}
-	event = event_template()
+	event = make_template('Hist', 'Event')
 	event['id'] = 'Event_0'
 	event['type'] = 'Created'
 	event['set_type'] = 'Event'
 	event['set_size'] = 0
-	event['description'] = 'Events History'
 	result['set_details'] = event
 	return pack_set(result)
 
@@ -800,7 +799,7 @@ def new_set_MLog(start_date=(735964-31), end_date=(735964+366)): #start_date = D
 
 def new_set_KAS1():
 	result = {}
-	ksu = make_ksu_template('KAS1')
+	ksu = make_template('KAS1', 'KSU')
 	ksu['set_size'] = 0
 	ksu['id'] = 'KAS1_0'
 	ksu['set_type'] = 'KAS1'
@@ -813,7 +812,7 @@ def new_set_KAS1():
 
 def new_set_ImPe():
 	result = {}
-	ksu = make_ksu_template('ImPe')
+	ksu = make_template('ImPe', 'KSU')
 	ksu['set_size'] = 0
 	ksu['id'] = 'ImPe_0'
 	ksu['set_type'] = 'ImPe'
@@ -826,6 +825,22 @@ def new_set_ImPe():
 
 #--- Create new Set Items ---
 
+def new_event(Hist, set_name):
+	event = make_template(set_name, 'Event')
+	event_id = create_id(Hist)
+	event['id'] = event_id
+	return event
+
+
+def new_ksu(self, set_name):
+	theory = self.theory
+	ksu_set = unpack_set(eval('theory.' + set_name))
+	ksu = make_template(set_name, 'KSU')
+	ksu_id = create_id(ksu_set)
+	ksu['id'] = ksu_id
+	return ksu
+
+
 def create_id(ksu_set):
 	set_details = ksu_set['set_details']
 	set_type = set_details['set_type']
@@ -835,29 +850,16 @@ def create_id(ksu_set):
 	return ksu_id
 
 
-def new_event(Hist):
-	event = event_template()
-	event_id = create_id(Hist)
-	event['id'] = event_id
-	return event
-
-
-def new_ksu(self, set_name):
-	theory = self.theory
-	ksu_set = unpack_set(eval('theory.' + set_name))
-	ksu = make_ksu_template(set_name)
-	ksu_id = create_id(ksu_set)
-	ksu['id'] = ksu_id
-	return ksu
-
 
 #--- Add items to sets. IT DOES NOT STORE THEM, IS STILL NECESARY TO ADD THE FUNCTION 	theory.put() ---
 
 def add_Created_event(theory, ksu):
 	Hist = unpack_set(theory.Hist)
-	event = new_event(Hist)
+	ksu_id = ksu['id']
+	set_name = get_type_from_id(ksu_id)
+	event = new_event(Hist, set_name)
 	event['type'] = 'Created'
-	event['ksu_id'] = ksu['id']
+	event['ksu_id'] = ksu_id
 	update_set(Hist, event)
 	update_MLog(theory, event)
 	theory.Hist = pack_set(Hist)
@@ -867,9 +869,11 @@ def add_Created_event(theory, ksu):
 
 def add_Edited_event(theory, ksu):
 	Hist = unpack_set(theory.Hist)
-	event = new_event(Hist)
+	ksu_id = ksu['id']
+	set_name = get_type_from_id(ksu_id)
+	event = new_event(Hist, set_name)
 	event['type'] = 'Edited'
-	event['ksu_id'] = ksu['id']
+	event['ksu_id'] = ksu_id
 	update_set(Hist, event)
 	update_MLog(theory, event)
 	theory.Hist = pack_set(Hist)
@@ -879,9 +883,11 @@ def add_Edited_event(theory, ksu):
 
 def add_Deleted_event(theory, ksu):
 	Hist = unpack_set(theory.Hist)
-	event = new_event(Hist)
+	ksu_id = ksu['id']
+	set_name = get_type_from_id(ksu_id)
+	event = new_event(Hist, set_name)
 	event['type'] = 'Deleted'
-	event['ksu_id'] = ksu['id']
+	event['ksu_id'] = ksu_id
 	update_set(Hist, event)
 	update_MLog(theory, event)
 	theory.Hist = pack_set(Hist)
@@ -890,8 +896,9 @@ def add_Deleted_event(theory, ksu):
 
 def add_Effort_event(theory, post_details):
 	Hist = unpack_set(theory.Hist)
-	event = new_event(Hist)
 	ksu_id = post_details['ksu_id']
+	set_name = get_type_from_id(ksu_id)
+	event = new_event(Hist, set_name)
 	set_name = get_type_from_id(ksu_id) 
 	ksu_set = unpack_set(eval('theory.' + set_name))
 	ksu = ksu_set[ksu_id]
@@ -925,7 +932,7 @@ def add_ksu_to_set(self, set_name):
 	theory = self.theory
 	post_details = get_post_details(self)
 	ksu_set = unpack_set(eval('theory.' + set_name))
-	ksu = make_ksu_template(set_name)
+	ksu = make_template(set_name, 'KSU')
 	ksu_id = create_id(ksu_set)
 	ksu['id'] = ksu_id
 	details = prepare_details_for_saving(post_details)
@@ -1046,7 +1053,7 @@ def triggered_Action_create_ImPe_Contact(self):
 	ImPe = unpack_set(theory.ImPe)
 	KAS1 = unpack_set(theory.KAS1)
 	person = ImPe[ksu_id]
-	ksu = make_ksu_template('KAS1')
+	ksu = make_template('KAS1', 'KSU')
 	ksu_id = create_id(KAS1)
 	ksu['id'] = ksu_id
 	ksu['element'] = 'E500'
@@ -1145,7 +1152,7 @@ def developer_Action_Load_ImPe_CSV(self, csv_path): #xx
 
 def add_ksu_to_set_from_csv(theory, ksu_details, set_name):
 	ksu_set = unpack_set(eval('theory.' + set_name))
-	ksu = make_ksu_template(set_name)
+	ksu = make_template(set_name, 'KSU')
 	ksu_id = create_id(ksu_set)
 	ksu['id'] = ksu_id
 	details = prepare_details_for_saving(ksu_details)
@@ -1164,7 +1171,7 @@ def add_ksu_to_set_from_csv(theory, ksu_details, set_name):
 def csv_triggered_Action_create_ImPe_Contact(theory, person):
 	ImPe = unpack_set(theory.ImPe)
 	KAS1 = unpack_set(theory.KAS1)
-	ksu = make_ksu_template('KAS1')
+	ksu = make_template('KAS1', 'KSU')
 	ksu_id = create_id(KAS1)
 	ksu['id'] = ksu_id
 	ksu['element'] = 'E500'
