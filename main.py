@@ -750,6 +750,7 @@ i_KAS_Event = {'units':None, # EndValue, SmartEffort, and other tipes to be dete
 i_KAS3_KSU = {'frequency': "7",
 			  'best_day': "None",
 			  'best_time': None,
+			  'any_any':False, # This particular action can be executed at anytime and in anyplace
 			  'last_event': None,
 			  'next_event': None,
 			  'in_pipeline':True} #elengance could be improved since this attribute is also in the base, is here just to overwrite the value

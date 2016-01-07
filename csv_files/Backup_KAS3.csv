@@ -1,0 +1,57 @@
+element,local_tags,global_tags,description,importance,time_cost,Frequency,last_event,any_any,comments
+E100,None,None,"Tomar 5 minutos para pausar, poner las cosas en perspectiva y sentirme agradecido con la vida",3,8,1,735969,False,Puedo usar reasons to be gratefull como inspiración - Esto queda como place holder hasta que se agregue automatio a la mission del dia los objetos de la reflexion de gratitud del dia
+E200,None,None,Escribirle a 2 amigos que ya tenga al menos 2 semanes si ver para ver si hacemos algo el fin de semana,3,8,7,735927,False,None
+E200,None,None,Aprender a jugar un juego nuevo de mesa,3,89,90,735851,False,None
+E200,None,None,Game Night 1 of 2 - Enviar invitación a 8 amigos para una noche de juegos de mesa,3,8,30,693594,True,None
+E200,None,None,Game Night 2 of 2 - Confirmar de forma individual quien va a poder venir a la noche de juegos de mesa,3,21,30,693594,True,None
+E300,None,OS KSU,1. Reflexionar sobre los resultados del el día antetior y entiende si es que existe algo que pudiste haber hecho mejor; 2. Decide y deja por escrito cuáles son todas las acciones que van a ser parte de la Misión y Plan para el día,5,13,1,735969,False,None
+E300,None,OS KSU,Decidir cuáles van a ser los siguientes Wishes of End Value que voy a hacer realidad y definir Big Os (Tomando en cuenta los MileStones actuales),5,34,90,735839,False,None
+E300,None,OS KSU,Decidir cuáles van a ser los siguientes Wishes of Resources que voy a hacer realidad y definir Big Os (Tomando en cuenta los MileStones actuales),5,34,90,735839,False,None
+E300,None,OS KSU,Definir y programar las siguientes acciones necesarias para alcanzar mis Big Os,5,21,7,735926,False,None
+E300,None,OS KSU,"Reflexionar sobre 'el propósito y dirección de mi vida y si siento que la forma en la que vivo es la mejor según dicho propósito', y si es necesario, ajustar mis mi 'Mile Stones', KAS y Big Os acordé a mis conclusiones",5,34,180,735860,False,None
+E300,None,OS KSU,Repasar KAS6 - Acciones Recurrentes Reactivas con el objetivo de Evitar una acción particular - y marcar (si aplica) si fue que se ejecutó la acción en cuestión,3,2,1,735931,True,None
+E300,None,OS KSU,Leer mi KAS7 - Acciones Recurrentes Reactivas con en objetivo de aprovechar una oportunidad - y marcar (si aplica) si fue que se ejecutó la acción en cuestión,3,2,1,735931,True,None
+E300,None,OS KSU,"Repasar mis ""Guiding Principles""",3,5,7,735931,True,None
+E400,None,None,Irme a dormir a más tardar a las 10:30 (ya en cama y con la luz apagada),8,8,1,735969,False,None
+E400,None,None,Hacer al menos 30 minutos de cardio,5,34,1,735969,False,None
+E400,None,None,Llegar por lo menos 5 veces al punto de falla de un grupo muscular,8,5,1,None,False,None
+E400,None,None,Hacer estiramientos,8,3,1,None,True,None
+E400,None,None,Tomar una cápsula de vitamina E,3,1,1,735969,False,None
+E400,None,None,Cepillarme la cara,3,5,3,735969,False,None
+E400,None,None,Ir a cortarme el Cabello,2,30,30,735944,False,None
+E400,None,None,"Totmar, junto con todas las personas que vivan conmigo, el desparatizante 'Zentel' 2 diarios por 3 días.",3,10,365,735897,False,None
+E400,None,None,Asistir a una limpieza dental,3,180,365,735917,False,La doctora con la que normalmente me la hago se llama Guadalupe Telles
+E400,None,None,Hacerme un check up médico (Que incluya examen de próstata),5,720,730,735872,False,None
+E500,None,Great Partner,"Hacer algo nice por mi pareja (e.g. comprarle flores, prepararle de cenar, invitarla de sorpresa a algún lado)",5,30,14,735900,False,None
+E500,None,Great Partner,Preguntarle a mi pareja si hay algo con lo que la podría apoyar durante la semana (y que haga sentido que lo haga yo en lugar de ella),5,2,7,735927,True,Revisar en Evernote: Helping Dani be Happier :)
+E500,None,OS KSU,"Leer mis ""Agreements & Promises""",3,1,30,735905,True,None
+E600,None,OS KSU - Suggestion,"Ver, al menos, una conferencia en TED sobre un tema que suene interesante",3,20,7,735922,False,None
+E600,None,None,Leer alguna de las notas de los libros que he Leido para internalizar lo que decía el libro,3,8,7,735923,True,None
+E600,None,None,"Escribir, en menos de 2 minutos y en maximo un parrafo, que fue lo más importante del audiolibro que escuche por la mañana",3,5,1,735969,True,None
+E700,None,None,Regar la planta,1,2,3,735931,False,None
+E700,None,None,"Revisar, ordenar y vaciar la bandeja de entrada de mi correo personal Gmail",3,5,1,735931,True,None
+E700,None,None,Darle mantenimiento a mi Teoría (Eliminar elementos que ya no apliquen y sintetizar elementos similares) - Según el plan de mantenimiento,3,8,7,735933,True,Plan de mantenimiento: Siguiente Set a Darle Mantenimiento:
+E700,None,None,Ordenar todo lo que pueda mi ambiente físico en menos de 10 minutos,3,13,1,735969,False,None
+E700,None,None,Depurar mi pertenecias físicas y conservar unicamente aquello que conscientemente creo que vale la pena mantener,5,34,90,735923,False,None
+E800,None,None,Subir a Google Drive la última versión de los documentos que haya estado trabajando durante la semana,3,1,7,735931,False,None
+E800,None,None,Drenar el agua del boiler,2,5,60,735901,False,None
+E800,None,None,"Revisar los niveles de aceite, anticongelante, agua y aire en las llantas",3,8,90,735872,False,None
+E800,None,None,Hacer respaldo completo offline del disco duro de mi computadora y Evernote,3,8,60,735904,False,Debería también procurar tener un respaldo Online que se haga de forma más o menos automática
+E800,None,None,Mover photos del iPhone a mi archivo de fotos hacer respaldo offline,3,21,60,735904,False,None
+E800,None,None,Llevar el coche a la verificación,2,89,180,735933,False,None
+E800,None,None,Mandar el coche al servicio,2,34,365,735905,False,None
+E800,None,None,Pagar el gas,3,5,30,735931,False,None
+E800,None,None,Ajustar Tricount por cargos de la Aliada,3,5,30,735935,False,None
+E800,None,None,"Ir al super a comprar lo que falta según ""Shopping List""",1,34,14,735960,False,None
+E800,None,None,Pagar la renta,3,5,30,735954,False,None
+E800,None,None,"Revisar mi Saldo y contratar un PA200 de Telcel, si mi saldo es menor a 200, entonces comprar otros $500 pesos de tiempo aire ",2,5,30,735952,False,None
+E800,None,None,Pagar la luz,3,10,60,735916,False,Número de servicio: 972 840 600 159 - www.cfe.gob.mx - username: amigabledave
+E800,None,None,Renovar seguro de gastos médicos,5,13,365,735933,False,None
+E800,None,None,Renovar seguro del coche,5,13,365,735933,False,None
+E800,None,None,Pagar internet,3,5,30,735961,False,None
+E800,None,None,Pagar el agua,3,20,60,735961,False,"Número de contrato ""1941340615010154"" - Link para realizar el pago: http://www.sacmex.df.gob.mx/sacmex/index.php/formas-de-pago/pago-con-tarjeta"
+E900,None,OS KSU,Analizar y actualizar Money Requirements según lo sucedido durante el año ,3,13,365,735598,False,None
+E900,None,None,Pagar mi tarjeta de crédito IXE y analizar mis cuentas para detectar irregularidades,3,21,30,735939,False,None
+E900,None,None,Asegurarme que mi dinero está invertido en algo que al menos pague la tasa de CETES,3,13,30,735961,False,None
+E900,None,None,Revisar si algunos de mis puntos de programas de lealtad están por expirar y hacer algo al respecto,3,21,180,735901,False,None
+E900,None,None,Presentar mi declaración anual de impuestos,5,89,365,735689,False,None
