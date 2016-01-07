@@ -18,7 +18,7 @@ class Theory(db.Model):
 	username = db.StringProperty(required=True)
 	password_hash = db.StringProperty(required=True)
 	email = db.StringProperty(required=True)
-	KAS1 = db.BlobProperty(required=True)
+	KAS3 = db.BlobProperty(required=True)
 	ImPe = db.BlobProperty(required=True)
 	Hist = db.BlobProperty(required=True)	
 	MLog = db.BlobProperty(required=True)
@@ -40,7 +40,7 @@ class Theory(db.Model):
 		return Theory(username=username, 
 					  password_hash=password_hash,
 					  email=email, 
-					  KAS1=new_set_KAS1(),
+					  KAS3=new_set_KAS3(),
 					  ImPe=new_set_ImPe(),
 					  MLog=new_set_MLog(),
 					  Hist=new_set_Hist())
@@ -204,7 +204,7 @@ class Mission(Handler):
 
 def todays_mission(self):
 	theory = self.theory
-	ksu_set = unpack_set(theory.KAS1)
+	ksu_set = unpack_set(theory.KAS3)
 	result = []
 	for ksu in ksu_set:
 		ksu = ksu_set[ksu]
@@ -213,6 +213,39 @@ def todays_mission(self):
 			status = ksu['status']
 			if delay >= 0 and status=='Active':
 				result.append(ksu)
+	return result
+
+
+#---Pipeline Viewer Handler ---
+
+class Pipeline(Handler):
+	def get(self):
+		if user_bouncer(self):
+			return 
+		pipeline = current_pipeline(self)
+		pipeline = pretty_dates(pipeline)
+		pipeline = hide_invisible(pipeline)
+		pipeline = list(pipeline.values())
+		self.print_html('pipeline.html', pipeline=pipeline)
+
+	def post(self):
+		if user_bouncer(self):
+			return
+		post_details = get_post_details(self)	
+		ksu_id = post_details['ksu_id']
+		self.redirect('/EditKSU?ksu_id=' + ksu_id)
+
+
+
+
+def current_pipeline(self):
+	theory = self.theory
+	ksu_set = unpack_set(theory.KAS3) #need to generalize it to go over all sets
+	result = {}
+	for ksu in ksu_set:
+		ksu = ksu_set[ksu]
+		if ksu['in_pipeline']:
+			result[ksu['id']] = ksu
 	return result
 
 
@@ -386,13 +419,13 @@ def get_attribute_from_id(ksu_set, ksu_id, ksu_attribute):
 
 def create_effort_report(theory, date):
 	result = []
-	KAS1 = unpack_set(theory.KAS1)
+	KAS3 = unpack_set(theory.KAS3)
 	Hist = unpack_set(theory.Hist)
 	for event in Hist:
 		event = Hist[event]
 		if event['date'] == date and event['type']=='Effort':			
 			report_item = {'effort_description':None,'effort_reward':0}
-			report_item['effort_description'] = get_attribute_from_id(KAS1, event['ksu_id'], 'description')
+			report_item['effort_description'] = get_attribute_from_id(KAS3, event['ksu_id'], 'description')
 			report_item['effort_reward'] = event['value']
 			result.append(report_item)
 	return result
@@ -420,8 +453,8 @@ class CSVBackup(Handler):
 	def get(self):
 		if user_bouncer(self):
 			return
-		KAS1 = unpack_set(theory.KAS1)
-		output = create_csv_backup(KAS1, ['id','description','frequency','last_event','status'])
+		KAS3 = unpack_set(theory.KAS3)
+		output = create_csv_backup(KAS3, ['id','description','frequency','last_event','status'])
 		self.write(output)
 
 
@@ -622,12 +655,12 @@ def update_ksu_with_post_details(ksu, safe_post_details):
 
 
 def update_ksu_next_event(theory, post_details):
-	ksu_set = unpack_set(theory.KAS1)
+	ksu_set = unpack_set(theory.KAS3)
 	ksu_id = post_details['ksu_id']
 	ksu = ksu_set[ksu_id]
 	ksu['next_event'] = today + int(ksu['frequency'])
 	ksu['last_event'] = today
-	theory.KAS1 = pack_set(ksu_set)
+	theory.KAS3 = pack_set(ksu_set)
 	return
 
 
@@ -665,8 +698,8 @@ def update_set(ksu_set, ksu):
 
 def update_theory(theory, ksu_set):
 	set_name = ksu_set['set_details']['set_type']
-	if set_name == 'KAS1':
-		theory.KAS1 = pack_set(ksu_set)
+	if set_name == 'KAS3':
+		theory.KAS3 = pack_set(ksu_set)
 	if set_name == 'ImPe':
 		theory.ImPe = pack_set(ksu_set)
 	return
@@ -676,7 +709,7 @@ def update_theory(theory, ksu_set):
 
 
 
-#--- Templates ---
+#---Templates ---
 
 #General Attributes
 i_BASE_KSU = {'id': None,
@@ -703,6 +736,7 @@ i_BASE_Event = {'id':None,
 i_KAS_KSU = { 'importance':"3", # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 3
 	    	  'time_cost': "13", # Reasonable Time Requirements in Minutes
 	    	  'in_mission': False,
+	    	  'in_pipeline':False,
 	    	  'is_critical': False,
 	    	  'is_private': False}
 
@@ -712,21 +746,22 @@ i_KAS_Event = {'units':None, # EndValue, SmartEffort, and other tipes to be dete
 
 
 
-#KAS1 Specifics			
-i_KAS1_KSU = {'frequency': "7",
+#KAS3 Specifics			
+i_KAS3_KSU = {'frequency': "7",
 			  'best_day': "None",
 			  'best_time': None,
 			  'last_event': None,
-			  'next_event': None}
+			  'next_event': None,
+			  'in_pipeline':True} #elengance could be improved since this attribute is also in the base, is here just to overwrite the value
 
 
 
-i_KAS1_Event = {'duration':None, # To calculate Amount of SmartEffort Points Earned
+i_KAS3_Event = {'duration':None, # To calculate Amount of SmartEffort Points Earned
 			    'importance':None} # To calculate Amount of SmartEffort Points Earned
 
 
 
-i_KAS2_KSU = {'best_time': None,
+i_KAS4_KSU = {'best_time': None,
 			  'target_exe': None,
 			  'pipeline':"9"}
 
@@ -753,8 +788,8 @@ i_ImPe_KSU = {'contact_ksu_id':None,
 
 
 
-template_recipies = {'KAS1_KSU':[i_BASE_KSU, i_KAS_KSU, i_KAS1_KSU],
-					 'KAS1_Event':[i_BASE_Event, i_KAS_Event, i_KAS1_Event],
+template_recipies = {'KAS3_KSU':[i_BASE_KSU, i_KAS_KSU, i_KAS3_KSU],
+					 'KAS3_Event':[i_BASE_Event, i_KAS_Event, i_KAS3_Event],
 					 'ImPe_KSU':[i_BASE_KSU, i_ImPe_KSU],
 					 'ImPe_Event':[i_BASE_Event],
 					 'Hist_Event':[i_BASE_Event]}
@@ -799,13 +834,13 @@ def new_set_MLog(start_date=(735964-31), end_date=(735964+366)): #start_date = D
 
 
 
-def new_set_KAS1():
+def new_set_KAS3():
 	result = {}
-	ksu = make_template('KAS1', 'KSU')
+	ksu = make_template('KAS3', 'KSU')
 	ksu['set_size'] = 0
-	ksu['id'] = 'KAS1_0'
-	ksu['set_type'] = 'KAS1'
-	ksu['description'] = 'KAS1 Key Base Actions Set'
+	ksu['id'] = 'KAS3_0'
+	ksu['set_type'] = 'KAS3'
+	ksu['description'] = 'KAS3 Key Base Actions Set'
 	ksu['is_visible'] = False
 	result['set_details'] = ksu
 	return pack_set(result)
@@ -917,17 +952,17 @@ def add_Effort_event(theory, post_details): #Duration & Importance to be updated
 
 
 
-def add_ksu_to_KAS1(theory, details):
+def add_ksu_to_KAS3(theory, details):
 	details = prepare_details_for_saving(details)
-	KAS1 = unpack_set(theory.KAS1)
-	ksu = new_ksu_for_KAS1(KAS1)
+	KAS3 = unpack_set(theory.KAS3)
+	ksu = new_ksu_for_KAS3(KAS3)
 	ksu = update_ksu_with_post_details(ksu, details)
 	if ksu['last_event']:
 		ksu['next_event'] = int(ksu['last_event']) + int(ksu['frequency'])
 	else:
 		ksu['next_event'] = today
-	update_set(KAS1,ksu)
-	theory.KAS1 = pack_set(KAS1)
+	update_set(KAS3,ksu)
+	theory.KAS3 = pack_set(KAS3)
 	return ksu
 
 
@@ -1054,10 +1089,10 @@ def triggered_Action_create_ImPe_Contact(self):
 	post_details = get_post_details(self)
 	ksu_id = post_details['ksu_id']
 	ImPe = unpack_set(theory.ImPe)
-	KAS1 = unpack_set(theory.KAS1)
+	KAS3 = unpack_set(theory.KAS3)
 	person = ImPe[ksu_id]
-	ksu = make_template('KAS1', 'KSU')
-	ksu_id = create_id(KAS1)
+	ksu = make_template('KAS3', 'KSU')
+	ksu_id = create_id(KAS3)
 	ksu['id'] = ksu_id
 	ksu['element'] = 'E500'
 	ksu['description'] = 'Contact ' + person['description']
@@ -1073,9 +1108,9 @@ def triggered_Action_create_ImPe_Contact(self):
 	ksu['parent_id'] = person['id']
 	ksu['subtype'] = 'ImPe_Contact'
 	person['contact_ksu_id'] = ksu['id']
-	update_set(KAS1, ksu)
+	update_set(KAS3, ksu)
 	update_set(ImPe, person)
-	theory.KAS1 = pack_set(KAS1)
+	theory.KAS3 = pack_set(KAS3)
 	theory.ImPe = pack_set(ImPe)
 	add_Created_event(theory, ksu)
 	return ksu
@@ -1087,14 +1122,14 @@ def triggered_Action_delete_ImPe_Contact(self):
 	post_details = get_post_details(self)
 	person_id = post_details['ksu_id']
 	ImPe = unpack_set(theory.ImPe)
-	KAS1 = unpack_set(theory.KAS1)
+	KAS3 = unpack_set(theory.KAS3)
 	person = ImPe[person_id]
 	ksu_id = person['contact_ksu_id']
-	ksu = KAS1[ksu_id]
+	ksu = KAS3[ksu_id]
 	ksu['status'] = 'Deleted'
 	ksu['is_visible'] = False
-	update_set(KAS1, ksu)
-	theory.KAS1 = pack_set(KAS1)
+	update_set(KAS3, ksu)
+	theory.KAS3 = pack_set(KAS3)
 	add_Deleted_event(theory, ksu)
 	return
 
@@ -1105,8 +1140,8 @@ def triggered_Action_Done_ImPe_Contact(self):
 	theory = self.theory
 	post_details = get_post_details(self)
 	ksu_id = post_details['ksu_id']
-	KAS1 = unpack_set(theory.KAS1)
-	ksu = KAS1[ksu_id]
+	KAS3 = unpack_set(theory.KAS3)
+	ksu = KAS3[ksu_id]
 	person_id = ksu['target_person']
 	ImPe = unpack_set(theory.ImPe)
 	person = ImPe[person_id]
@@ -1173,9 +1208,9 @@ def add_ksu_to_set_from_csv(theory, ksu_details, set_name):
 
 def csv_triggered_Action_create_ImPe_Contact(theory, person):
 	ImPe = unpack_set(theory.ImPe)
-	KAS1 = unpack_set(theory.KAS1)
-	ksu = make_template('KAS1', 'KSU')
-	ksu_id = create_id(KAS1)
+	KAS3 = unpack_set(theory.KAS3)
+	ksu = make_template('KAS3', 'KSU')
+	ksu_id = create_id(KAS3)
 	ksu['id'] = ksu_id
 	ksu['element'] = 'E500'
 	ksu['description'] = 'Contact ' + person['description']
@@ -1191,9 +1226,9 @@ def csv_triggered_Action_create_ImPe_Contact(theory, person):
 	ksu['parent_id'] = person['id']
 	ksu['subtype'] = 'ImPe_Contact'
 	person['contact_ksu_id'] = ksu['id']
-	update_set(KAS1, ksu)
+	update_set(KAS3, ksu)
 	update_set(ImPe, person)
-	theory.KAS1 = pack_set(KAS1)
+	theory.KAS3 = pack_set(KAS3)
 	theory.ImPe = pack_set(ImPe)
 	add_Created_event(theory, ksu)
 	return ksu
@@ -1278,8 +1313,8 @@ constants = {'l_Fibonacci':l_Fibonacci,
 
 
 
-d_Viewer ={'KAS1':{'set_title':'My Key Base Actions Set  (KAS1)',
-				   'set_name': 'KAS1',
+d_Viewer ={'KAS3':{'set_title':'My Key Base Actions Set  (KAS3)',
+				   'set_name': 'KAS3',
 				   'attributes':['description','frequency','importance','time_cost','next_event','comments'],
 				   'fields':{'description':'Description','frequency':'Frequency','importance':'Rel. Imp.','time_cost':'Time C.','next_event':'Next Event','comments':'Comments'},
 				   'columns':{'description':4,'frequency':1,'importance':1,'time_cost':1,'next_event':2,'comments':2}},
@@ -1318,6 +1353,7 @@ app = webapp2.WSGIApplication([
 							 ('/login', Login),
                              ('/logout', Logout),
                              ('/TodaysMission', Mission),
+                             ('/Pipeline', Pipeline),
                              ('/SetViewer/' + PAGE_RE, SetViewer),
 							 ('/NewKSU/' + PAGE_RE, NewKSU),
 							 ('/EditKSU', EditKSU),

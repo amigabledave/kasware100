@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+	<div class="col-md-12"> <div class="section-title"> Current Pipeline </div></div>
+</div>
+<br>
+
+
+<!-- Field Headers -->
+
+
+<div class="row">
+	<div class="col-md-1"></div>
+		<div class="col-md-5">  <div class="field-header"> Action Description </div> </div>
+		<div class="col-md-2">  <div class="field-header"> Scheduled Date </div> </div>
+
+</div>
+
+
+<hr class="thick-hr-1px">
+
+
+{% for ksu in pipeline %}
+
+<!-- Rows. One per KSU -->
+
+
+	<div class="row">
+
+		<div class="col-md-1">
+			<form class="form-horizontal" method="post">
+				<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}"> 
+			  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="EditKSU"> Edit </button>
+			</form>	
+		</div>
+
+
+		<div class="col-md-5">  <div> {{ksu['description']}} </div> </div>
+		<div class="col-md-2">  <div> {{ksu['next_event']}} </div> </div>
+	
+	</div>
+	<hr>
+
+
+
+{% endfor %}
+
+
+{% endblock %}
