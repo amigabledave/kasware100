@@ -1,5 +1,5 @@
 #KASware v1.0.0 | Copyright 2016 AmigableDave & Co.
-#Comentando desde mi Windows PC :)
+
 import re, os, webapp2, jinja2, logging, hashlib, random, string, csv, pickle
 from datetime import datetime, timedelta
 from google.appengine.ext import db
@@ -438,12 +438,13 @@ def create_effort_report(theory, date):
 
 #--- Load CSV  ---
 
-class LoadCSV(Handler):
-	def get(self):
+class LoadCSV(Handler): #xx
+	def get(self, set_name):
 		if user_bouncer(self):
 			return
-		developer_Action_Load_ImPe_CSV(self,ImPe_csv_path)
-		self.redirect('/TodaysMission')
+		theory = self.theory
+		developer_Action_Load_CSV(theory, set_name)
+		self.redirect('/SetViewer/' + set_name)	
 
 
 
@@ -578,6 +579,35 @@ def prepare_details_for_saving(post_details):
 	return details
 
 
+
+
+
+def prepare_csv_details_for_saving(post_details): #xx
+	details = {}
+	checkboxes = ['is_critical', 'is_private']
+	for (attribute, value) in post_details.items():
+		if attribute in checkboxes:
+			details[attribute] = True
+		elif attribute == 'last_event':
+			if valid_csv_date(value):
+				details[attribute] = value
+		elif value and value!='' and value!='None':
+			details[attribute] = value
+	return details
+
+
+
+def valid_csv_date(dateordinal):
+    try:
+        datetime.fromordinal(int(dateordinal))
+        return True
+    except ValueError:
+        return False
+
+
+
+
+
 #--- user input validation ---
 
 
@@ -612,6 +642,10 @@ def valid_date(datestring):
         return datetime.strptime(datestring, '%d-%m-%Y').toordinal()
     except ValueError:
         return False
+
+
+
+
 
 
 
@@ -1167,8 +1201,36 @@ def triggered_Action_Done_ImPe_Contact(self):
 #--- Developer Actions ---
 
 
-def developer_Action_Load_ImPe_CSV(self, csv_path):
-	theory = self.theory
+def developer_Action_Load_CSV(theory, set_name):
+	csv_path = create_csv_path(set_name)
+	standard_sets = ['KAS3'] 
+	if set_name in standard_sets:
+		developer_Action_Load_Set_CSV(theory, set_name, csv_path)
+	elif set_name == 'ImPe':
+		developer_Action_Load_ImPe_CSV(theory, csv_path)
+	return
+
+
+def developer_Action_Load_Set_CSV(theory, set_name, csv_path): #xx
+	f = open(csv_path, 'rU')
+	f.close
+	csv_f = csv.reader(f, dialect=csv.excel_tab)
+	attributes = csv_f.next()[0].split(',')
+	for row in csv_f:
+		digested_ksu = {}
+		i = 0
+		raw_ksu = row[0].split(',')
+		for attribute in raw_ksu:
+			digested_ksu[attributes[i]] = attribute
+			i += 1
+		ksu_details = digested_ksu
+		add_ksu_to_set_from_csv(theory, ksu_details, set_name)		
+	theory.put()
+	return
+
+
+
+def developer_Action_Load_ImPe_CSV(theory, csv_path): #xx
 	f = open(csv_path, 'rU')
 	f.close
 	csv_f = csv.reader(f, dialect=csv.excel_tab)
@@ -1189,13 +1251,21 @@ def developer_Action_Load_ImPe_CSV(self, csv_path):
 	return 
 
 
-def add_ksu_to_set_from_csv(theory, ksu_details, set_name):
+
+# csv_path = '/Users/amigabledave/kasware100/csv_files/important_people.csv'
+
+def create_csv_path(set_name):
+	file_name = 'Backup_' + set_name + '.csv'
+	return os.path.join(os.path.dirname(__file__), 'csv_files', file_name)
+
+
+def add_ksu_to_set_from_csv(theory, ksu_details, set_name): #xx
 	ksu_set = unpack_set(eval('theory.' + set_name))
 	ksu = make_template(set_name, 'KSU')
 	ksu_id = create_id(ksu_set)
 	ksu['id'] = ksu_id
-	details = prepare_details_for_saving(ksu_details)
-	ksu = update_ksu_with_post_details(ksu, details)	
+	details = prepare_csv_details_for_saving(ksu_details)
+	ksu = update_ksu_with_csv_details(ksu, details)	
 	if 'last_event' in ksu:		
 		if ksu['last_event']:
 			ksu['next_event'] = int(ksu['last_event']) + int(ksu['frequency'])
@@ -1205,6 +1275,14 @@ def add_ksu_to_set_from_csv(theory, ksu_details, set_name):
 	update_theory(theory, ksu_set)
 	add_Created_event(theory, ksu)
 	return ksu
+
+
+def update_ksu_with_csv_details(ksu, details):
+	for (attribute, value) in details.items():
+		ksu[attribute] = value
+	return ksu
+
+
 
 
 def csv_triggered_Action_create_ImPe_Contact(theory, person):
@@ -1331,11 +1409,6 @@ secret = 'elzecreto'
 
 
 
-# csv_path = '/Users/amigabledave/kasware100/csv_files/important_people.csv'
-
-ImPe_csv_path = os.path.join(os.path.dirname(__file__), 'csv_files', 'Backup_ImPe.csv')
-
-
 # --- Regular expressions ---
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
@@ -1360,7 +1433,7 @@ app = webapp2.WSGIApplication([
 							 ('/EditKSU', EditKSU),
 							 ('/effort-report',EffortReport),
 							 ('/email',Email),
-							 ('/LoadCSV', LoadCSV),
+							 ('/LoadCSV/' + PAGE_RE, LoadCSV),
 							 ('/csv-backup',CSVBackup),
 							 ('/PythonBackup/' + PAGE_RE, PythonBackup)
 							 ], debug=True)

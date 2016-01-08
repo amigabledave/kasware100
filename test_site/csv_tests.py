@@ -163,7 +163,7 @@ def digest_csv(csv_path):
 		result.append(digested_ksu)
 	return result
 
-digested_csv = digest_csv(path1)
+# digested_csv = digest_csv(path1)
 # print digest_csv(csv_path)
 
 def add_ksus_to_set_from_csv(digested_csv, ksu_set):
@@ -176,7 +176,7 @@ def add_ksus_to_set_from_csv(digested_csv, ksu_set):
 
 
 # print add_ksus_to_set_from_csv(digested_csv,kas1)
-add_ksus_to_set_from_csv(digested_csv,kas1)
+# add_ksus_to_set_from_csv(digested_csv,kas1)
 
 #--- Failed writting Attempt -----------------------------------------
 
@@ -206,10 +206,32 @@ def create_csv_for_html(ksu_set, required_attributes):
 	return result
 
 
-print create_csv_for_html(kas1, basic_attributes)
+# print create_csv_for_html(kas1, basic_attributes)
 
 
 
 
+def developer_Action_Load_Set_CSV(csv_path): #xx
+	f = open(csv_path, 'rU')
+	f.close
+	csv_f = csv.reader(f, dialect=csv.excel_tab)
+	attributes = csv_f.next()[0].split(',')
+	return attributes
+	# for row in csv_f:
+	# 	digested_ksu = {}
+	# 	i = 0
+	# 	raw_ksu = row[0].split(',')
+	# 	for attribute in raw_ksu:
+	# 		digested_ksu[attributes[i]] = attribute
+	# 		i += 1
+	# 	ksu_details = digested_ksu
+	# 	add_ksu_to_set_from_csv(theory, ksu_details, set_name)		
+	# theory.put()
+	# return
 
+
+
+csv_path = '/Users/amigabledave/kasware100/csv_files/Backup_KAS3.csv'
+
+print developer_Action_Load_Set_CSV(csv_path)
 
