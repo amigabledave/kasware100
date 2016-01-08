@@ -18,16 +18,49 @@
 	<input type="text" class="form-control hidden" name="subtype" value="{{ksu['subtype']}}"> 
 
 
-{% if set_name == 'KAS3' %}
+
+
+{% if set_name == 'KAS1' %}
  
 	<div class="form-group">
-		<div class="col-md-10"> 
+		<div class="col-md-12"> 
 			<label> Action Description </label>
-			<input type="text" class="form-control tile-ksu-edit" name="description" placeholder="e.g. Hacer algo nice por mi chica" required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">
+			<input type="text" class="form-control tile-ksu-edit" name="description" placeholder="e.g. Comer en mi restaurante favorito" required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">
+		</div>
+	</div>
+
+
+	<div class="form-group">
+		
+		<div class="col-md-2">
+			<label> Charging Time (in Days) </label>
+			<input type="text" class="form-control" name="charging_time" placeholder="e.g. 365" required value="{% if ksu['charging_time']%}{{ksu['charging_time']}}{% endif %}">
+		</div>	
+
+		<div class="col-md-2">
+			<label> Last Event </label>
+			<input type="text" class="form-control" name="last_event" placeholder="DD-MM-YYYY" value="{% if ksu['last_event']%}{{ksu['last_event']}}{% endif %}">
 		</div>
 
 
 		<div class="col-md-2">
+			<label> Next Event </label>
+			<input type="text" class="form-control" name="next_event" placeholder="DD-MM-YYYY" value="{% if ksu['next_event']%}{{ksu['next_event']}}{% endif %}">
+		</div>
+
+
+		<div class="col-md-2">
+			<label> Related People </label>
+			<input type="text" class="form-control" name="related_people" placeholder="Optional" value="{% if ksu['related_people']%}{{ksu['related_people']}}{% endif %}">
+		</div>
+
+		<div class="col-md-2">
+	 		<div class="checkbox"> 
+	 			<label> <input type="checkbox" name="is_pipeline"{% if ksu['in_pipeline']%}checked{% endif %}> <b> Show in Pipeline</b> </label> 
+	 		</div>
+		</div>
+
+	 	<div class="col-md-2">
 	 		<div class="checkbox"> 
 	 			<label> <input type="checkbox" name="is_critical" {% if ksu['is_critical']%}checked{% endif %}> <b> Is Critical </b> </label> 
 	 		</div>
@@ -35,6 +68,23 @@
 	 		<div class="checkbox"> 
 	 			<label> <input type="checkbox" name="is_private"{% if ksu['is_private']%}checked{% endif %}> <b> Is Private </b> </label> 
 	 		</div>
+		</div>
+
+
+	</div>
+
+
+{% endif %}
+
+
+
+
+{% if set_name == 'KAS3' %}
+ 
+	<div class="form-group">
+		<div class="col-md-12"> 
+			<label> Action Description </label>
+			<input type="text" class="form-control tile-ksu-edit" name="description" placeholder="e.g. Hacer algo nice por mi chica" required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">
 		</div>
 	</div>
 
@@ -85,20 +135,26 @@
 		</div>
 	
 		<div class="col-md-2">
-			<div class="radio">
-			  <label>
-			    <input type="radio" name="status" id="optionsRadios1" value="Active" {% if ksu['status']=='Active'%}checked{% endif %}>
-			    <b> Active </b>
-			  </label>
-			</div>
-		
-			<div class="radio">
-			  <label>
-			    <input type="radio" name="status" id="optionsRadios2" value="Hold"  {% if ksu['status']=='Hold'%}checked{% endif %}>
-			    <b> On Hold </b>
-			  </label>
-			</div>
-		</div>	
+			<label> Frequency in Days </label>
+			<input type="text" class="form-control" name="frequency" placeholder="e.g. 7" required value="{% if ksu['frequency']%}{{ksu['frequency']}}{% endif %}">
+		</div>
+
+
+		<div class="col-md-2">
+	 		<div class="checkbox"> 
+	 			<label> <input type="checkbox" name="is_pipeline"{% if ksu['in_pipeline']%}checked{% endif %}> <b> Show in Pipeline</b> </label> 
+	 		</div>
+		</div>
+
+	 	<div class="col-md-2">
+	 		<div class="checkbox"> 
+	 			<label> <input type="checkbox" name="is_critical" {% if ksu['is_critical']%}checked{% endif %}> <b> Is Critical </b> </label> 
+	 		</div>
+
+	 		<div class="checkbox"> 
+	 			<label> <input type="checkbox" name="is_private"{% if ksu['is_private']%}checked{% endif %}> <b> Is Private </b> </label> 
+	 		</div>
+		</div>
 
 
 
@@ -107,13 +163,6 @@
 
 	<div class="form-group">
 		
-		<div class="col-md-2">
-			<label> Frequency in Days </label>
-			<input type="text" class="form-control" name="frequency" placeholder="e.g. 7" required value="{% if ksu['frequency']%}{{ksu['frequency']}}{% endif %}">
-		</div>
-
-
-
 		<div class="col-md-2">
 			<label> Prefered Day </label>
 				<select class="form-control" name="best_day">
@@ -137,6 +186,12 @@
 			<label> Last Event </label>
 			<input type="text" class="form-control" name="last_event" placeholder="DD-MM-YYYY" value="{% if ksu['last_event']%}{{ksu['last_event']}}{% endif %}">
 		</div>
+
+		<div class="col-md-2">
+			<label> Next Event </label>
+			<input type="text" class="form-control" name="next_event" placeholder="DD-MM-YYYY" value="{% if ksu['next_event']%}{{ksu['next_event']}}{% endif %}">
+		</div>
+
 
 
 	</div>
@@ -241,8 +296,6 @@
 	
 </div>
 {% endif %}
-
-<hr>
 
 
 {% endblock %}

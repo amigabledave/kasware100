@@ -18,6 +18,7 @@ class Theory(db.Model):
 	username = db.StringProperty(required=True)
 	password_hash = db.StringProperty(required=True)
 	email = db.StringProperty(required=True)
+	KAS1 = db.BlobProperty(required=True)
 	KAS3 = db.BlobProperty(required=True)
 	ImPe = db.BlobProperty(required=True)
 	Hist = db.BlobProperty(required=True)	
@@ -39,9 +40,10 @@ class Theory(db.Model):
 		password_hash = make_password_hash(username, password)
 		return Theory(username=username, 
 					  password_hash=password_hash,
-					  email=email, 
-					  KAS3=new_set_KAS3(),
-					  ImPe=new_set_ImPe(),
+					  email=email,
+					  KAS1=new_set_KSU('KAS1'),
+					  KAS3=new_set_KSU('KAS3'),
+					  ImPe=new_set_KSU('ImPe'),
 					  MLog=new_set_MLog(),
 					  Hist=new_set_Hist())
 
@@ -320,7 +322,7 @@ def hide_invisible(ksu_set):
 
 #--- New & Edit KSU Handlers ---
 
-class NewKSU(Handler):
+class NewKSU(Handler): #xx
 	
 	def get(self, set_name):
 		if user_bouncer(self):
@@ -334,7 +336,6 @@ class NewKSU(Handler):
 		if user_bouncer(self):
 			return
 		post_details = get_post_details(self)
-		# set_name = get_type_from_id(post_details['ksu_id']) #Casi para borrar
 		if post_details['action_description'] == 'Create':
 			post_details = prepare_details_for_validation(post_details)
 			if valid_input(post_details)[0]:
@@ -438,7 +439,7 @@ def create_effort_report(theory, date):
 
 #--- Load CSV  ---
 
-class LoadCSV(Handler): #xx
+class LoadCSV(Handler):
 	def get(self, set_name):
 		if user_bouncer(self):
 			return
@@ -558,7 +559,7 @@ def get_type_from_id(ksu_id):
 
 def prepare_details_for_validation(post_details):
 	details = {}
-	checkboxes = ['is_critical', 'is_private']
+	checkboxes = ['is_critical', 'is_private', 'in_pipeline']
 	for (attribute, value) in post_details.items():
 		if value and value!='' and value!='None':
 			details[attribute] = value
@@ -582,7 +583,7 @@ def prepare_details_for_saving(post_details):
 
 
 
-def prepare_csv_details_for_saving(post_details): #xx
+def prepare_csv_details_for_saving(post_details):
 	details = {}
 	checkboxes = ['is_critical', 'is_private']
 	for (attribute, value) in post_details.items():
@@ -743,44 +744,44 @@ def update_theory(theory, ksu_set):
 
 
 
-#---Templates ---
+#---Templates---
 
 #General Attributes
 i_BASE_KSU = {'id': None,
 		      'parent_id': None,
 		      'subtype':None,
 		      'status':'Active', # ['Active', 'Hold', 'Deleted']
-		      'is_visible': True,
 	    	  'description': None,
-	    	  'element': None,
+	    	  'is_visible': True,
+		      'is_private': False,
 	    	  'target_person':None,
-	    	  'local_tags': None,
-	    	  'global_tags': None,
+	    	  'local_tags': None, #la idea es que el atributo sea una lista con varios elementos, ahora en esta primera version solo hay espeacio para uno (80/20)
+	    	  'global_tags': None, #la idea es que el atributo sea una lista con varios elementos, ahora en esta primera version solo hay espeacio para uno (80/20)
 	    	  'comments': None}
 
 
-i_BASE_Event = {'id':None,
-				'ksu_id':None,
-				'date':today,
-				'type':None} # Depends on the KSU [Created, Edited ,Deleted]
+
+#KAS1 Specifics - End Value Base Portforlio - Acciones Recurrentes Proactivas con el objetivo de experimentar valor final #xx
+i_KAS1_KSU ={'charging_time':"365",
+			 'last_event':None,
+			 'next_event':None,
+			 'in_pipeline':False,
+			 'is_critical': False,
+			 'related_people':None}  #la idea es que el atributo sea una lista con varios elementos, ahora en esta primera version solo hay espeacio para uno (80/20)
 
 
 
-#KAS Specifics
-i_KAS_KSU = { 'importance':"3", # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 3
-	    	  'time_cost': "13", # Reasonable Time Requirements in Minutes
-	    	  'in_mission': False,
-	    	  'in_pipeline':False,
-	    	  'is_critical': False,
-	    	  'is_private': False}
-
-
-i_KAS_Event = {'units':None, # EndValue, SmartEffort, and other tipes to be determined
-			   'value':None} # Amoount of EndValue or SmartEffort Points Earned
+#Resource Generation KAS Specifics
+i_ReGen_KAS_KSU = {'importance':"3", # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 3
+	    	       'time_cost': "13", # Reasonable Time Requirements in Minutes
+	    	       'element': None,
+	    	  	   'in_mission': False, # Todo lo que esta en la mission del dia es porque tiene este atributo como true
+			       'in_pipeline':False,
+			       'is_critical': False}
 
 
 
-#KAS3 Specifics			
+#KAS3 Specifics	- Resource Generation Base Portfolio - Acciones Recurrentes Proactivas con el objetivo de generar recursos	
 i_KAS3_KSU = {'frequency': "7",
 			  'best_day': "None",
 			  'best_time': None,
@@ -788,11 +789,6 @@ i_KAS3_KSU = {'frequency': "7",
 			  'last_event': None,
 			  'next_event': None,
 			  'in_pipeline':True} #elengance could be improved since this attribute is also in the base, is here just to overwrite the value
-
-
-
-i_KAS3_Event = {'duration':None, # To calculate Amount of SmartEffort Points Earned
-			    'importance':None} # To calculate Amount of SmartEffort Points Earned
 
 
 
@@ -822,10 +818,31 @@ i_ImPe_KSU = {'contact_ksu_id':None,
 
 
 
+i_BASE_Event = {'id':None,
+				'ksu_id':None,
+				'date':today,
+				'type':None} # Depends on the KSU [Created, Edited ,Deleted]
 
-template_recipies = {'KAS3_KSU':[i_BASE_KSU, i_KAS_KSU, i_KAS3_KSU],
-					 'KAS3_Event':[i_BASE_Event, i_KAS_Event, i_KAS3_Event],
+
+i_KAS_Event = {'units':None, # EndValue, SmartEffort, and other tipes to be determined
+			   'value':None} # Amoount of EndValue or SmartEffort Points Earned
+
+
+
+i_KAS1_Event = {'duration':None, # To calculate Amount of EndValue Points Earned
+			    'intensity':None} # To calculate Amount of EndValue Points Earned
+
+
+i_KAS3_Event = {'duration':None, # To calculate Amount of SmartEffort Points Earned
+			    'importance':None} # To calculate Amount of SmartEffort Points Earned
+
+
+
+template_recipies = {'KAS1_KSU':[i_BASE_KSU, i_KAS1_KSU],
+					 'KAS3_KSU':[i_BASE_KSU, i_ReGen_KAS_KSU, i_KAS3_KSU],
 					 'ImPe_KSU':[i_BASE_KSU, i_ImPe_KSU],
+					 'KAS1_Event':[i_BASE_Event, i_KAS_Event, i_KAS1_Event],
+					 'KAS3_Event':[i_BASE_Event, i_KAS_Event, i_KAS3_Event],
 					 'ImPe_Event':[i_BASE_Event],
 					 'Hist_Event':[i_BASE_Event]}
 
@@ -845,6 +862,19 @@ def make_template(set_name, item_type): # Item type could be KSU or Event
 
 
 #--- Create new Sets --- 
+
+
+
+def new_set_KSU(set_name): #xx
+	result = {}
+	ksu = make_template(set_name, 'KSU')
+	ksu['set_size'] = 0
+	ksu['id'] = set_name +'_0'
+	ksu['set_type'] = set_name
+	ksu['is_visible'] = False
+	result['set_details'] = ksu
+	return pack_set(result)
+
 
 
 def new_set_Hist():
@@ -869,39 +899,8 @@ def new_set_MLog(start_date=(735964-31), end_date=(735964+366)): #start_date = D
 
 
 
-def new_set_KAS3():
-	result = {}
-	ksu = make_template('KAS3', 'KSU')
-	ksu['set_size'] = 0
-	ksu['id'] = 'KAS3_0'
-	ksu['set_type'] = 'KAS3'
-	ksu['description'] = 'KAS3 Key Base Actions Set'
-	ksu['is_visible'] = False
-	result['set_details'] = ksu
-	return pack_set(result)
-
-
-
-def new_set_ImPe():
-	result = {}
-	ksu = make_template('ImPe', 'KSU')
-	ksu['set_size'] = 0
-	ksu['id'] = 'ImPe_0'
-	ksu['set_type'] = 'ImPe'
-	ksu['description'] = 'My Important People'
-	ksu['is_visible'] = False
-	result['set_details'] = ksu
-	return pack_set(result)
-
-
 
 #--- Create new Set Items ---
-
-def new_event(Hist, set_name):
-	event = make_template(set_name, 'Event')
-	event_id = create_id(Hist)
-	event['id'] = event_id
-	return event
 
 
 def new_ksu(self, set_name):
@@ -911,6 +910,13 @@ def new_ksu(self, set_name):
 	ksu_id = create_id(ksu_set)
 	ksu['id'] = ksu_id
 	return ksu
+
+
+def new_event(Hist, set_name):
+	event = make_template(set_name, 'Event')
+	event_id = create_id(Hist)
+	event['id'] = event_id
+	return event
 
 
 def create_id(ksu_set):
@@ -1001,7 +1007,7 @@ def add_ksu_to_KAS3(theory, details):
 	return ksu
 
 
-def add_ksu_to_set(self, set_name):
+def add_ksu_to_set(self, set_name): #xx
 	theory = self.theory
 	post_details = get_post_details(self)
 	ksu_set = unpack_set(eval('theory.' + set_name))
@@ -1011,11 +1017,12 @@ def add_ksu_to_set(self, set_name):
 	details = prepare_details_for_saving(post_details)
 	ksu = update_ksu_with_post_details(ksu, details)
 	
-	if 'last_event' in ksu:		
-		if ksu['last_event']:
-			ksu['next_event'] = int(ksu['last_event']) + int(ksu['frequency'])
-		else:
-			ksu['next_event'] = today
+	if 'last_event' in ksu:
+		if not ksu['next_event']:
+			if ksu['last_event']:
+				ksu['next_event'] = int(ksu['last_event']) + int(ksu['frequency'])
+			else:
+				ksu['next_event'] = today
 
 	update_set(ksu_set, ksu)
 	update_theory(theory, ksu_set)
@@ -1211,7 +1218,7 @@ def developer_Action_Load_CSV(theory, set_name):
 	return
 
 
-def developer_Action_Load_Set_CSV(theory, set_name, csv_path): #xx
+def developer_Action_Load_Set_CSV(theory, set_name, csv_path):
 	f = open(csv_path, 'rU')
 	f.close
 	csv_f = csv.reader(f, dialect=csv.excel_tab)
@@ -1230,7 +1237,7 @@ def developer_Action_Load_Set_CSV(theory, set_name, csv_path): #xx
 
 
 
-def developer_Action_Load_ImPe_CSV(theory, csv_path): #xx
+def developer_Action_Load_ImPe_CSV(theory, csv_path):
 	f = open(csv_path, 'rU')
 	f.close
 	csv_f = csv.reader(f, dialect=csv.excel_tab)
@@ -1259,7 +1266,7 @@ def create_csv_path(set_name):
 	return os.path.join(os.path.dirname(__file__), 'csv_files', file_name)
 
 
-def add_ksu_to_set_from_csv(theory, ksu_details, set_name): #xx
+def add_ksu_to_set_from_csv(theory, ksu_details, set_name):
 	ksu_set = unpack_set(eval('theory.' + set_name))
 	ksu = make_template(set_name, 'KSU')
 	ksu_id = create_id(ksu_set)
@@ -1352,7 +1359,7 @@ def validate_password(username, password, h):
 
 
 
-# --- Global Variables ------------------------------------------------------------------------------
+#---Global Variables ------------------------------------------------------------------------------
 
 
 
@@ -1392,14 +1399,20 @@ constants = {'l_Fibonacci':l_Fibonacci,
 
 
 
-d_Viewer ={'KAS3':{'set_title':'My Key Base Actions Set  (KAS3)',
-				   'set_name': 'KAS3',
-				   'attributes':['description','frequency','importance','time_cost','next_event','comments'],
-				   'fields':{'description':'Description','frequency':'Frequency','importance':'Rel. Imp.','time_cost':'Time C.','next_event':'Next Event','comments':'Comments'},
-				   'columns':{'description':4,'frequency':1,'importance':1,'time_cost':1,'next_event':2,'comments':2}},
+d_Viewer ={'KAS1':{'set_title':'End Value Base Portfolio  (KAS1)', #xx
+				   'set_name':'KAS1',
+				   'attributes':['description','charging_time','last_event','local_tags'],
+				   'fields':{'description':'Description','charging_time':'Charging Time','last_event':'Last Event','local_tags':'Local Tags'},
+				   'columns':{'description':4,'charging_time':2,'last_event':2,'local_tags':2}},
+
+			'KAS3':{'set_title':'My Key Base Actions Set  (KAS3)',
+				    'set_name':'KAS3',
+				    'attributes':['description','frequency','importance','time_cost','next_event','comments'],
+				    'fields':{'description':'Description','frequency':'Frequency','importance':'Rel. Imp.','time_cost':'Time C.','next_event':'Next Event','comments':'Comments'},
+				    'columns':{'description':4,'frequency':1,'importance':1,'time_cost':1,'next_event':2,'comments':2}},
 		   
 		   'ImPe': {'set_title':'My Important People',
-		   			'set_name': 'ImPe',
+		   			'set_name':'ImPe',
 					'attributes':['description', 'contact_frequency', 'last_contact', 'next_contact', 'comments'],
 				    'fields':{'description':'Name', 'contact_frequency':'C. Freq.', 'last_contact':'Last Contact', 'next_contact':'Next Contact', 'comments':'Comments'},
 				    'columns':{'description':3, 'contact_frequency':1, 'last_contact':2, 'next_contact':2, 'comments':3}}}
