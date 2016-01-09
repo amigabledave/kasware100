@@ -322,7 +322,7 @@ def hide_invisible(ksu_set):
 
 #--- New & Edit KSU Handlers ---
 
-class NewKSU(Handler): #xx
+class NewKSU(Handler):
 	
 	def get(self, set_name):
 		if user_bouncer(self):
@@ -335,11 +335,13 @@ class NewKSU(Handler): #xx
 	def post(self, set_name):
 		if user_bouncer(self):
 			return
+		theory = self.theory	
 		post_details = get_post_details(self)
 		if post_details['action_description'] == 'Create':
 			post_details = prepare_details_for_validation(post_details)
-			if valid_input(post_details)[0]:
+			if valid_input(post_details)[0]:				
 				user_Action_Create_ksu(self, set_name)
+				self.redirect('/SetViewer/' + set_name)
 			else:
 				input_error = valid_input(post_details)[1]
 				ksu_set = unpack_set(eval('theory.' + set_name))
@@ -347,7 +349,7 @@ class NewKSU(Handler): #xx
 				ksu = update_ksu_with_post_details(ksu, post_details)
 				show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
 				self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name, title='Create', input_error=input_error)
-		self.redirect('/SetViewer/' + set_name)
+
 
 
 
@@ -566,13 +568,13 @@ def prepare_details_for_validation(post_details):
 	return details
 
 
-def prepare_details_for_saving(post_details):
+def prepare_details_for_saving(post_details): ## Pasa dos veces
 	details = {}
 	checkboxes = ['is_critical', 'is_private']
 	for (attribute, value) in post_details.items():
 		if attribute in checkboxes:
 			details[attribute] = True
-		elif attribute == 'last_event':
+		elif attribute == 'last_event' or attribute == 'next_event': 
 			if valid_date(value):
 				details[attribute] = valid_date(value)
 		elif value and value!='' and value!='None':
@@ -681,8 +683,8 @@ def valid_input(post_details):
 
 #--- Update Stuff ---
 
-def update_ksu_with_post_details(ksu, safe_post_details):
-	details = prepare_details_for_saving(safe_post_details)
+def update_ksu_with_post_details(ksu, details):
+	# details = prepare_details_for_saving(safe_post_details) - Creo que esta linea esta de mas, chance y la tengo que regresar
 	for (attribute, value) in details.items():
 		ksu[attribute] = value
 	return ksu
@@ -733,6 +735,8 @@ def update_set(ksu_set, ksu):
 
 def update_theory(theory, ksu_set):
 	set_name = ksu_set['set_details']['set_type']
+	if set_name == 'KAS1':
+		theory.KAS1 = pack_set(ksu_set)
 	if set_name == 'KAS3':
 		theory.KAS3 = pack_set(ksu_set)
 	if set_name == 'ImPe':
@@ -761,7 +765,7 @@ i_BASE_KSU = {'id': None,
 
 
 
-#KAS1 Specifics - End Value Base Portforlio - Acciones Recurrentes Proactivas con el objetivo de experimentar valor final #xx
+#KAS1 Specifics - End Value Base Portforlio - Acciones Recurrentes Proactivas con el objetivo de experimentar valor final
 i_KAS1_KSU ={'charging_time':"365",
 			 'last_event':None,
 			 'next_event':None,
@@ -830,7 +834,8 @@ i_KAS_Event = {'units':None, # EndValue, SmartEffort, and other tipes to be dete
 
 
 i_KAS1_Event = {'duration':None, # To calculate Amount of EndValue Points Earned
-			    'intensity':None} # To calculate Amount of EndValue Points Earned
+			    'intensity':None, # To calculate Amount of EndValue Points Earned
+			    'people_to_thank':None} # Personas que fueron factor importantes en disfrutar de este momento  
 
 
 i_KAS3_Event = {'duration':None, # To calculate Amount of SmartEffort Points Earned
@@ -865,7 +870,7 @@ def make_template(set_name, item_type): # Item type could be KSU or Event
 
 
 
-def new_set_KSU(set_name): #xx
+def new_set_KSU(set_name):
 	result = {}
 	ksu = make_template(set_name, 'KSU')
 	ksu['set_size'] = 0
@@ -1007,23 +1012,15 @@ def add_ksu_to_KAS3(theory, details):
 	return ksu
 
 
-def add_ksu_to_set(self, set_name): #xx
+def add_ksu_to_set(self, set_name):
 	theory = self.theory
 	post_details = get_post_details(self)
 	ksu_set = unpack_set(eval('theory.' + set_name))
 	ksu = make_template(set_name, 'KSU')
 	ksu_id = create_id(ksu_set)
 	ksu['id'] = ksu_id
-	details = prepare_details_for_saving(post_details)
+	details = prepare_details_for_saving(post_details) # to check if safe
 	ksu = update_ksu_with_post_details(ksu, details)
-	
-	if 'last_event' in ksu:
-		if not ksu['next_event']:
-			if ksu['last_event']:
-				ksu['next_event'] = int(ksu['last_event']) + int(ksu['frequency'])
-			else:
-				ksu['next_event'] = today
-
 	update_set(ksu_set, ksu)
 	update_theory(theory, ksu_set)
 	return ksu
@@ -1059,17 +1056,6 @@ def add_deleted_ksu_to_set(self):
 
 #--- User Actions ---
 
-def user_Action_Effort_Done(self):
-	theory = self.theory
-	post_details = get_post_details(self)
-	update_ksu_next_event(theory, post_details)
-	add_Effort_event(theory, post_details)
-	trigger_additional_actions(self)
-	theory.put()
-	return
-
-
-
 def user_Action_Create_ksu(self, set_name):
 	theory = self.theory
 	ksu = add_ksu_to_set(self, set_name)
@@ -1078,6 +1064,16 @@ def user_Action_Create_ksu(self, set_name):
 	theory.put()
 	return
 
+
+
+def user_Action_Effort_Done(self):
+	theory = self.theory
+	post_details = get_post_details(self)
+	update_ksu_next_event(theory, post_details)
+	add_Effort_event(theory, post_details)
+	trigger_additional_actions(self)
+	theory.put()
+	return
 
 
 def user_Action_Edit_ksu(self):
@@ -1109,6 +1105,10 @@ def trigger_additional_actions(self):
 	ksu_id = post_details['ksu_id']
 	ksu_type = get_type_from_id(ksu_id)
 	ksu_subtype = post_details['subtype']
+
+	if action_type == 'Create':
+		if ksu_type == 'KAS3':
+			triggered_Action_create_KAS3_next_event(self)
 	
 	if action_type == 'Create':
 		if ksu_type == 'ImPe':
@@ -1123,6 +1123,25 @@ def trigger_additional_actions(self):
 		if ksu_type == 'ImPe':
 			triggered_Action_delete_ImPe_Contact(self)
 
+	return
+
+
+
+
+def triggered_Action_create_KAS3_next_event(self):
+	theory = self.theory
+	post_details = get_post_details(self)
+	ksu_id = post_details['ksu_id']
+	KAS3 = unpack_set(theory.KAS3)
+	ksu = KAS3[ksu_id]
+	if ksu['last_event'] and not ksu['next_event']:
+		ksu['next_event'] = int(ksu['last_event']) + int(ksu['frequency'])
+		if ksu['next_event'] < today:
+			ksu['next_event'] = today
+	elif not ksu['next_event']:
+		ksu['next_event'] = today
+	update_set(KAS3, ksu)
+	theory.KAS3 = pack_set(KAS3)
 	return
 
 
@@ -1210,9 +1229,14 @@ def triggered_Action_Done_ImPe_Contact(self):
 
 def developer_Action_Load_CSV(theory, set_name):
 	csv_path = create_csv_path(set_name)
-	standard_sets = ['KAS3'] 
+	standard_sets = ['KAS1'] 
+
 	if set_name in standard_sets:
 		developer_Action_Load_Set_CSV(theory, set_name, csv_path)
+
+	elif set_name == 'KAS3':
+		developer_Action_Load_KAS3_CSV(theory, csv_path)		
+
 	elif set_name == 'ImPe':
 		developer_Action_Load_ImPe_CSV(theory, csv_path)
 	return
@@ -1235,6 +1259,24 @@ def developer_Action_Load_Set_CSV(theory, set_name, csv_path):
 	theory.put()
 	return
 
+
+def developer_Action_Load_KAS3_CSV(theory, csv_path):
+	f = open(csv_path, 'rU')
+	f.close
+	csv_f = csv.reader(f, dialect=csv.excel_tab)
+	attributes = csv_f.next()[0].split(',')
+	for row in csv_f:
+		digested_ksu = {}
+		i = 0
+		raw_ksu = row[0].split(',')
+		for attribute in raw_ksu:
+			digested_ksu[attributes[i]] = attribute
+			i += 1
+
+		ksu_details = digested_ksu
+		ksu = add_ksu_to_set_from_csv(theory, ksu_details, 'KAS3')
+		csv_triggered_Action_create_KAS3_next_event(theory, ksu)
+	theory.put()
 
 
 def developer_Action_Load_ImPe_CSV(theory, csv_path):
@@ -1273,11 +1315,6 @@ def add_ksu_to_set_from_csv(theory, ksu_details, set_name):
 	ksu['id'] = ksu_id
 	details = prepare_csv_details_for_saving(ksu_details)
 	ksu = update_ksu_with_csv_details(ksu, details)	
-	if 'last_event' in ksu:		
-		if ksu['last_event']:
-			ksu['next_event'] = int(ksu['last_event']) + int(ksu['frequency'])
-		else:
-			ksu['next_event'] = today
 	update_set(ksu_set, ksu)
 	update_theory(theory, ksu_set)
 	add_Created_event(theory, ksu)
@@ -1288,6 +1325,19 @@ def update_ksu_with_csv_details(ksu, details):
 	for (attribute, value) in details.items():
 		ksu[attribute] = value
 	return ksu
+
+
+
+def csv_triggered_Action_create_KAS3_next_event(theory, ksu):
+	if ksu['last_event'] and not ksu['next_event']:
+		ksu['next_event'] = int(ksu['last_event']) + int(ksu['frequency'])
+		if ksu['next_event'] < today:
+			ksu['next_event'] = today
+	elif not ksu['next_event']:
+		ksu['next_event'] = today
+	update_set(KAS3, ksu)
+	theory.KAS3 = pack_set(KAS3)
+	return
 
 
 
@@ -1399,13 +1449,13 @@ constants = {'l_Fibonacci':l_Fibonacci,
 
 
 
-d_Viewer ={'KAS1':{'set_title':'End Value Base Portfolio  (KAS1)', #xx
+d_Viewer ={'KAS1':{'set_title':'End Value Base Portfolio  (KAS1)',
 				   'set_name':'KAS1',
 				   'attributes':['description','charging_time','last_event','local_tags'],
 				   'fields':{'description':'Description','charging_time':'Charging Time','last_event':'Last Event','local_tags':'Local Tags'},
 				   'columns':{'description':4,'charging_time':2,'last_event':2,'local_tags':2}},
 
-			'KAS3':{'set_title':'My Key Base Actions Set  (KAS3)',
+			'KAS3':{'set_title':'Resource Generation Base Portfolio  (KAS3)',
 				    'set_name':'KAS3',
 				    'attributes':['description','frequency','importance','time_cost','next_event','comments'],
 				    'fields':{'description':'Description','frequency':'Frequency','importance':'Rel. Imp.','time_cost':'Time C.','next_event':'Next Event','comments':'Comments'},
