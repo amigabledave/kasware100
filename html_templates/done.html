@@ -26,22 +26,14 @@
 
 	<div class="form-group">
 
-		<div class="col-md-2"> 
-			<label> Duration </label>
-			<select class="form-control" name="duration">
-				{% for t in constants['l_Fibonacci'] %}
-					{% if t == ksu['time_cost']  %}
-						<option selected="selected">{{t}}</option>
-					{% else %}
-						<option> {{t}} </option>
-					{% endif %}
-				{% endfor %}
-			</select>
-		</div>
+		<div class="col-md-2"> 		
+			<label> Experience Duration </label>
+			<input type="text" class="form-control" name="duration" required value="1">
+		</div>	
 
 
 		<div class="col-md-2"> 
-			<label> Relative Importance </label> 
+			<label> Intensity </label> 
 			<select class="form-control" name="importance"> 
 				{% for i in constants['l_Fibonacci'] %}
 					{% if i == ksu['importance'] %}
@@ -53,7 +45,6 @@
 					
 			</select>
 		</div>
-	</div>
 
 
 	<div class="form-group">
@@ -78,22 +69,14 @@
 
 	<div class="form-group">
 
-		<div class="col-md-2"> 
-			<label> Reasonable time cost </label>
-			<select class="form-control" name="duration">
-				{% for t in constants['l_Fibonacci'] %}
-					{% if t == ksu['time_cost']  %}
-						<option selected="selected">{{t}}</option>
-					{% else %}
-						<option> {{t}} </option>
-					{% endif %}
-				{% endfor %}
-			</select>
-		</div>
+		<div class="col-md-2"> 		
+			<label> Effort Duration </label>
+			<input type="text" class="form-control" name="duration" required value="{{ksu['time_cost']}}">
+		</div>	
 
 
 		<div class="col-md-2"> 
-			<label> Relative Importance </label> 
+			<label> Expected Impact </label> 
 			<select class="form-control" name="importance"> 
 				{% for i in constants['l_Fibonacci'] %}
 					{% if i == ksu['importance'] %}
