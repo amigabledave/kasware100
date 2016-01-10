@@ -199,8 +199,13 @@ class Mission(Handler):
 	def post(self):
 		if user_bouncer(self):
 			return
-		user_Action_Effort_Done(self)
-		self.redirect('/TodaysMission')
+		post_details = get_post_details(self)
+		if post_details['action_description'] == 'Done':
+			ksu_id = post_details['ksu_id']
+			self.redirect('/Done?ksu_id=' + ksu_id)
+
+
+
 
 
 
@@ -281,6 +286,16 @@ class SetViewer(Handler):
 
 
 
+def hide_invisible(ksu_set):
+	result = {}
+	for ksu in ksu_set:
+		ksu = ksu_set[ksu]
+		if ksu['is_visible']:
+			result[ksu['id']] = ksu
+	return result
+
+
+
 def pretty_dates(ksu_set):
 	date_attributes = ['last_event', 'next_event', 'last_contact', 'next_contact']
 	for date_attribute in date_attributes:
@@ -289,11 +304,20 @@ def pretty_dates(ksu_set):
 			valid_attributes = list(ksu.keys())
 			if date_attribute in valid_attributes:	
 				if ksu[date_attribute]:
-					number_date = int(ksu[date_attribute])
-					pretty_date = datetime.fromordinal(number_date).strftime('%a, %b %d, %Y')
+					date_ordinal = int(ksu[date_attribute])
+					pretty_date = unpack_date(date_ordinal)
 					ksu[date_attribute] = pretty_date
 	return ksu_set
 	
+
+
+def pack_date(date_string):
+	return datetime.strptime(date_string, '%d-%m-%Y').toordinal()
+
+
+def unpack_date(date_ordinal):
+	return datetime.fromordinal(date_ordinal).strftime('%a, %b %d, %Y')
+
 
 
 def not_ugly_dates(ksu_set):
@@ -310,13 +334,9 @@ def not_ugly_dates(ksu_set):
 	return ksu_set
 
 
-def hide_invisible(ksu_set):
-	result = {}
-	for ksu in ksu_set:
-		ksu = ksu_set[ksu]
-		if ksu['is_visible']:
-			result[ksu['id']] = ksu
-	return result
+
+
+
 
 
 
@@ -338,17 +358,18 @@ class NewKSU(Handler):
 		theory = self.theory	
 		post_details = get_post_details(self)
 		if post_details['action_description'] == 'Create':
-			post_details = prepare_details_for_validation(post_details)
-			if valid_input(post_details)[0]:				
-				user_Action_Create_ksu(self, set_name)
-				self.redirect('/SetViewer/' + set_name)
-			else:
-				input_error = valid_input(post_details)[1]
+			input_error = user_input_error(post_details)
+			if input_error:
 				ksu_set = unpack_set(eval('theory.' + set_name))
 				ksu = new_ksu(self, set_name)
-				ksu = update_ksu_with_post_details(ksu, post_details)
+				ksu = update_ksu_with_post_details(ksu, post_details) ## aqui tal vez hay un riesgo si asumo que el input esta bien? Creo que no porque no lo voy a guardar
 				show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
 				self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name, title='Create', input_error=input_error)
+			else:
+				user_Action_Create_ksu(self, set_name)
+				self.redirect('/SetViewer/' + set_name)
+
+
 
 
 
@@ -370,12 +391,11 @@ class EditKSU(Handler):
 			return
 		post_details = get_post_details(self)
 		set_name = get_type_from_id(post_details['ksu_id'])
+
 		if post_details['action_description'] == 'Save':
-			post_details = prepare_details_for_validation(post_details)
-			if valid_input(post_details)[0]:
-				user_Action_Edit_ksu(self)
-			else:
-				input_error = valid_input(post_details)[1]
+			input_error = user_input_error(post_details)
+
+			if input_error:
 				ksu_id = post_details['ksu_id']
 				set_name = get_type_from_id(ksu_id)
 				ksu_set = unpack_set(eval('theory.' + set_name))
@@ -384,7 +404,10 @@ class EditKSU(Handler):
 				ksu = update_ksu_with_post_details(ksu, post_details)			
 				show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
 				self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name, title='Edit KSU', input_error=input_error)
-		
+
+			else:
+				user_Action_Edit_ksu(self) #xx1
+
 		elif post_details['action_description'] == 'Delete':
 			user_Action_Delete_ksu(self)
 
@@ -397,6 +420,33 @@ def show_date_as_inputed(ksu, post_details):
 	if 'last_event' in post_details:
 		ksu['last_event'] = post_details['last_event']
 	return
+
+
+
+#---Done Handler---
+
+class Done(Handler): #xx
+	def get(self):
+		if user_bouncer(self):
+			return
+		theory = self.theory
+		ksu_id = self.request.get('ksu_id')
+		set_name = get_type_from_id(ksu_id)
+		ksu_set = unpack_set(eval('theory.' + set_name))
+		ksu_set = not_ugly_dates(ksu_set)
+		ksu = ksu_set[ksu_id]		
+		self.print_html('done.html', constants=constants, ksu=ksu, set_name=set_name, title='Edit')
+
+	def post(self):
+		if user_bouncer(self):
+			return
+		post_details = get_post_details(self)
+		set_name = get_type_from_id(post_details['ksu_id'])
+		if post_details['action_description'] == 'Confirm':
+			user_Action_Effort_Done(self)
+		self.redirect('/TodaysMission')
+
+
 
 
 
@@ -536,11 +586,19 @@ def user_bouncer(self):
 
 
 def get_post_details(self):
-	result = {}
+	post_details = {}
 	arguments = self.request.arguments()
 	for argument in arguments:
-		result[str(argument)] = self.request.get(str(argument))
-	return result
+		post_details[str(argument)] = self.request.get(str(argument))
+	return adjust_post_details(post_details)
+
+
+def adjust_post_details(post_details): 
+	details = {}
+	for (attribute, value) in post_details.items():
+		if value and value!='' and value!='None':
+			details[attribute] = value
+	return details
 
 
 def pack_set(ksu_set):
@@ -559,27 +617,46 @@ def get_type_from_id(ksu_id):
 	return ksu_id.split("_")[0]
 
 
-def prepare_details_for_validation(post_details):
-	details = {}
-	checkboxes = ['is_critical', 'is_private', 'in_pipeline']
+
+def user_input_error(post_details): ##aqui estabamos
 	for (attribute, value) in post_details.items():
-		if value and value!='' and value!='None':
-			details[attribute] = value
-	return details
+		user_error = input_error(attribute, value)
+		if user_error:
+			return user_error
+	return None
 
 
-def prepare_details_for_saving(post_details): ## Pasa dos veces
-	details = {}
-	checkboxes = ['is_critical', 'is_private']
-	for (attribute, value) in post_details.items():
-		if attribute in checkboxes:
-			details[attribute] = True
-		elif attribute == 'last_event' or attribute == 'next_event': 
-			if valid_date(value):
-				details[attribute] = valid_date(value)
-		elif value and value!='' and value!='None':
-			details[attribute] = value
-	return details
+def input_error(target_attribute, user_input):
+
+	if target_attribute not in validation_attributes:
+		return None
+	error_key = target_attribute + '_error' 
+		
+	if target_attribute == 'last_event' or target_attribute == 'next_event':
+		if valid_date(user_input):
+			return None
+		else:
+			return d_RE[error_key]
+
+	if d_RE[target_attribute].match(user_input):
+		return None
+	else:
+		return d_RE[error_key]
+
+
+
+def valid_date(date_string):
+    try:
+        pack_date(date_string)
+        return True
+    except ValueError:
+        return False
+
+
+
+
+
+
 
 
 
@@ -611,8 +688,7 @@ def valid_csv_date(dateordinal):
 
 
 
-#--- user input validation ---
-
+#--- user input validation RE ---
 
 
 d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
@@ -636,47 +712,7 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 		'comments_error': 'Comments cannot excede 200 characters'}
 
 
-validation_attributes = ['username', 'password', 'description', 'frequency', 'last_event', 'comments']
-
-
-def valid_date(datestring):
-    try:
-        datetime.strptime(datestring, '%d-%m-%Y')
-        return datetime.strptime(datestring, '%d-%m-%Y').toordinal()
-    except ValueError:
-        return False
-
-
-
-
-
-
-
-def input_error(target_attribute, user_input):
-
-	if target_attribute not in validation_attributes:
-		return None
-	error_key = target_attribute + '_error' 
-		
-	if target_attribute == 'last_event':
-		if valid_date(user_input):
-			return None
-		else:
-			return d_RE[error_key]
-
-	if d_RE[target_attribute].match(user_input):
-		return None
-	else:
-		return d_RE[error_key]
-
-
-
-def valid_input(post_details):
-	for (attribute, value) in post_details.items():
-		user_error = input_error(attribute, value)
-		if user_error:
-			return False, user_error
-	return	True, None
+validation_attributes = ['username', 'password', 'description', 'frequency', 'last_event', 'next_event', 'comments']
 
 
 
@@ -684,7 +720,6 @@ def valid_input(post_details):
 #--- Update Stuff ---
 
 def update_ksu_with_post_details(ksu, details):
-	# details = prepare_details_for_saving(safe_post_details) - Creo que esta linea esta de mas, chance y la tengo que regresar
 	for (attribute, value) in details.items():
 		ksu[attribute] = value
 	return ksu
@@ -998,20 +1033,6 @@ def add_Effort_event(theory, post_details): #Duration & Importance to be updated
 
 
 
-def add_ksu_to_KAS3(theory, details):
-	details = prepare_details_for_saving(details)
-	KAS3 = unpack_set(theory.KAS3)
-	ksu = new_ksu_for_KAS3(KAS3)
-	ksu = update_ksu_with_post_details(ksu, details)
-	if ksu['last_event']:
-		ksu['next_event'] = int(ksu['last_event']) + int(ksu['frequency'])
-	else:
-		ksu['next_event'] = today
-	update_set(KAS3,ksu)
-	theory.KAS3 = pack_set(KAS3)
-	return ksu
-
-
 def add_ksu_to_set(self, set_name):
 	theory = self.theory
 	post_details = get_post_details(self)
@@ -1019,24 +1040,27 @@ def add_ksu_to_set(self, set_name):
 	ksu = make_template(set_name, 'KSU')
 	ksu_id = create_id(ksu_set)
 	ksu['id'] = ksu_id
-	details = prepare_details_for_saving(post_details) # to check if safe
+	details = prepare_details_for_saving(post_details)
 	ksu = update_ksu_with_post_details(ksu, details)
 	update_set(ksu_set, ksu)
 	update_theory(theory, ksu_set)
 	return ksu
 
 
-def add_edited_ksu_to_set(self):
+
+def add_edited_ksu_to_set(self): 
 	theory = self.theory
 	post_details = get_post_details(self)
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
 	ksu_set = unpack_set(eval('theory.' + set_name))
 	ksu = ksu_set[ksu_id]
+	post_details = prepare_details_for_saving(post_details)
 	ksu = update_ksu_with_post_details(ksu, post_details)
 	update_set(ksu_set, ksu)
 	update_theory(theory, ksu_set)
 	return ksu
+
 
 
 def add_deleted_ksu_to_set(self):
@@ -1051,6 +1075,28 @@ def add_deleted_ksu_to_set(self):
 	update_set(ksu_set, ksu)
 	update_theory(theory, ksu_set)
 	return ksu
+
+
+
+
+def prepare_details_for_saving(post_details):
+	details = {}
+	checkboxes = ['is_critical', 'is_private', 'in_pipeline']
+	for (attribute, value) in post_details.items():
+		
+		if attribute in checkboxes:
+			details[attribute] = True
+		
+		elif attribute == 'last_event' or attribute == 'next_event':
+			details[attribute] = pack_date(value)
+
+		elif value and value!='' and value!='None':
+			details[attribute] = value
+	
+	return details
+
+
+
 
 
 
@@ -1076,7 +1122,7 @@ def user_Action_Effort_Done(self):
 	return
 
 
-def user_Action_Edit_ksu(self):
+def user_Action_Edit_ksu(self): #xx2
 	theory = self.theory
 	ksu = add_edited_ksu_to_set(self)
 	add_Edited_event(theory, ksu)
@@ -1100,11 +1146,13 @@ def user_Action_Delete_ksu(self):
 #--- Additional Actions Triggered by User Actions
 
 def trigger_additional_actions(self):
+	theory = self.theory
 	post_details = get_post_details(self)
 	action_type = post_details['action_description']
 	ksu_id = post_details['ksu_id']
 	ksu_type = get_type_from_id(ksu_id)
-	ksu_subtype = post_details['subtype']
+	ksu_set = unpack_set(eval('theory.' + ksu_type))
+	ksu_subtype = ksu_set[ksu_id]['subtype']
 
 	if action_type == 'Create':
 		if ksu_type == 'KAS3':
@@ -1329,6 +1377,7 @@ def update_ksu_with_csv_details(ksu, details):
 
 
 def csv_triggered_Action_create_KAS3_next_event(theory, ksu):
+	KAS3 = unpack_set(theory.KAS3)
 	if ksu['last_event'] and not ksu['next_event']:
 		ksu['next_event'] = int(ksu['last_event']) + int(ksu['frequency'])
 		if ksu['next_event'] < today:
@@ -1494,6 +1543,7 @@ app = webapp2.WSGIApplication([
                              ('/SetViewer/' + PAGE_RE, SetViewer),
 							 ('/NewKSU/' + PAGE_RE, NewKSU),
 							 ('/EditKSU', EditKSU),
+							 ('/Done', Done),
 							 ('/effort-report',EffortReport),
 							 ('/email',Email),
 							 ('/LoadCSV/' + PAGE_RE, LoadCSV),

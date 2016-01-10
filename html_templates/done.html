@@ -15,6 +15,8 @@
 <form class="form-horizontal" method="post">
 
 	<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+	<input type="text" class="form-control hidden" name="subtype" value="{{ksu['subtype']}}"> 
+
 
 
 
@@ -264,22 +266,14 @@
 	</div>
 
 
-	{% if title=='Create' %}
-	  	<div class="form-group">
-			<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Create">   Create   </button> </div>	
-			<div class="col-md-2"> <button type="submit" class="btn btn-danger btn-lg  respect-space" name="action_description" value="Discard">  Discard  </button> </div>
-		</div>
-	{% endif%}
+
+<div class="form-group">
+	<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Confirm">   Confirm   </button> </div>	
+	<div class="col-md-2"> <button type="submit" class="btn btn-danger btn-lg  respect-space" name="action_description" value="Discard">  Discard  </button> </div>
+</div>
 
 
-	{% if title=='Edit' %}
-	  	<div class="form-group">
-			<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Save">   Save Changes   </button> </div>	
-			<div class="col-md-2"> <button type="submit" class="btn btn-warning btn-lg  respect-space" name="action_description" value="Discard"> Discard Changes </button> </div>
-			<div class="col-md-2"><button type="submit" class="btn btn-danger btn-lg  respect-space" name="action_description" value="Delete">    Delete KSU     </button></div>
-		</div>
 
-	{% endif%}
 
 	
 
