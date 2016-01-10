@@ -406,7 +406,7 @@ class EditKSU(Handler):
 				self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name, title='Edit KSU', input_error=input_error)
 
 			else:
-				user_Action_Edit_ksu(self) #xx1
+				user_Action_Edit_ksu(self)
 
 		elif post_details['action_description'] == 'Delete':
 			user_Action_Delete_ksu(self)
@@ -870,10 +870,11 @@ i_KAS_Event = {'units':None, # EndValue, SmartEffort, and other tipes to be dete
 
 i_KAS1_Event = {'duration':None, # To calculate Amount of EndValue Points Earned
 			    'intensity':None, # To calculate Amount of EndValue Points Earned
-			    'people_to_thank':None} # Personas que fueron factor importantes en disfrutar de este momento  
+			    'people_to_thank':None,
+			    'comments':None} # Personas que fueron factor importantes en disfrutar de este momento  
 
 
-i_KAS3_Event = {'duration':None, # To calculate Amount of SmartEffort Points Earned
+i_KAS3_Event = {'duration':None, # To calculate Amount of SmartEffort Points Earned  #xx
 			    'importance':None} # To calculate Amount of SmartEffort Points Earned
 
 
@@ -1012,7 +1013,7 @@ def add_Deleted_event(theory, ksu):
 	return event
 
 
-def add_Effort_event(theory, post_details): #Duration & Importance to be updated from the post detail given that it could change
+def add_Effort_event(theory, post_details): #Duration & Importance to be updated from the post detail given that it could change #xx
 	Hist = unpack_set(theory.Hist)
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
@@ -1023,9 +1024,9 @@ def add_Effort_event(theory, post_details): #Duration & Importance to be updated
 	event['ksu_id'] = ksu_id
 	event['type'] = 'Done'
 	event['units'] = 'Effort'
-	event['duration'] = ksu['time_cost']
-	event['importance'] = ksu['importance']
-	event['value'] = int(ksu['time_cost'])*int(ksu['importance'])
+	event['duration'] = post_details['duration']
+	event['importance'] = post_details['importance']
+	event['value'] = int(post_details['duration'])*int(post_details['importance'])
 	update_set(Hist, event)
 	update_MLog(theory, event)
 	theory.Hist = pack_set(Hist)
@@ -1112,7 +1113,7 @@ def user_Action_Create_ksu(self, set_name):
 
 
 
-def user_Action_Effort_Done(self):
+def user_Action_Effort_Done(self): #xx
 	theory = self.theory
 	post_details = get_post_details(self)
 	update_ksu_next_event(theory, post_details)
@@ -1122,7 +1123,7 @@ def user_Action_Effort_Done(self):
 	return
 
 
-def user_Action_Edit_ksu(self): #xx2
+def user_Action_Edit_ksu(self):
 	theory = self.theory
 	ksu = add_edited_ksu_to_set(self)
 	add_Edited_event(theory, ksu)

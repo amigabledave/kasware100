@@ -25,19 +25,12 @@
 		
 	<form class="form-horizontal" method="post">
 
-		<div class="col-md-6">  {{ksu['description']}} </div>
-
-		
-		<div class="col-md-2"> 
-			<label> Comments
-				<input type="text" class="form-control" name="event_comments" placeholder=""> 
-			</label>
-			
-			<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
-			<input type="text" class="form-control hidden" name="subtype" value="{{ksu['subtype']}}"> 
-		</div>
+		<div class="col-md-8">  {{ksu['description']}} </div>
 
 		<div class="col-md-1">
+
+			<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+			<input type="text" class="form-control hidden" name="subtype" value="{{ksu['subtype']}}"> 
 			<input type="submit" class="btn btn-primary btn-lg btn-success" name="action_description" value="Done">
 		</div>
 		  		
