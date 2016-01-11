@@ -174,10 +174,10 @@ class Logout(Handler):
 
 
 
-#--- Mission Handler ---
+#--- Mission Handler --- 
 
 
-class Mission(Handler):
+class TodaysMission(Handler):
 
 	def get(self):
 		if user_bouncer(self):
@@ -196,13 +196,13 @@ class Mission(Handler):
 
 		self.print_html('todays-mission.html', mission=mission, message=message)
 
-	def post(self):
+	def post(self): #xx
 		if user_bouncer(self):
 			return
 		post_details = get_post_details(self)
 		if post_details['action_description'] == 'Done':
 			ksu_id = post_details['ksu_id']
-			self.redirect('/Done?ksu_id=' + ksu_id)
+			self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/TodaysMission')
 
 
 
@@ -260,7 +260,7 @@ def current_pipeline(self):
 
 
 
-#--- Set Viewer Handler ---
+#---Set Viewer Handler ---
 
 class SetViewer(Handler):
 	def get(self, set_name):
@@ -279,18 +279,17 @@ class SetViewer(Handler):
 		if user_bouncer(self):
 			return
 		post_details = get_post_details(self)
-		
+		ksu_id = post_details['ksu_id']
+		set_name = get_type_from_id(ksu_id)
+
 		if post_details['action_description'] == 'NewKSU':
-			set_name = post_details['set_name']
 			self.redirect('/NewKSU/' + set_name)
 		
-		elif post_details['action_description'] == 'EditKSU':
-			ksu_id = post_details['ksu_id']
+		elif post_details['action_description'] == 'EditKSU':			
 			self.redirect('/EditKSU?ksu_id=' + ksu_id)
 
-		elif post_details['action_description'] == 'Done': #xx
-			ksu_id = post_details['ksu_id']
-			self.redirect('/Done?ksu_id=' + ksu_id)
+		elif post_details['action_description'] == 'Done':
+			self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/SetViewer/' + set_name )
 
 
 
@@ -469,7 +468,8 @@ class Done(Handler): #xx
 		
 			else:
 				user_Action_Effort_Done(self)
-				self.redirect('/TodaysMission')
+				return_to = self.request.get('return_to')
+				self.redirect(return_to)
 
 
 
@@ -1538,9 +1538,9 @@ d_Viewer ={'KAS1':{'set_title':'End Value Base Portfolio  (KAS1)',
 
 			'KAS3':{'set_title':'Resource Generation Base Portfolio  (KAS3)',
 				    'set_name':'KAS3',
-				    'attributes':['description','frequency','importance','time_cost','next_event'],
-				    'fields':{'description':'Description','frequency':'Frequency','importance':'Rel. Imp.','time_cost':'Time C.','next_event':'Next Event'},
-				    'columns':{'description':5,'frequency':1,'importance':1,'time_cost':1,'next_event':2}},
+				    'attributes':['description','frequency','importance','next_event'],
+				    'fields':{'description':'Description','frequency':'Frequency','importance':'Rel. Imp.', 'next_event':'Next Event'},
+				    'columns':{'description':5,'frequency':1,'importance':1,'next_event':2}},
 		   
 		   'ImPe': {'set_title':'My Important People',
 		   			'set_name':'ImPe',
@@ -1570,7 +1570,7 @@ app = webapp2.WSGIApplication([
 							 ('/signup', Signup),
 							 ('/login', Login),
                              ('/logout', Logout),
-                             ('/TodaysMission', Mission),
+                             ('/TodaysMission', TodaysMission),
                              ('/Pipeline', Pipeline),
                              ('/SetViewer/' + PAGE_RE, SetViewer),
 							 ('/NewKSU/' + PAGE_RE, NewKSU),

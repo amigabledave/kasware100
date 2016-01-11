@@ -17,25 +17,48 @@
 
 {% endif %}
 
+
+<!-- 	<div class="row">
+		
+		<div class="col-md-5"> <div class="field-header"> Action Description </div> </div>
+
+		<div class="col-md-3"> <div class="field-header"> Comments </div> </div>
+
+	</div> -->
+
+
+
 {% for ksu in mission %}
 
 	<hr>
 
 	<div class="row">
-		
-	<form class="form-horizontal" method="post">
 
-		<div class="col-md-8">  {{ksu['description']}} </div>
 
 		<div class="col-md-1">
+			<form class="form-horizontal" method="post">
+				<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}"> 
+			  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="EditKSU"> Edit </button>
+			</form>	
+		</div>
+
+		
+		<form class="form-horizontal" method="post">
 
 			<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
-			<input type="text" class="form-control hidden" name="subtype" value="{{ksu['subtype']}}">
-			<input type="text" class="form-control hidden" name="return_address" value="{{'/TodaysMission'}}"> 
-			<input type="submit" class="btn btn-primary btn-lg btn-success" name="action_description" value="Done">
-		</div>
-		  		
-	</form>	
+
+			<div class="col-md-6">  {{ksu['description']}} {% if ksu['comments'] %} <em> -- {{ksu['comments']}} </em> {% endif %}</div>
+
+			<div class="col-md-1">
+				<input type="submit" class="btn btn-md btn-success" name="action_description" value="Done">
+			</div>
+			  		
+			<div class="col-md-1">
+				<input type="submit" class="btn btn-primary btn-md" name="action_description" value="Push">
+			</div>	
+
+
+		</form>	
 	</div>	
 	
 
