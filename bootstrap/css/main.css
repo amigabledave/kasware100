@@ -142,6 +142,10 @@
 
 
 
+/*Alignment*/
 
+.pull-left {
+  float: left;
+}
 
 

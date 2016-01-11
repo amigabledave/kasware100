@@ -279,12 +279,20 @@ class SetViewer(Handler):
 		if user_bouncer(self):
 			return
 		post_details = get_post_details(self)
+		
 		if post_details['action_description'] == 'NewKSU':
 			set_name = post_details['set_name']
 			self.redirect('/NewKSU/' + set_name)
+		
 		elif post_details['action_description'] == 'EditKSU':
 			ksu_id = post_details['ksu_id']
 			self.redirect('/EditKSU?ksu_id=' + ksu_id)
+
+		elif post_details['action_description'] == 'Done': #xx
+			ksu_id = post_details['ksu_id']
+			self.redirect('/Done?ksu_id=' + ksu_id)
+
+
 
 
 
@@ -437,7 +445,7 @@ class Done(Handler): #xx
 		set_name = get_type_from_id(ksu_id)
 		ksu_set = unpack_set(eval('theory.' + set_name))
 		ksu_set = not_ugly_dates(ksu_set)
-		ksu = ksu_set[ksu_id]		
+		ksu = ksu_set[ksu_id]	
 		self.print_html('done.html', constants=constants, ksu=ksu, set_name=set_name)
 
 	def post(self):
@@ -1530,9 +1538,9 @@ d_Viewer ={'KAS1':{'set_title':'End Value Base Portfolio  (KAS1)',
 
 			'KAS3':{'set_title':'Resource Generation Base Portfolio  (KAS3)',
 				    'set_name':'KAS3',
-				    'attributes':['description','frequency','importance','time_cost','next_event','comments'],
-				    'fields':{'description':'Description','frequency':'Frequency','importance':'Rel. Imp.','time_cost':'Time C.','next_event':'Next Event','comments':'Comments'},
-				    'columns':{'description':4,'frequency':1,'importance':1,'time_cost':1,'next_event':2,'comments':2}},
+				    'attributes':['description','frequency','importance','time_cost','next_event'],
+				    'fields':{'description':'Description','frequency':'Frequency','importance':'Rel. Imp.','time_cost':'Time C.','next_event':'Next Event'},
+				    'columns':{'description':5,'frequency':1,'importance':1,'time_cost':1,'next_event':2}},
 		   
 		   'ImPe': {'set_title':'My Important People',
 		   			'set_name':'ImPe',

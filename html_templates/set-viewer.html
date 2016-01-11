@@ -53,6 +53,16 @@
 		{% endfor %}	
 
 
+		<div class="col-md-1">
+			<form class="form-horizontal" method="post">
+				<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+				<input type="text" class="form-control hidden" name="return_address" value="{{'SetViever/' + viewer_details['set_name']}}"> 
+			  	<button type="submit" class="btn btn-success btn-md" name="action_description" value="Done"> Done </button>
+			</form>	
+		</div>
+
+
+
 	
 	</div>
 	<hr>
