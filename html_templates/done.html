@@ -98,7 +98,7 @@
 
 	 	<div class="col-md-2">
 	 		<div class="checkbox"> 
-	 			<label> <input type="checkbox" name="disconfort"> <b> Pushed me out of my confor zone </b> </label> 
+	 			<label> <input type="checkbox" name="disconfort"> <b> Pushed my self out of my confort zone ;) </b> </label> 
 	 		</div>
 		</div>
 
@@ -123,6 +123,18 @@
 
 
 </form>
+
+
+
+{% if input_error %}
+	<div class="row">
+		<div class="col-md-4"></div>
+		<div class="col-md-4 error"> {{input_error}}</div>
+		<div class="col-md-4"></div>	
+	</div>
+{% endif %}
+
+
 
 
 {% endblock %}

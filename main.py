@@ -223,6 +223,8 @@ def todays_mission(self):
 	return result
 
 
+
+
 #---Pipeline Viewer Handler ---
 
 class Pipeline(Handler):
@@ -389,6 +391,7 @@ class EditKSU(Handler):
 	def post(self):
 		if user_bouncer(self):
 			return
+		theory = self.theory			
 		post_details = get_post_details(self)
 		set_name = get_type_from_id(post_details['ksu_id'])
 
@@ -435,18 +438,30 @@ class Done(Handler): #xx
 		ksu_set = unpack_set(eval('theory.' + set_name))
 		ksu_set = not_ugly_dates(ksu_set)
 		ksu = ksu_set[ksu_id]		
-		self.print_html('done.html', constants=constants, ksu=ksu, set_name=set_name, title='Edit')
+		self.print_html('done.html', constants=constants, ksu=ksu, set_name=set_name)
 
 	def post(self):
 		if user_bouncer(self):
 			return
+		theory = self.theory			
 		post_details = get_post_details(self)
 		set_name = get_type_from_id(post_details['ksu_id'])
+		
 		if post_details['action_description'] == 'Confirm':
-			user_Action_Effort_Done(self)
-		self.redirect('/TodaysMission')
+			input_error = user_input_error(post_details)
 
-
+			if input_error:
+				ksu_id = post_details['ksu_id']
+				set_name = get_type_from_id(ksu_id)
+				ksu_set = unpack_set(eval('theory.' + set_name))
+				ksu_set = not_ugly_dates(ksu_set)
+				ksu = ksu_set[ksu_id]
+				ksu['time_cost'] = post_details['duration']
+				self.print_html('done.html', constants=constants, ksu=ksu, set_name=set_name, input_error=input_error)
+		
+			else:
+				user_Action_Effort_Done(self)
+				self.redirect('/TodaysMission')
 
 
 
@@ -618,101 +633,7 @@ def get_type_from_id(ksu_id):
 
 
 
-def user_input_error(post_details): ##aqui estabamos
-	for (attribute, value) in post_details.items():
-		user_error = input_error(attribute, value)
-		if user_error:
-			return user_error
-	return None
 
-
-def input_error(target_attribute, user_input):
-
-	if target_attribute not in validation_attributes:
-		return None
-	error_key = target_attribute + '_error' 
-		
-	if target_attribute == 'last_event' or target_attribute == 'next_event':
-		if valid_date(user_input):
-			return None
-		else:
-			return d_RE[error_key]
-
-	if d_RE[target_attribute].match(user_input):
-		return None
-	else:
-		return d_RE[error_key]
-
-
-
-def valid_date(date_string):
-    try:
-        pack_date(date_string)
-        return True
-    except ValueError:
-        return False
-
-
-
-
-
-
-
-
-
-
-
-def prepare_csv_details_for_saving(post_details):
-	details = {}
-	checkboxes = ['is_critical', 'is_private']
-	for (attribute, value) in post_details.items():
-		if attribute in checkboxes:
-			details[attribute] = True
-		elif attribute == 'last_event':
-			if valid_csv_date(value):
-				details[attribute] = value
-		elif value and value!='' and value!='None':
-			details[attribute] = value
-	return details
-
-
-
-def valid_csv_date(dateordinal):
-    try:
-        datetime.fromordinal(int(dateordinal))
-        return True
-    except ValueError:
-        return False
-
-
-
-
-
-#--- user input validation RE ---
-
-
-d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
-		'username_error': 'Invalid Username Syntax',
-		
-		'password': re.compile(r"^.{3,20}$"),
-		'password_error': 'Invalid Password Syntax',
-		
-		'email': re.compile(r'^[\S]+@[\S]+\.[\S]+$'),
-		'email_error': 'Invalid Email Syntax',
-
-		'description': re.compile(r"^.{5,100}$"),
-		'description_error': 'Descriotion max lenght is 100 characters and min 5.',
-
-		'frequency': re.compile(r"^[0-9]{1,3}$"),
-		'frequency_error': 'Frequency should be an integer with maximum 3 digits',
-
-		'last_event_error':'Last event format must be DD-MM-YYYY',
-
-		'comments': re.compile(r"^.{0,200}$"),
-		'comments_error': 'Comments cannot excede 200 characters'}
-
-
-validation_attributes = ['username', 'password', 'description', 'frequency', 'last_event', 'next_event', 'comments']
 
 
 
@@ -876,7 +797,7 @@ i_KAS1_Event = {'duration':None, # To calculate Amount of EndValue Points Earned
 			    'comments':None} # Personas que fueron factor importantes en disfrutar de este momento  
 
 
-i_KAS3_Event = {'duration':None, # To calculate Amount of SmartEffort Points Earned  #xx
+i_KAS3_Event = {'duration':None, # To calculate Amount of SmartEffort Points Earned
 			    'importance':None, # To calculate Amount of SmartEffort Points Earned
 			    'joy':False,
 			    'disconfort':False}
@@ -1017,7 +938,7 @@ def add_Deleted_event(theory, ksu):
 	return event
 
 
-def add_Effort_event(theory, post_details): #Duration & Importance to be updated from the post detail given that it could change #xx
+def add_Effort_event(theory, post_details): #Duration & Importance to be updated from the post detail given that it could change
 	Hist = unpack_set(theory.Hist)
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
@@ -1120,7 +1041,7 @@ def user_Action_Create_ksu(self, set_name):
 
 
 
-def user_Action_Effort_Done(self): #xx
+def user_Action_Effort_Done(self):
 	theory = self.theory
 	post_details = get_post_details(self)
 	update_ksu_next_event(theory, post_details)
@@ -1429,8 +1350,38 @@ def csv_triggered_Action_create_ImPe_Contact(theory, person):
 
 
 
+#--- CSV Helper Functions
 
-#--- Security Functions ---
+
+
+def prepare_csv_details_for_saving(post_details):
+	details = {}
+	checkboxes = ['is_critical', 'is_private']
+	for (attribute, value) in post_details.items():
+		if attribute in checkboxes:
+			details[attribute] = True
+		elif attribute == 'last_event':
+			if valid_csv_date(value):
+				details[attribute] = value
+		elif value and value!='' and value!='None':
+			details[attribute] = value
+	return details
+
+
+
+def valid_csv_date(dateordinal):
+    try:
+        datetime.fromordinal(int(dateordinal))
+        return True
+    except ValueError:
+        return False
+
+
+
+
+
+
+#--- Validation and Security Functions ---
 
 def valid_username(username):
     return username and USER_RE.match(username)
@@ -1461,6 +1412,71 @@ def make_password_hash(username, password, salt = None):
 def validate_password(username, password, h):
 	salt = h.split('|')[1]
 	return h == make_password_hash(username, password, salt)
+
+
+
+def valid_date(date_string):
+    try:
+        pack_date(date_string)
+        return True
+    except ValueError:
+        return False
+
+
+
+def user_input_error(post_details): ##aqui estabamos
+	for (attribute, value) in post_details.items():
+		user_error = input_error(attribute, value)
+		if user_error:
+			return user_error
+	return None
+
+
+
+def input_error(target_attribute, user_input): #xx
+	
+	validation_attributes = ['username', 'password', 'description', 'frequency', 'duration', 'last_event', 'next_event', 'comments']
+
+	if target_attribute not in validation_attributes:
+		return None
+	error_key = target_attribute + '_error' 
+		
+	if target_attribute == 'last_event' or target_attribute == 'next_event':
+		if valid_date(user_input):
+			return None
+		else:
+			return d_RE[error_key]
+
+	if d_RE[target_attribute].match(user_input):
+		return None
+	else:
+		return d_RE[error_key]
+
+
+
+d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
+		'username_error': 'Invalid Username Syntax',
+		
+		'password': re.compile(r"^.{3,20}$"),
+		'password_error': 'Invalid Password Syntax',
+		
+		'email': re.compile(r'^[\S]+@[\S]+\.[\S]+$'),
+		'email_error': 'Invalid Email Syntax',
+
+		'description': re.compile(r"^.{5,100}$"),
+		'description_error': 'Descriotion max lenght is 100 characters and min 5.',
+
+		'frequency': re.compile(r"^[0-9]{1,3}$"),
+		'frequency_error': 'Frequency should be an integer with maximum 3 digits',
+
+		'duration': re.compile(r"^[0-9]{1,3}$"),
+		'duration_error': 'Duration should be an integer with maximum 3 digits',
+
+		'last_event_error':'Last event format must be DD-MM-YYYY',
+
+		'comments': re.compile(r"^.{0,200}$"),
+		'comments_error': 'Comments cannot excede 200 characters'}
+
 
 
 
