@@ -845,6 +845,8 @@ i_Wish_KSU = {'nature': None, # End Value or Resoruce -- Names to be improved
 
 i_ImPe_KSU = {'contact_ksu_id':None,
 			  'contact_frequency':"30",
+			  'kasware_username':None,
+			  'relation_type':None,
 			  'last_contact':None,
 			  'next_contact':None,
 			  'important_since':today,
@@ -875,7 +877,9 @@ i_KAS1_Event = {'duration':None, # To calculate Amount of EndValue Points Earned
 
 
 i_KAS3_Event = {'duration':None, # To calculate Amount of SmartEffort Points Earned  #xx
-			    'importance':None} # To calculate Amount of SmartEffort Points Earned
+			    'importance':None, # To calculate Amount of SmartEffort Points Earned
+			    'joy':False,
+			    'disconfort':False}
 
 
 
@@ -1018,15 +1022,18 @@ def add_Effort_event(theory, post_details): #Duration & Importance to be updated
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
 	event = new_event(Hist, set_name)
-	set_name = get_type_from_id(ksu_id) 
-	ksu_set = unpack_set(eval('theory.' + set_name))
-	ksu = ksu_set[ksu_id]
+
 	event['ksu_id'] = ksu_id
 	event['type'] = 'Done'
 	event['units'] = 'Effort'
 	event['duration'] = post_details['duration']
 	event['importance'] = post_details['importance']
-	event['value'] = int(post_details['duration'])*int(post_details['importance'])
+	if 'joy' in post_details:
+		event['joy'] = True
+	if 'disconfort' in post_details:
+		event['disconfort'] = True
+	event['value'] = int(post_details['duration'])*(int(post_details['importance']) + event['joy'] + event['disconfort'])
+
 	update_set(Hist, event)
 	update_MLog(theory, event)
 	theory.Hist = pack_set(Hist)
