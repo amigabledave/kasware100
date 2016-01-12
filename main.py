@@ -210,7 +210,7 @@ class TodaysMission(Handler):
 			self.redirect('/EditKSU?ksu_id=' + ksu_id + '&return_to=/TodaysMission')
 
 		elif user_action == 'Push':
-			user_Action_Push_Action(self)
+			user_Action_Push(self)
 			self.redirect('/TodaysMission')
 
 
@@ -293,15 +293,20 @@ class SetViewer(Handler):
 		post_details = get_post_details(self)
 		ksu_id = post_details['ksu_id']
 		set_name = get_type_from_id(ksu_id)
+		user_action = post_details['action_description']
 
-		if post_details['action_description'] == 'NewKSU':
+		if user_action == 'NewKSU':
 			self.redirect('/NewKSU/' + set_name)
 		
-		elif post_details['action_description'] == 'EditKSU':			
+		elif user_action == 'EditKSU':			
 			self.redirect('/EditKSU?ksu_id=' + ksu_id + '&return_to=/SetViewer/' + set_name)
 
-		elif post_details['action_description'] == 'Done':
+		elif user_action == 'Done':
 			self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/SetViewer/' + set_name)
+
+		elif user_action == 'Add_To_Mission':
+			user_Action_Add_To_Mission(self)
+			self.redirect('/SetViewer/' + set_name)
 
 
 
@@ -667,7 +672,7 @@ def update_ksu_with_post_details(ksu, details):
 
 
 
-def update_ksu_next_event(theory, post_details): #xx
+def update_ksu_next_event(theory, post_details):
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
 	valid_sets = ['KAS1', 'KAS3']	
@@ -686,6 +691,32 @@ def update_ksu_next_event(theory, post_details): #xx
 
 	update_theory(theory, ksu_set)	
 	return
+
+
+
+
+def update_ksu_in_mission(theory, post_details): #xx
+	ksu_id = post_details['ksu_id']
+	set_name = get_type_from_id(ksu_id)
+	valid_sets = ['KAS1', 'KAS3']	
+	if set_name not in valid_sets:
+		return
+
+	ksu_set = unpack_set(eval('theory.' + set_name))
+	ksu = ksu_set[ksu_id]	
+	user_action = post_details['action_description']
+
+	if user_action == 'Add_To_Mission':
+		ksu['in_mission'] = True
+
+	elif user_action == 'Push':
+		ksu['in_mission'] = False		
+
+	update_theory(theory, ksu_set)	
+	return
+
+
+
 
 
 
@@ -1097,16 +1128,27 @@ def user_Action_Effort_Done(self):
 	theory = self.theory
 	post_details = get_post_details(self)
 	update_ksu_next_event(theory, post_details)
+	update_ksu_in_mission(theory, post_details)
 	add_Effort_event(theory, post_details)
 	trigger_additional_actions(self)
 	theory.put()
 	return
 
 
-def user_Action_Push_Action(self): #xx Consider if I should add a Push Event into MLog
+def user_Action_Push(self): #xx Consider if I should add a Push Event into MLog
 	theory = self.theory
 	post_details = get_post_details(self)
 	update_ksu_next_event(theory, post_details)
+	update_ksu_in_mission(theory, post_details)
+	trigger_additional_actions(self)
+	theory.put()
+	return
+
+
+def user_Action_Add_To_Mission(self):
+	theory = self.theory
+	post_details = get_post_details(self)
+	update_ksu_in_mission(theory, post_details)
 	trigger_additional_actions(self)
 	theory.put()
 	return
