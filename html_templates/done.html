@@ -34,7 +34,7 @@
 
 		<div class="col-md-2"> 
 			<label> Intensity </label> 
-			<select class="form-control" name="importance"> 
+			<select class="form-control" name="intensity"> 
 				{% for i in constants['l_Fibonacci'] %}
 					{% if i == ksu['importance'] %}
 						<option selected="selected">{{i}}</option>
@@ -46,6 +46,14 @@
 			</select>
 		</div>
 
+
+		<div class="col-md-3">
+			<label> People to thank for this moment </label>
+			<input type="text" class="form-control" name="thanks" placeholder="Optional" value="{% if ksu['related_people']%}{{ksu['related_people']}}{% endif %}">
+		</div>
+
+
+	</div>
 
 	<div class="form-group">
 		<div class="col-md-8">

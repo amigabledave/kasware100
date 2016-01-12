@@ -69,8 +69,13 @@ class Handler(webapp2.RequestHandler):
 		t = jinja_env.get_template(template)
 		if self.theory:
 			theory = self.theory
-			todays_effort = unpack_set(theory.MLog)[today]['Effort']
-			return t.render(theory=theory, todays_effort=todays_effort, **kw)
+			MLog = unpack_set(theory.MLog)
+			todays_log = MLog[today]
+			EndValue = todays_log['EndValue'] 
+			SmartEffort = todays_log['SmartEffort']
+			DumbBehaviour = todays_log['DumbBehaviour']
+			PointlessPain = todays_log['PointlessPain']
+			return t.render(theory=theory, EndValue=EndValue, SmartEffort=SmartEffort, DumbBehaviour=DumbBehaviour, PointlessPain=PointlessPain, **kw)		
 		else:
 			return t.render(**kw)
 
@@ -184,7 +189,7 @@ class TodaysMission(Handler):
 			return
 		mission = todays_mission(self)
 		theory = self.theory
-		todays_effort = unpack_set(theory.MLog)[today]['Effort']
+		todays_effort = unpack_set(theory.MLog)[today]['SmartEffort']
 		
 		if len(mission) > 0:
 			message = None
@@ -196,7 +201,7 @@ class TodaysMission(Handler):
 
 		self.print_html('todays-mission.html', mission=mission, message=message)
 
-	def post(self): #xx
+	def post(self):
 		if user_bouncer(self):
 			return
 		post_details = get_post_details(self)
@@ -468,9 +473,11 @@ class Done(Handler):
 	def post(self):
 		if user_bouncer(self):
 			return
-		theory = self.theory			
+		theory = self.theory	
 		post_details = get_post_details(self)
 		set_name = get_type_from_id(post_details['ksu_id'])
+		EndValue_sets = ['KAS1']
+		SmartEffort_sets = ['KAS3']
 		
 		if post_details['action_description'] == 'Confirm':
 			input_error = user_input_error(post_details)
@@ -485,7 +492,12 @@ class Done(Handler):
 				self.print_html('done.html', constants=constants, ksu=ksu, set_name=set_name, input_error=input_error)
 		
 			else:
-				user_Action_Effort_Done(self)
+				if set_name in EndValue_sets:
+					user_Action_Done_EndValue(self)
+				
+				if set_name in SmartEffort_sets:	
+					user_Action_Done_SmartEffort(self)
+				
 				return_to = self.request.get('return_to')
 				self.redirect(return_to)
 
@@ -695,7 +707,7 @@ def update_ksu_next_event(theory, post_details):
 
 
 
-def update_ksu_in_mission(theory, post_details): #xx
+def update_ksu_in_mission(theory, post_details):
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
 	valid_sets = ['KAS1', 'KAS3']	
@@ -856,7 +868,7 @@ i_KAS_Event = {'units':None, # EndValue, SmartEffort, and other tipes to be dete
 
 i_KAS1_Event = {'duration':None, # To calculate Amount of EndValue Points Earned
 			    'intensity':None, # To calculate Amount of EndValue Points Earned
-			    'people_to_thank':None,
+			    'thanks':None,
 			    'comments':None} # Personas que fueron factor importantes en disfrutar de este momento  
 
 
@@ -918,10 +930,10 @@ def new_set_Hist():
 
 
 
-def new_set_MLog(start_date=(735964-31), end_date=(735964+366)): #start_date = Dec 1, 2015 |  end_date = Dec 31, 2016  
+def new_set_MLog(start_date=(735964), end_date=(735964+366)): #start_date = Jan 1, 2016 |  end_date = Dec 31, 2016  
 	result = {}
 	for date in range(start_date, end_date):
-		entry = {'Effort':0,'EndValue':0}
+		entry = {'EndValue':0,'SmartEffort':0, 'DumbBehaviour':0, 'PointlessPain':0}
 		entry['date'] = datetime.fromordinal(date).strftime('%d-%m-%Y')
 		result[date] = entry
 	return pack_set(result)
@@ -1001,7 +1013,7 @@ def add_Deleted_event(theory, ksu):
 	return event
 
 
-def add_Effort_event(theory, post_details): #Duration & Importance to be updated from the post detail given that it could change
+def add_SmartEffort_event(theory, post_details): #Duration & Importance to be updated from the post detail given that it could change
 	Hist = unpack_set(theory.Hist)
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
@@ -1009,7 +1021,7 @@ def add_Effort_event(theory, post_details): #Duration & Importance to be updated
 
 	event['ksu_id'] = ksu_id
 	event['type'] = 'Done'
-	event['units'] = 'Effort'
+	event['units'] = 'SmartEffort'
 	event['duration'] = post_details['duration']
 	event['importance'] = post_details['importance']
 	if 'joy' in post_details:
@@ -1022,6 +1034,37 @@ def add_Effort_event(theory, post_details): #Duration & Importance to be updated
 	update_MLog(theory, event)
 	theory.Hist = pack_set(Hist)
 	return event
+
+
+def add_EndValue_event(theory, post_details): #Duration & Importance to be updated from the post detail given that it could change
+	Hist = unpack_set(theory.Hist)
+	ksu_id = post_details['ksu_id']
+	set_name = get_type_from_id(ksu_id)
+	event = new_event(Hist, set_name)
+
+	event['ksu_id'] = ksu_id
+	event['type'] = 'Done'
+	event['units'] = 'EndValue'
+	event['duration'] = post_details['duration']
+	event['intensity'] = post_details['intensity']
+	
+	if 'thanks' in post_details:
+		event['thanks'] = post_details['thanks']
+	if 'comments' in post_details:
+		event['comments'] = post_details['comments']
+
+	event['value'] = int(post_details['duration'])*int(post_details['intensity'])
+
+	update_set(Hist, event)
+	update_MLog(theory, event)
+	theory.Hist = pack_set(Hist)
+	return event
+
+
+
+
+
+
 
 
 
@@ -1124,18 +1167,32 @@ def user_Action_Delete_ksu(self):
 
 
 
-def user_Action_Effort_Done(self):
+def user_Action_Done_SmartEffort(self):
 	theory = self.theory
 	post_details = get_post_details(self)
 	update_ksu_next_event(theory, post_details)
 	update_ksu_in_mission(theory, post_details)
-	add_Effort_event(theory, post_details)
+	add_SmartEffort_event(theory, post_details)
 	trigger_additional_actions(self)
 	theory.put()
 	return
 
 
-def user_Action_Push(self): #xx Consider if I should add a Push Event into MLog
+
+def user_Action_Done_EndValue(self):
+	theory = self.theory
+	post_details = get_post_details(self)
+	update_ksu_next_event(theory, post_details)
+	update_ksu_in_mission(theory, post_details)
+	add_EndValue_event(theory, post_details)
+	trigger_additional_actions(self)
+	theory.put()
+	return
+
+
+
+
+def user_Action_Push(self):
 	theory = self.theory
 	post_details = get_post_details(self)
 	update_ksu_next_event(theory, post_details)
@@ -1170,19 +1227,21 @@ def trigger_additional_actions(self):
 	ksu_subtype = ksu_set[ksu_id]['subtype']
 
 	if action_type == 'Create':
+		
 		if ksu_type == 'KAS3':
 			triggered_Action_create_KAS3_next_event(self)
-	
-	if action_type == 'Create':
-		if ksu_type == 'ImPe':
-			triggered_Action_create_ImPe_Contact(self)
+		
+		elif ksu_type == 'ImPe':
+				triggered_Action_create_ImPe_Contact(self)		
 
 	if action_type == 'Done':
+		
 		if ksu_subtype == 'ImPe_Contact':
 			triggered_Action_Done_ImPe_Contact(self)
 
 
 	if action_type == 'Delete':
+		
 		if ksu_type == 'ImPe':
 			triggered_Action_delete_ImPe_Contact(self)
 
