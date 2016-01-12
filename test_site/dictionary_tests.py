@@ -50,7 +50,7 @@ d_Elements = {'E100': '1. Inner Peace & Consciousness',
 
 # print d_Elements
 
-
+#
 
 i_BASE_KSU = {'id': None,
 		      'parent_id': None,
@@ -109,11 +109,19 @@ def make_ksu_template(set_name):
 	return template
 
 
-print make_ksu_template('KAS1')
+# print make_ksu_template('KAS1')
 
 
 
+# ---- Sorting ---
 
+student_tuples = [
+        ('john', 'A', 15),
+        ('jane', 'B', 12),
+        ('dave', 'B', 10)]
+
+from operator import itemgetter
+print sorted(student_tuples, key=itemgetter(2), reverse=True)
 
 
 

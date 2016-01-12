@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from google.appengine.ext import db
 from google.appengine.api import memcache
 from google.appengine.api import mail
+from operator import itemgetter
 
 
 template_dir = os.path.join(os.path.dirname(__file__), 'html_templates')
@@ -242,6 +243,8 @@ def todays_mission(self):
 
 
 
+
+
 #---Pipeline Viewer Handler ---
 
 class Pipeline(Handler):
@@ -288,7 +291,7 @@ class SetViewer(Handler):
 		set_details = ksu_set['set_details']
 		ksu_set = pretty_dates(ksu_set)
 		ksu_set = hide_invisible(ksu_set)
-		ksu_set = list(ksu_set.values())
+		ksu_set = make_ordered_ksu_set_list(ksu_set)
 		viewer_details = d_Viewer[set_name]
 		self.print_html('set-viewer.html', viewer_details=viewer_details, ksu_set=ksu_set)
 
@@ -296,22 +299,24 @@ class SetViewer(Handler):
 		if user_bouncer(self):
 			return
 		post_details = get_post_details(self)
-		ksu_id = post_details['ksu_id']
-		set_name = get_type_from_id(ksu_id)
-		user_action = post_details['action_description']
-
+		user_action = post_details['action_description']	
+		
 		if user_action == 'NewKSU':
 			self.redirect('/NewKSU/' + set_name)
-		
-		elif user_action == 'EditKSU':			
-			self.redirect('/EditKSU?ksu_id=' + ksu_id + '&return_to=/SetViewer/' + set_name)
 
-		elif user_action == 'Done':
-			self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/SetViewer/' + set_name)
+		else:
+			ksu_id = post_details['ksu_id']
+			set_name = get_type_from_id(ksu_id)
+				
+			if user_action == 'EditKSU':			
+				self.redirect('/EditKSU?ksu_id=' + ksu_id + '&return_to=/SetViewer/' + set_name)
 
-		elif user_action == 'Add_To_Mission':
-			user_Action_Add_To_Mission(self)
-			self.redirect('/SetViewer/' + set_name)
+			elif user_action == 'Done':
+				self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/SetViewer/' + set_name)
+
+			elif user_action == 'Add_To_Mission':
+				user_Action_Add_To_Mission(self)
+				self.redirect('/SetViewer/' + set_name)
 
 
 
@@ -340,6 +345,38 @@ def pretty_dates(ksu_set):
 					ksu[date_attribute] = pretty_date
 	return ksu_set
 	
+
+
+def make_ordered_ksu_set_list(ksu_set): #xx
+	set_name = get_type_from_id(ksu_set.keys()[0])
+	result = []
+	set_order = []
+	d_view_order_details = {'KAS1':{'attribute':'next_event', 'reverse':True},
+							'KAS3':{'attribute':'next_event', 'reverse':False},
+							'ImPe':{'attribute':'contact_frequency', 'reverse':False}}
+
+	attribute = d_view_order_details[set_name]['attribute'] 
+	reverse = d_view_order_details[set_name]['reverse']
+
+	number_attributes = ['last_event', 'next_event', 'contact_frequency']
+
+	if attribute in number_attributes:	
+		for (key, ksu) in ksu_set.items():
+			set_order.append((ksu['id'],int(ksu[attribute])))
+		set_order = sorted(set_order, key=itemgetter(1), reverse=reverse)	
+	else:
+		for (key, ksu) in ksu_set.items():
+			set_order.append((ksu['id'],ksu[attribute]))
+		set_order = sorted(set_order, key=itemgetter(1), reverse=reverse)		
+
+	for e in set_order:
+		ksu_id = e[0]
+		result.append(ksu_set[ksu_id])
+
+	return result
+
+
+
 
 
 def pack_date(date_string):
