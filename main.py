@@ -1671,19 +1671,25 @@ d_Viewer ={'KAS1':{'set_title':'End Value Base Portfolio  (KAS1)',
 				   'set_name':'KAS1',
 				   'attributes':['description','last_event','local_tags'],
 				   'fields':{'description':'Description','last_event':'Last Event','local_tags':'Local Tags'},
-				   'columns':{'description':5,'last_event':2,'local_tags':2}},
+				   'columns':{'description':5,'last_event':2,'local_tags':2},
+				   'show_Button_Done':True,
+				   'show_Button_Add_To_Mission':True},
 
 			'KAS3':{'set_title':'Resource Generation Base Portfolio  (KAS3)',
 				    'set_name':'KAS3',
 				    'attributes':['description','frequency','importance','next_event'],
 				    'fields':{'description':'Description','frequency':'Frequency','importance':'Rel. Imp.', 'next_event':'Next Event'},
-				    'columns':{'description':5,'frequency':1,'importance':1,'next_event':2}},
+				    'columns':{'description':5,'frequency':1,'importance':1,'next_event':2},
+				    'show_Button_Done':True,
+				   'show_Button_Add_To_Mission':True},
 		   
 		   'ImPe': {'set_title':'My Important People',
 		   			'set_name':'ImPe',
 					'attributes':['description', 'contact_frequency', 'last_contact', 'next_contact', 'comments'],
 				    'fields':{'description':'Name', 'contact_frequency':'C. Freq.', 'last_contact':'Last Contact', 'next_contact':'Next Contact', 'comments':'Comments'},
-				    'columns':{'description':3, 'contact_frequency':1, 'last_contact':2, 'next_contact':2, 'comments':3}}}
+				    'columns':{'description':3, 'contact_frequency':1, 'last_contact':2, 'next_contact':2, 'comments':3},
+				    'show_Button_Done':False,
+				    'show_Button_Add_To_Mission':False}}
 
 
 secret = 'elzecreto'
