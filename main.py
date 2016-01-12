@@ -508,7 +508,8 @@ class Done(Handler):
 		ksu_set = unpack_set(eval('theory.' + set_name))
 		ksu_set = not_ugly_dates(ksu_set)
 		ksu = ksu_set[ksu_id]	
-		self.print_html('done.html', constants=constants, ksu=ksu, set_name=set_name)
+		dropdowns = make_dropdowns(theory)
+		self.print_html('done.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name)
 
 	def post(self):
 		if user_bouncer(self):
@@ -529,7 +530,8 @@ class Done(Handler):
 				ksu_set = not_ugly_dates(ksu_set)
 				ksu = ksu_set[ksu_id]
 				ksu['time_cost'] = post_details['duration']
-				self.print_html('done.html', constants=constants, ksu=ksu, set_name=set_name, input_error=input_error)
+				dropdowns = make_dropdowns(theory)
+				self.print_html('done.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name, input_error=input_error)
 		
 			else:
 				if set_name in EndValue_sets:
@@ -544,14 +546,18 @@ class Done(Handler):
 
 
 def make_ordered_dropdown_tuples_list_of_ImPe(ImPe): #xx Aqui nos quedamos
-	result = []
+	result = [(None,'No one')]
 	ImPe = hide_invisible(ImPe)
-	ordered_ImPe_list = make_ordered_ksu_set_list_for_SetViewer(Impe)
+	ordered_ImPe_list = make_ordered_ksu_set_list_for_SetViewer(ImPe)
 	for ksu in ordered_ImPe_list:
 		result.append((ksu['id'],ksu['description']))	
 	return result
 
 
+def make_dropdowns(theory):
+	ImPe = unpack_set(theory.ImPe)
+	dropdowns = {'People': make_ordered_dropdown_tuples_list_of_ImPe(ImPe)}
+	return dropdowns
 
 
 #--- Effort Report Handler --- 
@@ -1794,9 +1800,9 @@ d_Viewer ={'KAS1':{'set_title':'End Value Base Portfolio  (KAS1)',
 		   
 		   'ImPe': {'set_title':'My Important People',
 		   			'set_name':'ImPe',
-					'attributes':['description', 'contact_frequency', 'last_contact', 'next_contact', 'comments'],
-				    'fields':{'description':'Name', 'contact_frequency':'C. Freq.', 'last_contact':'Last Contact', 'next_contact':'Next Contact', 'comments':'Comments'},
-				    'columns':{'description':3, 'contact_frequency':1, 'last_contact':2, 'next_contact':2, 'comments':3},
+					'attributes':['description', 'contact_frequency', 'pretty_last_contact', 'pretty_next_contact', 'comments'],
+				    'fields':{'description':'Name', 'contact_frequency':'C. Freq.', 'pretty_last_contact':'Last Contact', 'pretty_next_contact':'Next Contact', 'comments':'Comments'},
+				    'columns':{'description':3, 'contact_frequency':1, 'pretty_last_contact':2, 'pretty_next_contact':2, 'comments':3},
 				    'show_Button_Done':False,
 				    'show_Button_Add_To_Mission':False}}
 
