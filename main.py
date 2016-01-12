@@ -11,6 +11,7 @@ template_dir = os.path.join(os.path.dirname(__file__), 'html_templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
 today = datetime.today().toordinal()
+tomorrow = today + 1
 
 # --- Datastore Entities ----------------------------------------------------------------------------
 
@@ -174,8 +175,7 @@ class Logout(Handler):
 
 
 
-#--- Mission Handler --- 
-
+#---Todays Mission Handler --- 
 
 class TodaysMission(Handler):
 
@@ -200,26 +200,38 @@ class TodaysMission(Handler):
 		if user_bouncer(self):
 			return
 		post_details = get_post_details(self)
-		if post_details['action_description'] == 'Done':
-			ksu_id = post_details['ksu_id']
+		ksu_id = post_details['ksu_id']
+		user_action = post_details['action_description']
+
+		if user_action == 'Done':
 			self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/TodaysMission')
+		
+		elif user_action == 'EditKSU':			
+			self.redirect('/EditKSU?ksu_id=' + ksu_id + '&return_to=/TodaysMission')
 
-
-
-
+		elif user_action == 'Push':
+			user_Action_Push_Action(self)
+			self.redirect('/TodaysMission')
 
 
 def todays_mission(self):
 	theory = self.theory
-	ksu_set = unpack_set(theory.KAS3)
+	KAS1 = unpack_set(theory.KAS1)
+	KAS3 = unpack_set(theory.KAS3)
+	ksu_sets = [KAS1, KAS3]
 	result = []
-	for ksu in ksu_set:
-		ksu = ksu_set[ksu]
-		if ksu['next_event']:
-			delay = today - int(ksu['next_event'])
-			status = ksu['status']
-			if delay >= 0 and status=='Active':
+
+	for ksu_set in ksu_sets:
+		for ksu in ksu_set:
+			ksu = ksu_set[ksu]
+
+			if ksu['in_mission']:
 				result.append(ksu)
+
+			elif ksu['in_pipeline']:
+				if ksu['next_event']:
+					if today >= int(ksu['next_event']):
+						result.append(ksu)
 	return result
 
 
@@ -286,10 +298,10 @@ class SetViewer(Handler):
 			self.redirect('/NewKSU/' + set_name)
 		
 		elif post_details['action_description'] == 'EditKSU':			
-			self.redirect('/EditKSU?ksu_id=' + ksu_id)
+			self.redirect('/EditKSU?ksu_id=' + ksu_id + '&return_to=/SetViewer/' + set_name)
 
 		elif post_details['action_description'] == 'Done':
-			self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/SetViewer/' + set_name )
+			self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/SetViewer/' + set_name)
 
 
 
@@ -421,7 +433,8 @@ class EditKSU(Handler):
 		elif post_details['action_description'] == 'Delete':
 			user_Action_Delete_ksu(self)
 
-		self.redirect('/SetViewer/' + set_name)	
+		return_to = self.request.get('return_to')	
+		self.redirect(return_to)	
 
 
 
@@ -435,7 +448,7 @@ def show_date_as_inputed(ksu, post_details):
 
 #---Done Handler---
 
-class Done(Handler): #xx
+class Done(Handler):
 	def get(self):
 		if user_bouncer(self):
 			return
@@ -643,25 +656,35 @@ def get_type_from_id(ksu_id):
 
 
 
-
-
-
 #--- Update Stuff ---
 
 def update_ksu_with_post_details(ksu, details):
+	valid_attributes = list(ksu.keys())
 	for (attribute, value) in details.items():
-		ksu[attribute] = value
+		if attribute in valid_attributes:
+			ksu[attribute] = value
 	return ksu
 
 
 
-def update_ksu_next_event(theory, post_details):
-	ksu_set = unpack_set(theory.KAS3)
+def update_ksu_next_event(theory, post_details): #xx
 	ksu_id = post_details['ksu_id']
+	set_name = get_type_from_id(ksu_id)
+	valid_sets = ['KAS1', 'KAS3']	
+	if set_name not in valid_sets:
+		return
+	ksu_set = unpack_set(eval('theory.' + set_name))
 	ksu = ksu_set[ksu_id]
-	ksu['next_event'] = today + int(ksu['frequency'])
-	ksu['last_event'] = today
-	theory.KAS3 = pack_set(ksu_set)
+	user_action = post_details['action_description']
+	
+	if user_action == 'Done':
+		ksu['next_event'] = today + int(ksu['frequency'])
+		ksu['last_event'] = today
+
+	elif user_action == 'Push':
+		ksu['next_event'] = tomorrow
+
+	update_theory(theory, ksu_set)	
 	return
 
 
@@ -733,8 +756,9 @@ i_BASE_KSU = {'id': None,
 i_KAS1_KSU ={'charging_time':"365",
 			 'last_event':None,
 			 'next_event':None,
+			 'in_mission':False,
 			 'in_pipeline':False,
-			 'is_critical': False,
+			 'is_critical':False,
 			 'related_people':None}  #la idea es que el atributo sea una lista con varios elementos, ahora en esta primera version solo hay espeacio para uno (80/20)
 
 
@@ -743,7 +767,7 @@ i_KAS1_KSU ={'charging_time':"365",
 i_ReGen_KAS_KSU = {'importance':"3", # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 3
 	    	       'time_cost': "13", # Reasonable Time Requirements in Minutes
 	    	       'element': None,
-	    	  	   'in_mission': False, # Todo lo que esta en la mission del dia es porque tiene este atributo como true
+	    	  	   'in_mission': False,
 			       'in_pipeline':False,
 			       'is_critical': False}
 
@@ -1017,8 +1041,9 @@ def add_deleted_ksu_to_set(self):
 
 
 def prepare_details_for_saving(post_details):
-	details = {}
 	checkboxes = ['is_critical', 'is_private', 'in_pipeline']
+	details = {'is_critical':False, 'is_private':False, 'in_pipeline':False}
+	
 	for (attribute, value) in post_details.items():
 		
 		if attribute in checkboxes:
@@ -1037,23 +1062,12 @@ def prepare_details_for_saving(post_details):
 
 
 
-#--- User Actions ---
+#---User Actions ---
 
 def user_Action_Create_ksu(self, set_name):
 	theory = self.theory
 	ksu = add_ksu_to_set(self, set_name)
 	add_Created_event(theory, ksu)
-	trigger_additional_actions(self)
-	theory.put()
-	return
-
-
-
-def user_Action_Effort_Done(self):
-	theory = self.theory
-	post_details = get_post_details(self)
-	update_ksu_next_event(theory, post_details)
-	add_Effort_event(theory, post_details)
 	trigger_additional_actions(self)
 	theory.put()
 	return
@@ -1076,6 +1090,28 @@ def user_Action_Delete_ksu(self):
 	trigger_additional_actions(self)
 	theory.put()
 	return
+
+
+
+def user_Action_Effort_Done(self):
+	theory = self.theory
+	post_details = get_post_details(self)
+	update_ksu_next_event(theory, post_details)
+	add_Effort_event(theory, post_details)
+	trigger_additional_actions(self)
+	theory.put()
+	return
+
+
+def user_Action_Push_Action(self): #xx Consider if I should add a Push Event into MLog
+	theory = self.theory
+	post_details = get_post_details(self)
+	update_ksu_next_event(theory, post_details)
+	trigger_additional_actions(self)
+	theory.put()
+	return
+
+
 
 
 
@@ -1441,7 +1477,7 @@ def user_input_error(post_details): ##aqui estabamos
 
 
 
-def input_error(target_attribute, user_input): #xx
+def input_error(target_attribute, user_input):
 	
 	validation_attributes = ['username', 'password', 'description', 'frequency', 'duration', 'last_event', 'next_event', 'comments']
 
@@ -1532,9 +1568,9 @@ constants = {'l_Fibonacci':l_Fibonacci,
 
 d_Viewer ={'KAS1':{'set_title':'End Value Base Portfolio  (KAS1)',
 				   'set_name':'KAS1',
-				   'attributes':['description','charging_time','last_event','local_tags'],
-				   'fields':{'description':'Description','charging_time':'Charging Time','last_event':'Last Event','local_tags':'Local Tags'},
-				   'columns':{'description':4,'charging_time':2,'last_event':2,'local_tags':2}},
+				   'attributes':['description','last_event','local_tags'],
+				   'fields':{'description':'Description','last_event':'Last Event','local_tags':'Local Tags'},
+				   'columns':{'description':5,'last_event':2,'local_tags':2}},
 
 			'KAS3':{'set_title':'Resource Generation Base Portfolio  (KAS3)',
 				    'set_name':'KAS3',
