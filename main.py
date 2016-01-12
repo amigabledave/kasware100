@@ -433,7 +433,7 @@ class NewKSU(Handler):
 			if input_error:
 				ksu_set = unpack_set(eval('theory.' + set_name))
 				ksu = new_ksu(self, set_name)
-				ksu = update_ksu_with_post_details(ksu, post_details) ## aqui tal vez hay un riesgo si asumo que el input esta bien? Creo que no porque no lo voy a guardar
+				ksu = update_ksu_with_post_details(ksu, post_details)
 				show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
 				self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name, title='Create', input_error=input_error)
 			else:
@@ -543,7 +543,7 @@ class Done(Handler):
 
 
 
-def make_ordered_dropdown_tuples_list_of_ImPe(ImPe): #xx
+def make_ordered_dropdown_tuples_list_of_ImPe(ImPe): #xx Aqui nos quedamos
 	result = []
 	ImPe = hide_invisible(ImPe)
 	ordered_ImPe_list = make_ordered_ksu_set_list_for_SetViewer(Impe)
@@ -732,7 +732,7 @@ def update_ksu_with_post_details(ksu, details):
 
 
 
-def update_ksu_next_event(theory, post_details): #xx
+def update_ksu_next_event(theory, post_details):
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
 	valid_sets = ['KAS1', 'KAS3']	
@@ -1223,7 +1223,7 @@ def user_Action_Delete_ksu(self):
 
 
 
-def user_Action_Done_SmartEffort(self): #xx
+def user_Action_Done_SmartEffort(self):
 	theory = self.theory
 	post_details = get_post_details(self)
 	update_ksu_next_event(theory, post_details)
@@ -1308,7 +1308,7 @@ def trigger_additional_actions(self):
 
 
 
-def triggered_Action_create_KAS1_next_event(self): #xx
+def triggered_Action_create_KAS1_next_event(self):
 	theory = self.theory
 	post_details = get_post_details(self)
 	ksu_id = post_details['ksu_id']
@@ -1678,7 +1678,7 @@ def valid_date(date_string):
 
 
 
-def user_input_error(post_details): ##aqui estabamos
+def user_input_error(post_details):
 	for (attribute, value) in post_details.items():
 		user_error = input_error(attribute, value)
 		if user_error:
