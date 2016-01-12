@@ -291,7 +291,7 @@ class SetViewer(Handler):
 		set_details = ksu_set['set_details']
 		ksu_set = pretty_dates(ksu_set)
 		ksu_set = hide_invisible(ksu_set)
-		ksu_set = make_ordered_ksu_set_list(ksu_set)
+		ksu_set = make_ordered_ksu_set_list_for_SetViewer(ksu_set)
 		viewer_details = d_Viewer[set_name]
 		self.print_html('set-viewer.html', viewer_details=viewer_details, ksu_set=ksu_set)
 
@@ -342,22 +342,26 @@ def pretty_dates(ksu_set):
 				if ksu[date_attribute]:
 					date_ordinal = int(ksu[date_attribute])
 					pretty_date = unpack_date(date_ordinal)
-					ksu[date_attribute] = pretty_date
+					ksu['pretty_' + date_attribute] = pretty_date
 	return ksu_set
 	
 
 
-def make_ordered_ksu_set_list(ksu_set): #xx
+def make_ordered_ksu_set_list_for_SetViewer(ksu_set): #xx
+	if len(ksu_set) == 0:
+		return []
+
 	set_name = get_type_from_id(ksu_set.keys()[0])
 	result = []
 	set_order = []
-	d_view_order_details = {'KAS1':{'attribute':'next_event', 'reverse':True},
+	d_view_order_details = {'KAS1':{'attribute':'next_event', 'reverse':False},
 							'KAS3':{'attribute':'next_event', 'reverse':False},
 							'ImPe':{'attribute':'contact_frequency', 'reverse':False}}
 
 	attribute = d_view_order_details[set_name]['attribute'] 
 	reverse = d_view_order_details[set_name]['reverse']
 
+	# number_attributes = ['contact_frequency']
 	number_attributes = ['last_event', 'next_event', 'contact_frequency']
 
 	if attribute in number_attributes:	
@@ -374,7 +378,6 @@ def make_ordered_ksu_set_list(ksu_set): #xx
 		result.append(ksu_set[ksu_id])
 
 	return result
-
 
 
 
@@ -516,7 +519,7 @@ class Done(Handler):
 		EndValue_sets = ['KAS1']
 		SmartEffort_sets = ['KAS3']
 		
-		if post_details['action_description'] == 'Confirm':
+		if post_details['action_description'] == 'Done_Confirm':
 			input_error = user_input_error(post_details)
 
 			if input_error:
@@ -539,6 +542,14 @@ class Done(Handler):
 				self.redirect(return_to)
 
 
+
+def make_ordered_dropdown_tuples_list_of_ImPe(ImPe): #xx
+	result = []
+	ImPe = hide_invisible(ImPe)
+	ordered_ImPe_list = make_ordered_ksu_set_list_for_SetViewer(Impe)
+	for ksu in ordered_ImPe_list:
+		result.append((ksu['id'],ksu['description']))	
+	return result
 
 
 
@@ -721,7 +732,7 @@ def update_ksu_with_post_details(ksu, details):
 
 
 
-def update_ksu_next_event(theory, post_details):
+def update_ksu_next_event(theory, post_details): #xx
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
 	valid_sets = ['KAS1', 'KAS3']	
@@ -731,9 +742,14 @@ def update_ksu_next_event(theory, post_details):
 	ksu = ksu_set[ksu_id]
 	user_action = post_details['action_description']
 	
-	if user_action == 'Done':
-		ksu['next_event'] = today + int(ksu['frequency'])
+	if user_action == 'Done_Confirm':
 		ksu['last_event'] = today
+		
+		if set_name == 'KAS1':
+			ksu['next_event'] = today + int(ksu['charging_time'])
+
+		if set_name == 'KAS3':
+			ksu['next_event'] = today + int(ksu['frequency'])
 
 	elif user_action == 'Push':
 		ksu['next_event'] = tomorrow
@@ -757,6 +773,9 @@ def update_ksu_in_mission(theory, post_details):
 
 	if user_action == 'Add_To_Mission':
 		ksu['in_mission'] = True
+
+	elif user_action == 'Done_Confirm':
+		ksu['in_mission'] = False
 
 	elif user_action == 'Push':
 		ksu['in_mission'] = False		
@@ -1204,7 +1223,7 @@ def user_Action_Delete_ksu(self):
 
 
 
-def user_Action_Done_SmartEffort(self):
+def user_Action_Done_SmartEffort(self): #xx
 	theory = self.theory
 	post_details = get_post_details(self)
 	update_ksu_next_event(theory, post_details)
@@ -1265,6 +1284,9 @@ def trigger_additional_actions(self):
 
 	if action_type == 'Create':
 		
+		if ksu_type =='KAS1':
+			triggered_Action_create_KAS1_next_event(self)
+
 		if ksu_type == 'KAS3':
 			triggered_Action_create_KAS3_next_event(self)
 		
@@ -1284,6 +1306,23 @@ def trigger_additional_actions(self):
 
 	return
 
+
+
+def triggered_Action_create_KAS1_next_event(self): #xx
+	theory = self.theory
+	post_details = get_post_details(self)
+	ksu_id = post_details['ksu_id']
+	KAS1 = unpack_set(theory.KAS1)
+	ksu = KAS1[ksu_id]
+	if ksu['last_event'] and not ksu['next_event']:
+		ksu['next_event'] = int(ksu['last_event']) + int(ksu['charging_time'])
+		if ksu['next_event'] < today:
+			ksu['next_event'] = today
+	elif not ksu['next_event']:
+		ksu['next_event'] = today + int(ksu['charging_time'])
+	update_set(KAS1, ksu)
+	theory.KAS1 = pack_set(KAS1)
+	return
 
 
 
@@ -1388,10 +1427,13 @@ def triggered_Action_Done_ImPe_Contact(self):
 
 def developer_Action_Load_CSV(theory, set_name):
 	csv_path = create_csv_path(set_name)
-	standard_sets = ['KAS1'] 
+	standard_sets = [] 
 
 	if set_name in standard_sets:
 		developer_Action_Load_Set_CSV(theory, set_name, csv_path)
+
+	elif set_name == 'KAS1':
+		developer_Action_Load_KAS1_CSV(theory, csv_path)
 
 	elif set_name == 'KAS3':
 		developer_Action_Load_KAS3_CSV(theory, csv_path)		
@@ -1417,6 +1459,25 @@ def developer_Action_Load_Set_CSV(theory, set_name, csv_path):
 		add_ksu_to_set_from_csv(theory, ksu_details, set_name)		
 	theory.put()
 	return
+
+
+def developer_Action_Load_KAS1_CSV(theory, csv_path):
+	f = open(csv_path, 'rU')
+	f.close
+	csv_f = csv.reader(f, dialect=csv.excel_tab)
+	attributes = csv_f.next()[0].split(',')
+	for row in csv_f:
+		digested_ksu = {}
+		i = 0
+		raw_ksu = row[0].split(',')
+		for attribute in raw_ksu:
+			digested_ksu[attributes[i]] = attribute
+			i += 1
+
+		ksu_details = digested_ksu
+		ksu = add_ksu_to_set_from_csv(theory, ksu_details, 'KAS1')
+		csv_triggered_Action_create_KAS1_next_event(theory, ksu)
+	theory.put()
 
 
 def developer_Action_Load_KAS3_CSV(theory, csv_path):
@@ -1459,9 +1520,6 @@ def developer_Action_Load_ImPe_CSV(theory, csv_path):
 	return 
 
 
-
-# csv_path = '/Users/amigabledave/kasware100/csv_files/important_people.csv'
-
 def create_csv_path(set_name):
 	file_name = 'Backup_' + set_name + '.csv'
 	return os.path.join(os.path.dirname(__file__), 'csv_files', file_name)
@@ -1484,6 +1542,20 @@ def update_ksu_with_csv_details(ksu, details):
 	for (attribute, value) in details.items():
 		ksu[attribute] = value
 	return ksu
+
+
+
+def csv_triggered_Action_create_KAS1_next_event(theory, ksu):
+	KAS1 = unpack_set(theory.KAS1)
+	if ksu['last_event'] and not ksu['next_event']:
+		ksu['next_event'] = int(ksu['last_event']) + int(ksu['charging_time'])
+		if ksu['next_event'] < today:
+			ksu['next_event'] = today
+	elif not ksu['next_event']:
+		ksu['next_event'] = today + int(ksu['charging_time'])
+	update_set(KAS1, ksu)
+	theory.KAS1 = pack_set(KAS1)
+	return
 
 
 
@@ -1706,17 +1778,17 @@ constants = {'l_Fibonacci':l_Fibonacci,
 
 d_Viewer ={'KAS1':{'set_title':'End Value Base Portfolio  (KAS1)',
 				   'set_name':'KAS1',
-				   'attributes':['description','last_event','local_tags'],
-				   'fields':{'description':'Description','last_event':'Last Event','local_tags':'Local Tags'},
-				   'columns':{'description':5,'last_event':2,'local_tags':2},
+				   'attributes':['description','pretty_next_event','pretty_last_event'],
+				   'fields':{'description':'Description','pretty_last_event':'Last Event','pretty_next_event':'Fully Charged'},
+				   'columns':{'description':5,'pretty_last_event':2,'pretty_next_event':2},
 				   'show_Button_Done':True,
 				   'show_Button_Add_To_Mission':True},
 
 			'KAS3':{'set_title':'Resource Generation Base Portfolio  (KAS3)',
 				    'set_name':'KAS3',
-				    'attributes':['description','frequency','importance','next_event'],
-				    'fields':{'description':'Description','frequency':'Frequency','importance':'Rel. Imp.', 'next_event':'Next Event'},
-				    'columns':{'description':5,'frequency':1,'importance':1,'next_event':2},
+				    'attributes':['description','frequency','importance','pretty_next_event'],
+				    'fields':{'description':'Description','frequency':'Frequency','importance':'Rel. Imp.', 'pretty_next_event':'Next Event'},
+				    'columns':{'description':5,'frequency':1,'importance':1,'pretty_next_event':2},
 				    'show_Button_Done':True,
 				   'show_Button_Add_To_Mission':True},
 		   

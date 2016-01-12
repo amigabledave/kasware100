@@ -36,6 +36,19 @@ def SetViewer_view_order(ksu_set): #xx
 
 	return result
 
+# print SetViewer_view_order(KAS3)
+
+d_Elements = {'E100': '1. Inner Peace & Consciousness',
+			  'E200': '2. Fun & Excitement', 
+			  'E300': '3. Meaning & Direction', 
+			  'E400': '4. Health & Vitality', 
+			  'E500': '5. Love & Friendship', 
+			  'E600': '6. Knowledge & Skills', 
+			  'E700': '7. Outer Order & Peace', 
+			  'E800': '8. Stuff',
+		 	  'E900': '9. Money & Power'}
 
 
-print SetViewer_view_order(KAS3)
+l_Elements = sorted(d_Elements.items())
+
+print l_Elements
