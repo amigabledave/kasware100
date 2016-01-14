@@ -20,6 +20,7 @@
 
 <br>
 
+
 <!-- Field Headers -->
 
 
@@ -33,57 +34,67 @@
 
 <hr class="thick-hr-1px">
 
-<!-- Rows. One per KSU -->
 
-{% for ksu in ksu_set %}
+{% for group in viewer_details['grouping_list']  %}
 
 	<div class="row">
+		<div class="col-md-12"> <div class="section-group-title"> {{group[1]}} </div></div>
+	</div>
 
-		<div class="col-md-1">
-			<form class="form-horizontal" method="post">
-				<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}"> 
-			  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="EditKSU"> Edit </button>
-			</form>	
-		</div>
+<!-- Rows. One per KSU -->
 
+	{% for ksu in ksu_set %}
 
+		{% if ksu[viewer_details['grouping_attribute']] == group[0] %}
 
-		{% for a in viewer_details['attributes'] %}
-			<div class="col-md-{{viewer_details['columns'][a]}}">  {% if ksu[a] %} {{ksu[a]}} {% endif %} </div>
-		{% endfor %}	
+			<div class="row">
 
-
-		{% if viewer_details['show_Button_Add_To_Mission'] %}
-
-			<div class="col-md-1">
+				<div class="col-md-1">
 					<form class="form-horizontal" method="post">
-					<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
-				  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="Add_To_Mission"> Add To Mission </button>
-				</form>	
+						<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}"> 
+					  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="EditKSU"> Edit </button>
+					</form>	
+				</div>
+
+
+
+				{% for a in viewer_details['attributes'] %}
+					<div class="col-md-{{viewer_details['columns'][a]}}">  {% if ksu[a] %} {{ksu[a]}} {% endif %} </div>
+				{% endfor %}	
+
+
+				{% if viewer_details['show_Button_Add_To_Mission'] %}
+
+					<div class="col-md-1">
+							<form class="form-horizontal" method="post">
+							<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+						  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="Add_To_Mission"> Add To Mission </button>
+						</form>	
+					</div>
+
+				{% endif %}
+
+
+				{% if viewer_details['show_Button_Done'] %}
+
+					<div class="col-md-1">
+						<form class="form-horizontal" method="post">
+							<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+						  	<button type="submit" class="btn btn-success btn-sm" name="action_description" value="Done"> Done </button>
+						</form>	
+					</div>
+
+				{% endif %}	
+			
+		
 			</div>
+			<hr>
 
 		{% endif %}
 
-
-		{% if viewer_details['show_Button_Done'] %}
-
-			<div class="col-md-1">
-				<form class="form-horizontal" method="post">
-					<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
-				  	<button type="submit" class="btn btn-success btn-sm" name="action_description" value="Done"> Done </button>
-				</form>	
-			</div>
-
-		{% endif %}	
-		
-	
-	</div>
-	<hr>
-
+	{% endfor %}
 
 {% endfor %}
-
-
 
 
 {% endblock %}

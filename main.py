@@ -1749,6 +1749,7 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 
 l_Fibonacci = ['1','2','3','5','8','13','21','34','55','89','144']
 
+
 d_Elements = {'E100': '1. Inner Peace & Consciousness',
 			  'E200': '2. Fun & Excitement', 
 			  'E300': '3. Meaning & Direction', 
@@ -1758,6 +1759,7 @@ d_Elements = {'E100': '1. Inner Peace & Consciousness',
 			  'E700': '7. Outer Order & Peace', 
 			  'E800': '8. Stuff',
 		 	  'E900': '9. Money & Power'}
+
 
 
 l_Elements = sorted(d_Elements.items())
@@ -1772,13 +1774,19 @@ d_Days = {'None':'None',
 		  '6':'6. Friday',
 		  '7':'7. Saturday'}
 
-l_Days = sorted(d_Days.items())
 
+l_default_grouping = [(True,'Showing All')]
+
+
+l_Days = sorted(d_Days.items())
 
 
 constants = {'l_Fibonacci':l_Fibonacci,
 			 'l_Elements':l_Elements,
 			 'l_Days':l_Days,}
+
+
+
 
 
 
@@ -1788,7 +1796,9 @@ d_Viewer ={'KAS1':{'set_title':'End Value Base Portfolio  (KAS1)',
 				   'fields':{'description':'Description','pretty_last_event':'Last Event','pretty_next_event':'Fully Charged'},
 				   'columns':{'description':5,'pretty_last_event':2,'pretty_next_event':2},
 				   'show_Button_Done':True,
-				   'show_Button_Add_To_Mission':True},
+				   'show_Button_Add_To_Mission':True,
+				   'grouping_attribute':'is_visible', #xx
+				   'grouping_list':l_default_grouping},
 
 			'KAS3':{'set_title':'Resource Generation Base Portfolio  (KAS3)',
 				    'set_name':'KAS3',
@@ -1796,7 +1806,9 @@ d_Viewer ={'KAS1':{'set_title':'End Value Base Portfolio  (KAS1)',
 				    'fields':{'description':'Description','frequency':'Frequency','importance':'Rel. Imp.', 'pretty_next_event':'Next Event'},
 				    'columns':{'description':5,'frequency':1,'importance':1,'pretty_next_event':2},
 				    'show_Button_Done':True,
-				   'show_Button_Add_To_Mission':True},
+				    'show_Button_Add_To_Mission':True,
+				    'grouping_attribute':'element',
+				    'grouping_list':l_Elements},
 		   
 		   'ImPe': {'set_title':'My Important People',
 		   			'set_name':'ImPe',
@@ -1804,7 +1816,9 @@ d_Viewer ={'KAS1':{'set_title':'End Value Base Portfolio  (KAS1)',
 				    'fields':{'description':'Name', 'contact_frequency':'C. Freq.', 'pretty_last_contact':'Last Contact', 'pretty_next_contact':'Next Contact', 'comments':'Comments'},
 				    'columns':{'description':3, 'contact_frequency':1, 'pretty_last_contact':2, 'pretty_next_contact':2, 'comments':3},
 				    'show_Button_Done':False,
-				    'show_Button_Add_To_Mission':False}}
+				    'show_Button_Add_To_Mission':False,
+				    'grouping_attribute':'is_visible',
+				    'grouping_list':l_default_grouping}}
 
 
 secret = 'elzecreto'
