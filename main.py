@@ -618,7 +618,10 @@ class LoadCSV(Handler):
 			return
 		theory = self.theory
 		developer_Action_Load_CSV(theory, set_name)
-		self.redirect('/SetViewer/' + set_name)	
+		if set_name == 'All':
+			self.redirect('/TodaysMission')
+		else:
+			self.redirect('/SetViewer/' + set_name)	
 
 
 
@@ -876,8 +879,9 @@ i_KAS1_KSU ={'charging_time':"365",
 			 'last_event':None,
 			 'next_event':None,
 			 'in_mission':False,
+			 'any_any':False, # This particular action can be executed at anytime and in anyplace				 
 			 'in_pipeline':False,
-			 'is_critical':False,
+			 'is_critical':False,		 
 			 'related_people':None}  #la idea es que el atributo sea una lista con varios elementos, ahora en esta primera version solo hay espeacio para uno (80/20)
 
 
@@ -1191,9 +1195,15 @@ def add_deleted_ksu_to_set(self):
 
 
 def prepare_details_for_saving(post_details):
-	checkboxes = ['is_critical', 'is_private', 'in_pipeline']
-	details = {'is_critical':False, 'is_private':False, 'in_pipeline':False}
-	
+	checkboxes = ['is_critical', 'is_private', 'in_pipeline', 'any_any']
+	details = {'is_critical':False,
+			   'is_private':False,
+			   'in_pipeline':False,
+			   'any_any':False,
+			   'local_tags':None,
+	    	   'global_tags':None,
+	    	   'comments':None}
+
 	for (attribute, value) in post_details.items():
 		
 		if attribute in checkboxes:
@@ -1313,18 +1323,14 @@ def trigger_additional_actions(self):
 		elif ksu_type == 'ImPe':
 				triggered_Action_create_ImPe_Contact(self)		
 
-
   	if action_type == 'Save':
   		if ksu_type == 'ImPe':
-  			triggered_Action_update_ImPe_Contact(self) #xx
-
-
+  			triggered_Action_update_ImPe_Contact(self)
 
 	if action_type == 'Done_Confirm':
 		
 		if ksu_subtype == 'ImPe_Contact':
 			triggered_Action_Done_ImPe_Contact(self)
-
 
 	if action_type == 'Delete':
 		
@@ -1423,7 +1429,7 @@ def triggered_Action_update_ImPe_Contact(self):
 	update_set(ImPe, person)
 	theory.KAS2 = pack_set(KAS2)
 	theory.ImPe = pack_set(ImPe)
-	add_Edited_event(theory, ksu) #xx 
+	add_Edited_event(theory, ksu)
 	return
 
 
@@ -1493,6 +1499,11 @@ def developer_Action_Load_CSV(theory, set_name):
 
 	elif set_name == 'ImPe':
 		developer_Action_Load_ImPe_CSV(theory, csv_path)
+
+	elif set_name == 'All':
+		developer_Action_Load_KAS1_CSV(theory, create_csv_path('KAS1'))
+		developer_Action_Load_KAS2_CSV(theory, create_csv_path('KAS2'))
+		developer_Action_Load_ImPe_CSV(theory, create_csv_path('ImPe'))
 	return
 
 
