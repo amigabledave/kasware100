@@ -1295,7 +1295,7 @@ def user_Action_Add_To_Mission(self):
 
 #--- Additional Actions Triggered by User Actions
 
-def trigger_additional_actions(self):
+def trigger_additional_actions(self): 
 	theory = self.theory
 	post_details = get_post_details(self)
 	action_type = post_details['action_description']
@@ -1315,7 +1315,14 @@ def trigger_additional_actions(self):
 		elif ksu_type == 'ImPe':
 				triggered_Action_create_ImPe_Contact(self)		
 
-	if action_type == 'Done':
+
+  	if action_type == 'Save':
+  		if ksu_type == 'ImPe':
+  			triggered_Action_update_ImPe_Contact(self) #xx
+
+
+
+	if action_type == 'Done_Confirm':
 		
 		if ksu_subtype == 'ImPe_Contact':
 			triggered_Action_Done_ImPe_Contact(self)
@@ -1395,6 +1402,32 @@ def triggered_Action_create_ImPe_Contact(self):
 	theory.ImPe = pack_set(ImPe)
 	add_Created_event(theory, ksu)
 	return ksu
+
+
+def triggered_Action_update_ImPe_Contact(self):
+	theory = self.theory
+	post_details = get_post_details(self)
+	ksu_id = post_details['ksu_id']
+	ImPe = unpack_set(theory.ImPe)
+	KAS2 = unpack_set(theory.KAS2)
+	person = ImPe[ksu_id]
+	ksu_id = person['contact_ksu_id']
+	ksu = KAS2[ksu_id]
+	ksu['description'] = 'Contact ' + person['description']
+	ksu['frequency'] = person['contact_frequency']
+	if person['last_contact']:
+		ksu['last_event'] = person['last_contact']
+		ksu['next_event'] = int(person['last_contact']) + int(person['contact_frequency'])
+	else:
+		ksu['next_event'] = today
+	person['next_contact'] = ksu['next_event']	
+	update_set(KAS2, ksu)
+	update_set(ImPe, person)
+	theory.KAS2 = pack_set(KAS2)
+	theory.ImPe = pack_set(ImPe)
+	add_Edited_event(theory, ksu) #xx 
+	return
+
 
 
 
