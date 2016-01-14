@@ -74,9 +74,7 @@ class Handler(webapp2.RequestHandler):
 			todays_log = MLog[today]
 			EndValue = todays_log['EndValue'] 
 			SmartEffort = todays_log['SmartEffort']
-			DumbBehaviour = todays_log['DumbBehaviour']
-			PointlessPain = todays_log['PointlessPain']
-			return t.render(theory=theory, EndValue=EndValue, SmartEffort=SmartEffort, DumbBehaviour=DumbBehaviour, PointlessPain=PointlessPain, **kw)		
+			return t.render(theory=theory, EndValue=EndValue, SmartEffort=SmartEffort, **kw)		
 		else:
 			return t.render(**kw)
 
@@ -1011,7 +1009,7 @@ def new_set_Hist():
 def new_set_MLog(start_date=(735964), end_date=(735964+366)): #start_date = Jan 1, 2016 |  end_date = Dec 31, 2016  
 	result = {}
 	for date in range(start_date, end_date):
-		entry = {'EndValue':0,'SmartEffort':0, 'DumbBehaviour':0, 'PointlessPain':0}
+		entry = {'EndValue':0,'SmartEffort':0}
 		entry['date'] = datetime.fromordinal(date).strftime('%d-%m-%Y')
 		result[date] = entry
 	return pack_set(result)
