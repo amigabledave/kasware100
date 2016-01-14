@@ -238,7 +238,7 @@
 
 		<div class="col-md-2">
 			<label> Local Tag </label>
-			<input type="text" class="form-control" name="local_tags" placeholder="Optional">
+			<input type="text" class="form-control" name="local_tags" placeholder="Optional" value="{% if ksu['local_tags']%}{{ksu['local_tags']}}{% endif %}">
 		</div>
 
 		<div class="col-md-2">

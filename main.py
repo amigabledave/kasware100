@@ -292,7 +292,11 @@ class SetViewer(Handler):
 		ksu_set = pretty_dates(ksu_set)
 		ksu_set = hide_invisible(ksu_set)
 		ksu_set = make_ordered_ksu_set_list_for_SetViewer(ksu_set)
+
 		viewer_details = d_Viewer[set_name]
+		if viewer_details['grouping_attribute'] == 'local_tags':
+			viewer_details['grouping_list'] = make_local_tags_grouping_list(ksu_set)
+
 		self.print_html('set-viewer.html', viewer_details=viewer_details, ksu_set=ksu_set)
 
 	def post(self, set_name):
@@ -347,7 +351,7 @@ def pretty_dates(ksu_set):
 	
 
 
-def make_ordered_ksu_set_list_for_SetViewer(ksu_set): #xx
+def make_ordered_ksu_set_list_for_SetViewer(ksu_set):
 	if len(ksu_set) == 0:
 		return []
 
@@ -405,6 +409,18 @@ def not_ugly_dates(ksu_set):
 	return ksu_set
 
 
+
+def make_local_tags_grouping_list(ksu_set):
+	result = []
+	local_tags = []
+	for ksu in ksu_set:
+		tag = ksu['local_tags'] 
+		if tag not in local_tags and tag != None:
+			local_tags.append(tag)
+			result.append((tag,tag))
+	result = sorted(result)
+	result.append((None, 'Other'))
+	return result
 
 
 
@@ -1789,7 +1805,6 @@ constants = {'l_Fibonacci':l_Fibonacci,
 
 
 
-
 d_Viewer ={'KAS1':{'set_title':'End Value Base Portfolio  (KAS1)',
 				   'set_name':'KAS1',
 				   'attributes':['description','pretty_next_event','pretty_last_event'],
@@ -1797,8 +1812,8 @@ d_Viewer ={'KAS1':{'set_title':'End Value Base Portfolio  (KAS1)',
 				   'columns':{'description':5,'pretty_last_event':2,'pretty_next_event':2},
 				   'show_Button_Done':True,
 				   'show_Button_Add_To_Mission':True,
-				   'grouping_attribute':'is_visible', #xx
-				   'grouping_list':l_default_grouping},
+				   'grouping_attribute':'local_tags',
+				   'grouping_list':None},
 
 			'KAS3':{'set_title':'Resource Generation Base Portfolio  (KAS3)',
 				    'set_name':'KAS3',
@@ -1817,8 +1832,8 @@ d_Viewer ={'KAS1':{'set_title':'End Value Base Portfolio  (KAS1)',
 				    'columns':{'description':3, 'contact_frequency':1, 'pretty_last_contact':2, 'pretty_next_contact':2, 'comments':3},
 				    'show_Button_Done':False,
 				    'show_Button_Add_To_Mission':False,
-				    'grouping_attribute':'is_visible',
-				    'grouping_list':l_default_grouping}}
+				    'grouping_attribute':'local_tags',
+				    'grouping_list':None}}
 
 
 secret = 'elzecreto'
