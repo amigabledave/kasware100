@@ -22,6 +22,7 @@ class Theory(db.Model):
 	email = db.StringProperty(required=True)
 	KAS1 = db.BlobProperty(required=True)
 	KAS2 = db.BlobProperty(required=True)
+	KAS3 = db.BlobProperty(required=True)
 	ImPe = db.BlobProperty(required=True)
 	Hist = db.BlobProperty(required=True)	
 	MLog = db.BlobProperty(required=True)
@@ -45,6 +46,7 @@ class Theory(db.Model):
 					  email=email,
 					  KAS1=new_set_KSU('KAS1'),
 					  KAS2=new_set_KSU('KAS2'),
+					  KAS3=new_set_KSU('KAS3'),
 					  ImPe=new_set_KSU('ImPe'),
 					  MLog=new_set_MLog(),
 					  Hist=new_set_Hist())
@@ -74,7 +76,8 @@ class Handler(webapp2.RequestHandler):
 			todays_log = MLog[today]
 			EndValue = todays_log['EndValue'] 
 			SmartEffort = todays_log['SmartEffort']
-			return t.render(theory=theory, EndValue=EndValue, SmartEffort=SmartEffort, **kw)		
+			Stupidity = todays_log['Stupidity']
+			return t.render(theory=theory, EndValue=EndValue, SmartEffort=SmartEffort, Stupidity=Stupidity, **kw)		
 		else:
 			return t.render(**kw)
 
@@ -532,7 +535,7 @@ class Done(Handler):
 		post_details = get_post_details(self)
 		set_name = get_type_from_id(post_details['ksu_id'])
 		EndValue_sets = ['KAS1']
-		SmartEffort_sets = ['KAS2']
+		SmartEffort_sets = ['KAS2', 'KAS3']
 		
 		if post_details['action_description'] == 'Done_Confirm':
 			input_error = user_input_error(post_details)
@@ -848,6 +851,8 @@ def update_theory(theory, ksu_set):
 		theory.KAS1 = pack_set(ksu_set)
 	if set_name == 'KAS2':
 		theory.KAS2 = pack_set(ksu_set)
+	if set_name == 'KAS3':
+		theory.KAS3 = pack_set(ksu_set)
 	if set_name == 'ImPe':
 		theory.ImPe = pack_set(ksu_set)
 	return
@@ -864,52 +869,60 @@ i_BASE_KSU = {'id': None,
 		      'parent_id': None,
 		      'subtype':None,
 		      'status':'Active', # ['Active', 'Hold', 'Deleted']
-	    	  'description': None,
+	    	  'description': None,	    	  
 	    	  'is_visible': True,
 		      'is_private': False,
-	    	  'target_person':None,
 	    	  'local_tags': None, #la idea es que el atributo sea una lista con varios elementos, ahora en esta primera version solo hay espeacio para uno (80/20)
 	    	  'global_tags': None, #la idea es que el atributo sea una lista con varios elementos, ahora en esta primera version solo hay espeacio para uno (80/20)
 	    	  'comments': None}
 
 
+i_Proactive_KAS_KSU = {'in_mission':False,
+			 		   'any_any':False, # This particular action can be executed at anytime and in anyplace
+			           'in_pipeline':False,
+			           'is_critical': False,
+			           'next_event':None,
+			           'best_time': None,}
 
-#KAS1 Specifics - End Value Base Portforlio - Acciones Recurrentes Proactivas con el objetivo de experimentar valor final
+
+i_ReGen_KAS_KSU = {'element': None,
+				   'importance':"3", # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 3
+	    	  	   'time_cost': "13",
+	    	  	   'target_person':None} # Reasonable Time Requirements in Minutes}
+
+
+i_Reactive_KAS_KSU = {'is_critical': False,
+					  'circumstance':None,
+					  'exceptions':None,
+			  		  'streak':0,
+			  		  'record':0}
+
+
+#KAS1 Specifics - End Value Generation Core Set - Acciones Recurrentes Proactivas con el objetivo de experimentar valor final
 i_KAS1_KSU ={'charging_time':"365",
 			 'last_event':None,
-			 'next_event':None,
-			 'in_mission':False,
-			 'any_any':False, # This particular action can be executed at anytime and in anyplace				 
-			 'in_pipeline':False,
-			 'is_critical':False,		 
+			 'best_day': "None",
 			 'related_people':None}  #la idea es que el atributo sea una lista con varios elementos, ahora en esta primera version solo hay espeacio para uno (80/20)
 
 
 
-#Resource Generation KAS Specifics
-i_ReGen_KAS_KSU = {'importance':"3", # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 3
-	    	       'time_cost': "13", # Reasonable Time Requirements in Minutes
-	    	       'element': None,
-	    	  	   'in_mission': False,
-			       'in_pipeline':False,
-			       'is_critical': False}
-
-
-
-#KAS2 Specifics	- Resource Generation Base Portfolio - Acciones Recurrentes Proactivas con el objetivo de generar recursos	
+#KAS2 Specifics	- Resource Generation Core Set - Acciones Recurrentes Proactivas con el objetivo de generar recursos	
 i_KAS2_KSU = {'frequency': "7",
-			  'best_day': "None",
-			  'best_time': None,
-			  'any_any':False, # This particular action can be executed at anytime and in anyplace
 			  'last_event': None,
-			  'next_event': None,
-			  'in_pipeline':True} #elengance could be improved since this attribute is also in the base, is here just to overwrite the value
+			  'best_day': "None"} 
 
 
 
-i_KAS4_KSU = {'best_time': None,
-			  'target_exe': None,
-			  'pipeline':"9"}
+#KAS3 Specifics - Acciones Reactivas Recurrentes con el objetivo de ejecutar una accion #xx
+i_KAS3_KSU = {} 
+
+
+#KAS3 Specifics - Acciones Reactivas Recurrentes #xx
+i_KAS4_KSU = {'reaction':None} #La reaccion tiene que ser una accion a ejecutar, no simplemente dejar de hacer algo
+			  
+
+
+i_KAS8_KSU = {'pipeline':"9"}
 
 
 
@@ -958,12 +971,19 @@ i_KAS2_Event = {'duration':None, # To calculate Amount of SmartEffort Points Ear
 			    'disconfort':False}
 
 
+i_KAS3_Event = {'importance':None,
+				'streak':None}
 
-template_recipies = {'KAS1_KSU':[i_BASE_KSU, i_KAS1_KSU],
-					 'KAS2_KSU':[i_BASE_KSU, i_ReGen_KAS_KSU, i_KAS2_KSU],
+
+
+template_recipies = {'KAS1_KSU':[i_BASE_KSU, i_Proactive_KAS_KSU, i_KAS1_KSU],
+					 'KAS2_KSU':[i_BASE_KSU, i_Proactive_KAS_KSU, i_ReGen_KAS_KSU, i_KAS2_KSU],
+					 'KAS3_KSU':[i_BASE_KSU, i_Reactive_KAS_KSU, i_ReGen_KAS_KSU, i_KAS3_KSU],
+					 'KAS4_KSU':[i_BASE_KSU, i_Reactive_KAS_KSU, i_ReGen_KAS_KSU, i_KAS4_KSU],
 					 'ImPe_KSU':[i_BASE_KSU, i_ImPe_KSU],
 					 'KAS1_Event':[i_BASE_Event, i_KAS_Event, i_KAS1_Event],
 					 'KAS2_Event':[i_BASE_Event, i_KAS_Event, i_KAS2_Event],
+					 'KAS3_Event':[i_BASE_Event, i_KAS_Event, i_KAS3_Event],
 					 'ImPe_Event':[i_BASE_Event],
 					 'Hist_Event':[i_BASE_Event]}
 
@@ -1013,7 +1033,7 @@ def new_set_Hist():
 def new_set_MLog(start_date=(735964), end_date=(735964+366)): #start_date = Jan 1, 2016 |  end_date = Dec 31, 2016  
 	result = {}
 	for date in range(start_date, end_date):
-		entry = {'EndValue':0,'SmartEffort':0}
+		entry = {'EndValue':0, 'SmartEffort':0, 'Stupidity':0}
 		entry['date'] = datetime.fromordinal(date).strftime('%d-%m-%Y')
 		result[date] = entry
 	return pack_set(result)
@@ -1866,6 +1886,18 @@ d_Viewer ={'KAS1':{'set_title':'End Value Generation Core Set  (KAS1)',
 				    'show_Button_Add_To_Mission':True,
 				    'grouping_attribute':'element',
 				    'grouping_list':l_Elements},
+
+			'KAS3':{'set_title':'Target Reactions Set (KAS3)',
+				    'set_name':'KAS3',
+				    'attributes':['circumstance','description','streak','record'],
+				    'fields':{'circumstance': 'Circumstance','description':'Target Reaction','streak':'Streak','record':'Record'},
+				    'columns':{'circumstance':3,'description':3,'streak':1,'record':1},
+				    'show_Button_Done':True,
+				    'show_Button_Stupid':True, #xx pending to add this button
+				    'show_Button_Add_To_Mission':False,
+				    'grouping_attribute':'element',
+				    'grouping_list':l_Elements},
+
 		   
 		   'ImPe': {'set_title':'My Important People',
 		   			'set_name':'ImPe',
