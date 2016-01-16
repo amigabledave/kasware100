@@ -184,7 +184,7 @@ class Logout(Handler):
 
 #---Todays Mission Handler --- 
 
-class TodaysMission(Handler):
+class TodaysMission(Handler): #xx1
 
 	def get(self):
 		if user_bouncer(self):
@@ -608,7 +608,7 @@ class Failure(Handler):
 		
 		if post_details['action_description'] == 'Fail_Confirm':
 			if set_name in Stupidity_sets:
-				user_Action_Fail_Stupidity(self) #xx
+				user_Action_Fail_Stupidity(self)
 				return_to = self.request.get('return_to')
 				self.redirect(return_to)
 
@@ -970,7 +970,7 @@ i_BASE_KSU = {'id': None,
 
 i_Proactive_KAS_KSU = {'in_mission':False,
 			 		   'any_any':False, # This particular action can be executed at anytime and in anyplace
-			           'in_pipeline':False,
+			           'in_pipeline':True,
 			           'is_critical': False,
 			           'next_event':None,
 			           'best_time': None,}
@@ -990,7 +990,8 @@ i_Reactive_KAS_KSU = {'is_critical': False,
 
 
 #KAS1 Specifics - End Value Generation Core Set - Acciones Recurrentes Proactivas con el objetivo de experimentar valor final
-i_KAS1_KSU ={'charging_time':"365",
+i_KAS1_KSU ={'in_pipeline':False, #To switch the defaoult Off
+			 'charging_time':"365",
 			 'last_event':None,
 			 'best_day': "None",
 			 'related_people':None}  #la idea es que el atributo sea una lista con varios elementos, ahora en esta primera version solo hay espeacio para uno (80/20)
@@ -1243,7 +1244,7 @@ def add_SmartEffort_event(theory, post_details): #Duration & Importance to be up
 
 
 
-def add_Stupidity_event(theory, post_details): #xx
+def add_Stupidity_event(theory, post_details):
 	Hist = unpack_set(theory.Hist)
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
@@ -1428,7 +1429,7 @@ def user_Action_Done_SmartEffort(self):
 def user_Action_Fail_Stupidity(self):
 	theory = self.theory
 	post_details = get_post_details(self)	
-	add_Stupidity_event(theory, post_details) #xx
+	add_Stupidity_event(theory, post_details)
 	update_ksu_streak_and_record(theory, post_details)
 	trigger_additional_actions(self)
 	theory.put()
@@ -2019,7 +2020,7 @@ constants = {'l_Fibonacci':l_Fibonacci,
 
 
 
-d_Viewer ={'KAS1':{'set_title':'End Value Generation Core Set  (KAS1)',
+d_Viewer ={'KAS1':{'set_title':'End Value Creation Core Set  (KAS1)',
 				   'set_name':'KAS1',
 				   'attributes':['description','pretty_next_event','pretty_last_event'],
 				   'fields':{'description':'Description','pretty_last_event':'Last Event','pretty_next_event':'Fully Charged'},
@@ -2045,7 +2046,7 @@ d_Viewer ={'KAS1':{'set_title':'End Value Generation Core Set  (KAS1)',
 				    'fields':{'circumstance': 'Circumstance','description':'Target Reaction','streak':'Streak','record':'Record'},
 				    'columns':{'circumstance':3,'description':4,'streak':1,'record':1},
 				    'show_Button_Done':True,
-				    'show_Button_Fail':True, #xx pending to add this button
+				    'show_Button_Fail':True,
 				    'show_Button_Add_To_Mission':False,
 				    'grouping_attribute':'element',
 				    'grouping_list':l_Elements},
