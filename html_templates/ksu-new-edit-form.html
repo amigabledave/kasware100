@@ -145,7 +145,7 @@
 
 		<div class="col-md-2">
 	 		<div class="checkbox"> 
-	 			<label> <input type="checkbox" name="is_upcoming"{% if ksu['in_upcoming']%}checked{% endif %}> <b> Show in Mission </b> </label> 
+	 			<label> <input type="checkbox" name="in_upcoming"{% if ksu['in_upcoming']%}checked{% endif %}> <b> Show in Mission </b> </label> 
 	 		</div>
 		
 	 		<div class="checkbox"> 
@@ -321,7 +321,114 @@
 
 
 
+{% if set_name == 'KAS5' %}
+ 
+	<div class="form-group">
+		<div class="col-md-12"> 
+			<label> Action Description <span class="red">*</span> </label>
+			<input type="text" class="form-control tile-ksu-edit" name="description" placeholder="e.g. Make a dentist apointment" required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">
+		</div>
+	</div>
 
+
+
+	<div class="form-group">
+
+		<div class="col-md-2">
+			<label>Expected Value Type <span class="red">*</span> </label>
+				<select class="form-control" name="value_type">
+				{% for value in constants['l_Values'] %}
+					{% if value[0] == ksu['value_type'] %}
+					<option selected="selected" value="{{value[0]}}"> {{value[1]}} </option>
+					{% else %}
+					<option value="{{value[0]}}"> {{value[1]}} </option>
+					{% endif %}
+				{% endfor %}
+			</select>
+		</div>	
+
+		<div class="col-md-2">
+			<label> Event Date <span class="red">*</span> </label>
+			<input type="text" class="form-control" name="next_event" placeholder="DD-MM-YYYY" value="{% if ksu['next_event']%}{{ksu['next_event']}}{% endif %}"required>
+		</div>
+
+
+		<div class="col-md-2">
+			<label> Preferred Time (24hrs.)</label>
+			<input type="text" class="form-control" name="best_time" placeholder="00:00">
+		</div>
+	
+
+
+
+	
+
+
+		<div class="col-md-2">
+	 		<div class="checkbox"> 
+	 			<label> <input type="checkbox" name="in_upcoming"{% if ksu['in_upcoming']%}checked{% endif %}> <b> Show in Mission </b> </label> 
+	 		</div>
+		
+	 		<div class="checkbox"> 
+	 			<label> <input type="checkbox" name="any_any"{% if ksu['any_any']%}checked{% endif %}> <b> Anywhere Anytime </b> </label> 
+	 		</div>
+
+		</div>
+
+	 	<div class="col-md-2">
+	 		<div class="checkbox"> 
+	 			<label> <input type="checkbox" name="is_critical" {% if ksu['is_critical']%}checked{% endif %}> <b> Is Critical </b> </label> 
+	 		</div>
+
+	 		<div class="checkbox"> 
+	 			<label> <input type="checkbox" name="is_private"{% if ksu['is_private']%}checked{% endif %}> <b> Is Private </b> </label> 
+	 		</div>
+		</div>
+
+
+	</div>
+
+
+	<div class="form-group">
+		
+		<div class="col-md-2"> 
+			<label> Relative Importance <span class="red">*</span> </label> 
+			<select class="form-control" name="importance"> 
+				{% for i in constants['l_Fibonacci'] %}
+					{% if i == ksu['importance'] %}
+						<option selected="selected">{{i}}</option>
+					{% else %}		
+						<option> {{i}} </option>
+					{% endif %}
+				{% endfor %}
+					
+			</select>
+		</div>
+
+
+		<div class="col-md-2"> 
+			<label> Expected Duration <span class="red">*</span> </label>
+			<select class="form-control" name="time_cost">
+				{% for t in constants['l_Fibonacci'] %}
+					{% if t == ksu['time_cost']  %}
+						<option selected="selected">{{t}}</option>
+					{% else %}
+						<option> {{t}} </option>
+					{% endif %}
+				{% endfor %}
+			</select>
+		</div>
+
+
+
+
+
+
+
+	</div>
+
+
+{% endif %}
 
 
 

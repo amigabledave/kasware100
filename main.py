@@ -24,6 +24,7 @@ class Theory(db.Model):
 	KAS2 = db.BlobProperty(required=True)
 	KAS3 = db.BlobProperty(required=True)
 	KAS4 = db.BlobProperty(required=True)
+	KAS5 = db.BlobProperty(required=True)
 	ImPe = db.BlobProperty(required=True)
 	Hist = db.BlobProperty(required=True)	
 	MLog = db.BlobProperty(required=True)
@@ -49,6 +50,7 @@ class Theory(db.Model):
 					  KAS2=new_set_KSU('KAS2'),
 					  KAS3=new_set_KSU('KAS3'),
 					  KAS4=new_set_KSU('KAS4'),
+					  KAS5=new_set_KSU('KAS5'),
 					  ImPe=new_set_KSU('ImPe'),
 					  MLog=new_set_MLog(),
 					  Hist=new_set_Hist())
@@ -227,7 +229,8 @@ def todays_mission(self):
 	theory = self.theory
 	KAS1 = unpack_set(theory.KAS1)
 	KAS2 = unpack_set(theory.KAS2)
-	ksu_sets = [KAS1, KAS2]
+	KAS5 = unpack_set(theory.KAS5)
+	ksu_sets = [KAS1, KAS2, KAS5]
 	result = []
 
 	for ksu_set in ksu_sets:
@@ -276,7 +279,8 @@ def current_upcoming(self):
 	theory = self.theory
 	KAS1 = unpack_set(theory.KAS1)
 	KAS2 = unpack_set(theory.KAS2)
-	ksu_sets = [KAS1, KAS2]
+	KAS5 = unpack_set(theory.KAS5)
+	ksu_sets = [KAS1, KAS2, KAS5]
 	result = {}
 
 	for ksu_set in ksu_sets:
@@ -438,6 +442,7 @@ def make_ordered_ksu_set_list_for_SetViewer(ksu_set):
 							'KAS2':{'attribute':'next_event', 'reverse':False},
 							'KAS3':{'attribute':'importance', 'reverse':False},
 							'KAS4':{'attribute':'importance', 'reverse':False},
+							'KAS5':{'attribute':'next_event', 'reverse':False},
 							'ImPe':{'attribute':'contact_frequency', 'reverse':False}}
 
 	attribute = d_view_order_details[set_name]['attribute'] 
@@ -473,18 +478,32 @@ def unpack_date(date_ordinal):
 
 
 
-def not_ugly_dates(ksu_set):
+# def not_ugly_dates(ksu_set): #Old to be deleted
+# 	date_attributes = ['last_event', 'next_event', 'last_contact', 'next_contact']
+# 	for date_attribute in date_attributes:
+# 		for ksu in ksu_set:
+# 			ksu = ksu_set[ksu]
+# 			valid_attributes = list(ksu.keys())
+# 			if date_attribute in valid_attributes:	
+# 				if ksu[date_attribute]:
+# 					number_date = int(ksu[date_attribute])
+# 					pretty_date = datetime.fromordinal(number_date).strftime('%d-%m-%Y')
+# 					ksu[date_attribute] = pretty_date
+# 	return ksu_set
+
+
+def not_ugly_dates(ksu):
 	date_attributes = ['last_event', 'next_event', 'last_contact', 'next_contact']
+	valid_attributes = list(ksu.keys())
 	for date_attribute in date_attributes:
-		for ksu in ksu_set:
-			ksu = ksu_set[ksu]
-			valid_attributes = list(ksu.keys())
-			if date_attribute in valid_attributes:	
-				if ksu[date_attribute]:
-					number_date = int(ksu[date_attribute])
-					pretty_date = datetime.fromordinal(number_date).strftime('%d-%m-%Y')
-					ksu[date_attribute] = pretty_date
-	return ksu_set
+		if date_attribute in valid_attributes:	
+			if ksu[date_attribute]:
+				number_date = int(ksu[date_attribute])
+				not_ugly_date = datetime.fromordinal(number_date).strftime('%d-%m-%Y')
+				ksu[date_attribute] = not_ugly_date
+	return ksu
+
+
 
 
 
@@ -503,9 +522,7 @@ def make_local_tags_grouping_list(ksu_set):
 
 
 
-
-
-#--- New & Edit KSU Handlers ---
+#---New KSU Handler ---
 
 class NewKSU(Handler):
 	
@@ -515,6 +532,7 @@ class NewKSU(Handler):
 		theory = self.theory
 		ksu_set = unpack_set(eval('theory.' + set_name))
 		ksu = new_ksu(self, set_name)
+		ksu = not_ugly_dates(ksu)
 		self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name ,title='Create')
 
 	def post(self, set_name):
@@ -537,7 +555,7 @@ class NewKSU(Handler):
 
 
 
-
+#---Edit KSU Handler ---
 
 class EditKSU(Handler):
 	def get(self):
@@ -547,8 +565,8 @@ class EditKSU(Handler):
 		ksu_id = self.request.get('ksu_id')
 		set_name = get_type_from_id(ksu_id)
 		ksu_set = unpack_set(eval('theory.' + set_name))
-		ksu_set = not_ugly_dates(ksu_set)
 		ksu = ksu_set[ksu_id]		
+		ksu = not_ugly_dates(ksu)
 		self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name, title='Edit')
 
 	def post(self):
@@ -565,8 +583,6 @@ class EditKSU(Handler):
 			if input_error:
 				ksu_id = post_details['ksu_id']
 				set_name = get_type_from_id(ksu_id)
-				ksu_set = unpack_set(eval('theory.' + set_name))
-				ksu_set = not_ugly_dates(ksu_set)
 				ksu = ksu_set[ksu_id]
 				ksu = update_ksu_with_post_details(ksu, post_details)			
 				show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
@@ -614,32 +630,38 @@ class Done(Handler):
 			return
 		theory = self.theory	
 		post_details = get_post_details(self)
+		return_to = self.request.get('return_to')
 		set_name = get_type_from_id(post_details['ksu_id'])
-		EndValue_sets = ['KAS1']
-		SmartEffort_sets = ['KAS2', 'KAS3', 'KAS4'] 
+		ksu_id = post_details['ksu_id']
+		set_name = get_type_from_id(ksu_id)
+		ksu_set = unpack_set(eval('theory.' + set_name))
+		ksu = ksu_set[ksu_id]
+		value_type = ksu['value_type']
+
 		
 		if post_details['action_description'] == 'Done_Confirm':
 			input_error = user_input_error(post_details)
 
 			if input_error:
-				ksu_id = post_details['ksu_id']
-				set_name = get_type_from_id(ksu_id)
-				ksu_set = unpack_set(eval('theory.' + set_name))
-				ksu_set = not_ugly_dates(ksu_set)
-				ksu = ksu_set[ksu_id]
 				ksu['time_cost'] = post_details['duration']
 				dropdowns = make_dropdowns(theory)
 				self.print_html('done.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name, input_error=input_error)
 		
 			else:
-				if set_name in EndValue_sets:
+				if value_type == 'V000':
 					user_Action_Done_EndValue(self)
+					self.redirect(return_to)
 				
-				if set_name in SmartEffort_sets:
+				else:
 					user_Action_Done_SmartEffort(self)
-					
-				return_to = self.request.get('return_to')
-				self.redirect(return_to)
+					self.redirect(return_to)
+
+		elif post_details['action_description'] == 'Discard':
+			self.redirect(return_to)	
+
+
+				
+				
 
 
 
@@ -902,7 +924,7 @@ def update_ksu_with_post_details(ksu, details):
 def update_ksu_next_event(theory, post_details):
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
-	valid_sets = ['KAS1', 'KAS2']	
+	valid_sets = ['KAS1', 'KAS2', 'KAS5']	
 	if set_name not in valid_sets:
 		return
 
@@ -919,6 +941,10 @@ def update_ksu_next_event(theory, post_details):
 		if set_name == 'KAS2':
 			ksu['next_event'] = today + int(ksu['frequency'])
 
+		if set_name == 'KAS5':
+			ksu['next_event'] = None
+
+			
 	elif user_action == 'Push':
 		ksu['next_event'] = tomorrow
 
@@ -956,7 +982,7 @@ def update_ksu_streak_and_record(theory, post_details):
 def update_ksu_in_mission(theory, post_details):
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
-	valid_sets = ['KAS1', 'KAS2']	
+	valid_sets = ['KAS1', 'KAS2', 'KAS5']	
 	if set_name not in valid_sets:
 		return
 
@@ -977,6 +1003,24 @@ def update_ksu_in_mission(theory, post_details):
 	return
 
 
+
+def update_ksu_status(theory, post_details): #xx
+	ksu_id = post_details['ksu_id']
+	set_name = get_type_from_id(ksu_id)
+	valid_sets = ['KAS5']	
+	if set_name not in valid_sets:
+		return
+
+	ksu_set = unpack_set(eval('theory.' + set_name))
+	ksu = ksu_set[ksu_id]	
+	user_action = post_details['action_description']
+
+	if user_action == 'Done_Confirm':
+		ksu['status'] = 'Done'
+		ksu['is_visible'] = False
+		
+	update_theory(theory, ksu_set)	
+	return
 
 
 
@@ -1022,7 +1066,9 @@ def update_theory(theory, ksu_set):
 	if set_name == 'KAS3':
 		theory.KAS3 = pack_set(ksu_set)
 	if set_name == 'KAS4':
-		theory.KAS4 = pack_set(ksu_set)		
+		theory.KAS4 = pack_set(ksu_set)
+	if set_name == 'KAS5':
+		theory.KAS5 = pack_set(ksu_set)
 	if set_name == 'ImPe':
 		theory.ImPe = pack_set(ksu_set)
 	return
@@ -1038,7 +1084,7 @@ def update_theory(theory, ksu_set):
 i_BASE_KSU = {'id': None,
 		      'parent_id': None,
 		      'subtype':None,
-		      'status':'Active', # ['Active', 'Hold', 'Deleted']
+		      'status':'Active', # ['Active', 'Done', 'Hold', 'Deleted']
 	    	  'description': None,	    	  
 	    	  'is_visible': True,
 		      'is_private': False,
@@ -1057,8 +1103,8 @@ i_Proactive_KAS_KSU = {'in_mission':False,
 
 i_ReGen_KAS_KSU = {'element': None,
 				   'importance':"3", # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 3
-	    	  	   'time_cost': "13",
-	    	  	   'target_person':None} # Reasonable Time Requirements in Minutes}
+	    	  	   'time_cost': "13", # Reasonable Time Requirements in Minutes
+	    	  	   'target_person':None} 
 
 
 i_Reactive_KAS_KSU = {'is_critical': False,
@@ -1073,6 +1119,7 @@ i_KAS1_KSU ={'in_upcoming':False, #To switch the defaoult Off
 			 'charging_time':"365",
 			 'last_event':None,
 			 'best_day': "None",
+			 'value_type':'V000',
 			 'related_people':None}  #la idea es que el atributo sea una lista con varios elementos, ahora en esta primera version solo hay espeacio para uno (80/20)
 
 
@@ -1080,17 +1127,26 @@ i_KAS1_KSU ={'in_upcoming':False, #To switch the defaoult Off
 #KAS2 Specifics	- Resource Generation Core Set - Acciones Recurrentes Proactivas con el objetivo de generar recursos	
 i_KAS2_KSU = {'frequency': "7",
 			  'last_event': None,
+			  'value_type':None,
 			  'best_day': "None"} 
 
 
 
 #KAS3 Specifics - Acciones Reactivas Recurrentes con el objetivo de ejecutar una accion
-i_KAS3_KSU = {} 
+i_KAS3_KSU = {'value_type':None,} 
 
 
 #KAS3 Specifics - Acciones Reactivas Recurrentes
-i_KAS4_KSU = {}
+i_KAS4_KSU = {'value_type':None,}
 			  
+
+
+i_KAS5_KSU = {'value_type':None,
+			  'project':None,
+			  'importance':"3", # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 3
+	    	  'time_cost': "13", # Reasonable Time Requirements in Minutes
+	    	  'target_person':None,
+	    	  'next_event':today}
 
 
 i_KAS8_KSU = {'pipeline':"9"}
@@ -1131,7 +1187,7 @@ i_KAS_Event = {'units':None, # EndValue, SmartEffort, and other tipes to be dete
 
 
 i_KAS1_Event = {'duration':None, # To calculate Amount of EndValue Points Earned
-			    'intensity':None, # To calculate Amount of EndValue Points Earned
+			    'importance':None, # To calculate Amount of EndValue Points Earned
 			    'thanks':None,
 			    'comments':None} # Personas que fueron factor importantes en disfrutar de este momento  
 
@@ -1148,16 +1204,25 @@ i_KAS3_Event = {'importance':None}
 i_KAS4_Event = {'importance':None}
 
 
+i_KAS5_Event = {'duration':None,
+			    'importance':None,
+			    'joy':False,
+			    'disconfort':False}
+
+
 
 template_recipies = {'KAS1_KSU':[i_BASE_KSU, i_Proactive_KAS_KSU, i_KAS1_KSU],
 					 'KAS2_KSU':[i_BASE_KSU, i_Proactive_KAS_KSU, i_ReGen_KAS_KSU, i_KAS2_KSU],
 					 'KAS3_KSU':[i_BASE_KSU, i_Reactive_KAS_KSU, i_ReGen_KAS_KSU, i_KAS3_KSU],
 					 'KAS4_KSU':[i_BASE_KSU, i_Reactive_KAS_KSU, i_ReGen_KAS_KSU, i_KAS4_KSU],
+					 'KAS5_KSU':[i_BASE_KSU, i_Proactive_KAS_KSU, i_KAS5_KSU],
 					 'ImPe_KSU':[i_BASE_KSU, i_ImPe_KSU],
+					 
 					 'KAS1_Event':[i_BASE_Event, i_KAS_Event, i_KAS1_Event],
 					 'KAS2_Event':[i_BASE_Event, i_KAS_Event, i_KAS2_Event],
 					 'KAS3_Event':[i_BASE_Event, i_KAS_Event, i_KAS3_Event],
 					 'KAS4_Event':[i_BASE_Event, i_KAS_Event, i_KAS4_Event],
+					 'KAS5_Event':[i_BASE_Event, i_KAS_Event, i_KAS5_Event],
 					 'ImPe_Event':[i_BASE_Event],
 					 'Hist_Event':[i_BASE_Event]}
 
@@ -1187,6 +1252,11 @@ def new_set_KSU(set_name):
 	ksu['id'] = set_name +'_0'
 	ksu['set_type'] = set_name
 	ksu['is_visible'] = False
+	
+	attributes = list(ksu.keys()) #xx
+	if 'next_event' in attributes:
+		ksu['next_event'] = None
+
 	result['set_details'] = ksu
 	return pack_set(result)
 
@@ -1294,7 +1364,7 @@ def add_SmartEffort_event(theory, post_details): #Duration & Importance to be up
 	event = new_event(Hist, set_name)
 	ksu_set = unpack_set(eval('theory.' + set_name))
 	ksu = ksu_set[ksu_id]
-	poractive_sets = ['KAS1', 'KAS2']
+	poractive_sets = ['KAS1', 'KAS2', 'KAS5']
 	reactive_sets = ['KAS3', 'KAS4']
 
 	event['ksu_id'] = ksu_id
@@ -1368,14 +1438,14 @@ def add_EndValue_event(theory, post_details): #Duration & Importance to be updat
 	event['type'] = 'Done'
 	event['units'] = 'EndValue'
 	event['duration'] = post_details['duration']
-	event['intensity'] = post_details['intensity']
+	event['importance'] = post_details['importance']
 	
 	if 'thanks' in post_details:
 		event['thanks'] = post_details['thanks']
 	if 'comments' in post_details:
 		event['comments'] = post_details['comments']
 
-	event['value'] = int(post_details['duration'])*int(post_details['intensity'])
+	event['value'] = int(post_details['duration'])*int(post_details['importance'])
 
 	update_set(Hist, event)
 	update_MLog(theory, event)
@@ -1501,11 +1571,11 @@ def user_Action_Done_SmartEffort(self):
 	update_ksu_next_event(theory, post_details)
 	update_ksu_in_mission(theory, post_details)
 	add_SmartEffort_event(theory, post_details)
+	update_ksu_status(theory, post_details)
 	update_ksu_streak_and_record(theory, post_details)
 	trigger_additional_actions(self)
 	theory.put()
 	return
-
 
 
 
@@ -2065,6 +2135,21 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 l_Fibonacci = ['1','2','3','5','8','13','21','34','55','89','144']
 
 
+
+d_Values = {'V000': '0. End Value', #xx Bug Alert - Tal vez esto da problemas
+			'V100': '1. Inner Peace & Consciousness',
+			'V200': '2. Fun & Excitement', 
+			'V300': '3. Meaning & Direction', 
+			'V400': '4. Health & Vitality', 
+			'V500': '5. Love & Friendship', 
+			'V600': '6. Knowledge & Skills', 
+			'V700': '7. Outer Order & Peace', 
+			'V800': '8. Stuff',
+		 	'V900': '9. Money & Power'}
+
+l_Values = sorted(d_Values.items())
+
+
 d_Elements = {'E100': '1. Inner Peace & Consciousness',
 			  'E200': '2. Fun & Excitement', 
 			  'E300': '3. Meaning & Direction', 
@@ -2097,6 +2182,7 @@ l_Days = sorted(d_Days.items())
 
 
 constants = {'l_Fibonacci':l_Fibonacci,
+			 'l_Values':l_Values,
 			 'l_Elements':l_Elements,
 			 'l_Days':l_Days,}
 
@@ -2146,6 +2232,17 @@ d_Viewer ={'KAS1':{'set_title':'End Value Creation Core Set  (KAS1)',
 				    'show_Button_Add_To_Mission':False,
 				    'grouping_attribute':'element',
 				    'grouping_list':l_Elements},
+
+
+			'KAS5':{'set_title':'Value Generation Expantion Set  (KAS5)', #xx
+				    'set_name':'KAS5',
+				    'attributes':['description','pretty_next_event','project'],
+				    'fields':{'description':'Action description', 'pretty_next_event':'Event Date', 'project':'Project (if any)'},
+				    'columns':{'description':5,'pretty_next_event':2,'project':2},
+				    'show_Button_Done':True,
+				    'show_Button_Add_To_Mission':True,
+				    'grouping_attribute':'value_type',
+				    'grouping_list':l_Values},
 
 		   
 		   'ImPe': {'set_title':'My Important People',

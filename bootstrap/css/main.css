@@ -27,6 +27,7 @@
 }
 
 
+
 .section-sub-title{
     display: block;
     color: #222;
@@ -88,6 +89,11 @@
     text-align: center;
     text-decoration: none;
     white-space:pre;
+}
+
+
+.red {
+    color: red;
 }
 
 
