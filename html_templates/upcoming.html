@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="row">
-	<div class="col-md-12"> <div class="section-title"> Current Pipeline </div></div>
+	<div class="col-md-12"> <div class="section-title"> Upcoming Actions To Be Included In Today's Mission </div></div>
 </div>
 <br>
 
@@ -30,7 +30,7 @@
 	</div>
 
 
-	{% for ksu in pipeline %}
+	{% for ksu in upcoming %}
 
 		{% if ksu['view_group'] == group %}
 

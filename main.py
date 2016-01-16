@@ -23,6 +23,7 @@ class Theory(db.Model):
 	KAS1 = db.BlobProperty(required=True)
 	KAS2 = db.BlobProperty(required=True)
 	KAS3 = db.BlobProperty(required=True)
+	KAS4 = db.BlobProperty(required=True)
 	ImPe = db.BlobProperty(required=True)
 	Hist = db.BlobProperty(required=True)	
 	MLog = db.BlobProperty(required=True)
@@ -47,6 +48,7 @@ class Theory(db.Model):
 					  KAS1=new_set_KSU('KAS1'),
 					  KAS2=new_set_KSU('KAS2'),
 					  KAS3=new_set_KSU('KAS3'),
+					  KAS4=new_set_KSU('KAS4'),
 					  ImPe=new_set_KSU('ImPe'),
 					  MLog=new_set_MLog(),
 					  Hist=new_set_Hist())
@@ -184,7 +186,7 @@ class Logout(Handler):
 
 #---Todays Mission Handler --- 
 
-class TodaysMission(Handler): #xx1
+class TodaysMission(Handler):
 
 	def get(self):
 		if user_bouncer(self):
@@ -235,7 +237,7 @@ def todays_mission(self):
 			if ksu['in_mission']:
 				result.append(ksu)
 
-			elif ksu['in_pipeline']:
+			elif ksu['in_upcoming']:
 				if ksu['next_event']:
 					if today >= int(ksu['next_event']):
 						result.append(ksu)
@@ -246,18 +248,18 @@ def todays_mission(self):
 
 
 
-#---Pipeline Viewer Handler ---
+#---Upcoming Viewer Handler ---
 
-class Pipeline(Handler):
+class Upcoming(Handler):
 	def get(self):
 		if user_bouncer(self):
 			return 
-		pipeline = current_pipeline(self)
-		pipeline = pretty_dates(pipeline)
-		pipeline = hide_invisible(pipeline)
-		pipeline = make_ordered_ksu_set_list_for_pipeline(pipeline)
-		view_groups = define_pipeline_view_groups(pipeline)
-		self.print_html('pipeline.html', pipeline=pipeline, view_groups=view_groups)
+		upcoming = current_upcoming(self)
+		upcoming = pretty_dates(upcoming)
+		upcoming = hide_invisible(upcoming)
+		upcoming = make_ordered_ksu_set_list_for_upcoming(upcoming)
+		view_groups = define_upcoming_view_groups(upcoming)
+		self.print_html('upcoming.html', upcoming=upcoming, view_groups=view_groups)
 
 	def post(self):
 		if user_bouncer(self):
@@ -269,7 +271,7 @@ class Pipeline(Handler):
 
 
 
-def current_pipeline(self):
+def current_upcoming(self):
 
 	theory = self.theory
 	KAS1 = unpack_set(theory.KAS1)
@@ -280,15 +282,15 @@ def current_pipeline(self):
 	for ksu_set in ksu_sets:
 		for ksu in ksu_set:
 			ksu = ksu_set[ksu]
-			if ksu['in_pipeline']:
+			if ksu['in_upcoming']:
 				result[ksu['id']] = ksu
 
 	return result
 
 
 
-def make_ordered_ksu_set_list_for_pipeline(current_pipeline): #xx este le cambio el nombre
-	ksu_set = current_pipeline 
+def make_ordered_ksu_set_list_for_upcoming(current_upcoming): 
+	ksu_set = current_upcoming 
 
 	if len(ksu_set) == 0:
 		return []
@@ -305,7 +307,7 @@ def make_ordered_ksu_set_list_for_pipeline(current_pipeline): #xx este le cambio
 	for e in set_order:
 		ksu_id = e[0]
 		ksu = ksu_set[ksu_id]
-		ksu['view_group'] = define_ksu_pipeline_group(int(ksu['next_event']))
+		ksu['view_group'] = define_ksu_upcoming_group(int(ksu['next_event']))
 		result.append(ksu_set[ksu_id])
 
 	return result
@@ -313,7 +315,7 @@ def make_ordered_ksu_set_list_for_pipeline(current_pipeline): #xx este le cambio
 
 
 
-def define_ksu_pipeline_group(date_ordinal): #xx
+def define_ksu_upcoming_group(date_ordinal):
 	date = datetime.fromordinal(date_ordinal)
 	date_month = date.strftime('%B')
 	date_year = date.strftime('%Y')
@@ -339,10 +341,10 @@ def define_ksu_pipeline_group(date_ordinal): #xx
 
 	return group
 
-def define_pipeline_view_groups(ordered_pipeline_list):
-	pipeline = ordered_pipeline_list
+def define_upcoming_view_groups(ordered_upcoming_list):
+	upcoming = ordered_upcoming_list
 	groups = []
-	for ksu in pipeline:
+	for ksu in upcoming:
 		group = ksu['view_group']
 		if group not in groups:
 			groups.append(group)
@@ -435,6 +437,7 @@ def make_ordered_ksu_set_list_for_SetViewer(ksu_set):
 	d_view_order_details = {'KAS1':{'attribute':'next_event', 'reverse':False},
 							'KAS2':{'attribute':'next_event', 'reverse':False},
 							'KAS3':{'attribute':'importance', 'reverse':False},
+							'KAS4':{'attribute':'importance', 'reverse':False},
 							'ImPe':{'attribute':'contact_frequency', 'reverse':False}}
 
 	attribute = d_view_order_details[set_name]['attribute'] 
@@ -554,6 +557,7 @@ class EditKSU(Handler):
 		theory = self.theory			
 		post_details = get_post_details(self)
 		set_name = get_type_from_id(post_details['ksu_id'])
+		return_to = self.request.get('return_to')
 
 		if post_details['action_description'] == 'Save':
 			input_error = user_input_error(post_details)
@@ -566,16 +570,19 @@ class EditKSU(Handler):
 				ksu = ksu_set[ksu_id]
 				ksu = update_ksu_with_post_details(ksu, post_details)			
 				show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
-				self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name, title='Edit KSU', input_error=input_error)
+				self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name, title='Edit', input_error=input_error)
 
 			else:
 				user_Action_Edit_ksu(self)
+				self.redirect(return_to)
 
-		elif post_details['action_description'] == 'Delete':
+
+		if post_details['action_description'] == 'Delete':
 			user_Action_Delete_ksu(self)
+			self.redirect(return_to)
 
-		return_to = self.request.get('return_to')	
-		self.redirect(return_to)	
+			
+			
 
 
 
@@ -1014,6 +1021,8 @@ def update_theory(theory, ksu_set):
 		theory.KAS2 = pack_set(ksu_set)
 	if set_name == 'KAS3':
 		theory.KAS3 = pack_set(ksu_set)
+	if set_name == 'KAS4':
+		theory.KAS4 = pack_set(ksu_set)		
 	if set_name == 'ImPe':
 		theory.ImPe = pack_set(ksu_set)
 	return
@@ -1040,7 +1049,7 @@ i_BASE_KSU = {'id': None,
 
 i_Proactive_KAS_KSU = {'in_mission':False,
 			 		   'any_any':False, # This particular action can be executed at anytime and in anyplace
-			           'in_pipeline':True,
+			           'in_upcoming':True,
 			           'is_critical': False,
 			           'next_event':None,
 			           'best_time': None,}
@@ -1060,7 +1069,7 @@ i_Reactive_KAS_KSU = {'is_critical': False,
 
 
 #KAS1 Specifics - End Value Generation Core Set - Acciones Recurrentes Proactivas con el objetivo de experimentar valor final
-i_KAS1_KSU ={'in_pipeline':False, #To switch the defaoult Off
+i_KAS1_KSU ={'in_upcoming':False, #To switch the defaoult Off
 			 'charging_time':"365",
 			 'last_event':None,
 			 'best_day': "None",
@@ -1080,7 +1089,7 @@ i_KAS3_KSU = {}
 
 
 #KAS3 Specifics - Acciones Reactivas Recurrentes
-i_KAS4_KSU = {'reaction':None} #La reaccion tiene que ser una accion a ejecutar, no simplemente dejar de hacer algo
+i_KAS4_KSU = {}
 			  
 
 
@@ -1136,6 +1145,9 @@ i_KAS2_Event = {'duration':None, # To calculate Amount of SmartEffort Points Ear
 i_KAS3_Event = {'importance':None}
 
 
+i_KAS4_Event = {'importance':None}
+
+
 
 template_recipies = {'KAS1_KSU':[i_BASE_KSU, i_Proactive_KAS_KSU, i_KAS1_KSU],
 					 'KAS2_KSU':[i_BASE_KSU, i_Proactive_KAS_KSU, i_ReGen_KAS_KSU, i_KAS2_KSU],
@@ -1145,6 +1157,7 @@ template_recipies = {'KAS1_KSU':[i_BASE_KSU, i_Proactive_KAS_KSU, i_KAS1_KSU],
 					 'KAS1_Event':[i_BASE_Event, i_KAS_Event, i_KAS1_Event],
 					 'KAS2_Event':[i_BASE_Event, i_KAS_Event, i_KAS2_Event],
 					 'KAS3_Event':[i_BASE_Event, i_KAS_Event, i_KAS3_Event],
+					 'KAS4_Event':[i_BASE_Event, i_KAS_Event, i_KAS4_Event],
 					 'ImPe_Event':[i_BASE_Event],
 					 'Hist_Event':[i_BASE_Event]}
 
@@ -1392,7 +1405,7 @@ def add_ksu_to_set(self, set_name):
 
 
 
-def add_edited_ksu_to_set(self): 
+def add_edited_ksu_to_set(self):
 	theory = self.theory
 	post_details = get_post_details(self)
 	ksu_id = post_details['ksu_id']
@@ -1424,10 +1437,10 @@ def add_deleted_ksu_to_set(self):
 
 
 def prepare_details_for_saving(post_details):
-	checkboxes = ['is_critical', 'is_private', 'in_pipeline', 'any_any']
+	checkboxes = ['is_critical', 'is_private', 'in_upcoming', 'any_any']
 	details = {'is_critical':False,
 			   'is_private':False,
-			   'in_pipeline':False,
+			   'in_upcoming':False,
 			   'any_any':False,
 			   'local_tags':None,
 	    	   'global_tags':None,
@@ -1727,7 +1740,7 @@ def triggered_Action_Done_ImPe_Contact(self):
 
 def developer_Action_Load_CSV(theory, set_name):
 	csv_path = create_csv_path(set_name)
-	standard_sets = ['KAS3'] 
+	standard_sets = ['KAS3', 'KAS4'] 
 
 	if set_name in standard_sets:
 		developer_Action_Load_Set_CSV(theory, set_name, csv_path)
@@ -1745,6 +1758,7 @@ def developer_Action_Load_CSV(theory, set_name):
 		developer_Action_Load_KAS1_CSV(theory, create_csv_path('KAS1'))
 		developer_Action_Load_KAS2_CSV(theory, create_csv_path('KAS2'))
 		developer_Action_Load_Set_CSV(theory, 'KAS3', create_csv_path('KAS3'))
+		developer_Action_Load_Set_CSV(theory, 'KAS4', create_csv_path('KAS4'))
 		developer_Action_Load_ImPe_CSV(theory, create_csv_path('ImPe'))
 		
 	return
@@ -2035,8 +2049,8 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 
 		'last_event_error':'Last event format must be DD-MM-YYYY',
 
-		'comments': re.compile(r"^.{0,200}$"),
-		'comments_error': 'Comments cannot excede 200 characters'}
+		'comments': re.compile(r"^.{0,400}$"),
+		'comments_error': 'Comments cannot excede 400 characters'}
 
 
 
@@ -2121,6 +2135,18 @@ d_Viewer ={'KAS1':{'set_title':'End Value Creation Core Set  (KAS1)',
 				    'grouping_attribute':'element',
 				    'grouping_list':l_Elements},
 
+
+			'KAS4':{'set_title':'Actions To Avoid Set (KAS4)',
+				    'set_name':'KAS4',
+				    'attributes':['description','circumstance','reaction','streak','record'],
+				    'fields':{'description':'Action to Avoid','circumstance':'Dangerous Circumstances & Potential Reactions', 'streak':'Streak','record':'Record'},
+				    'columns':{'description':3,'circumstance':4,'streak':1,'record':1},
+				    'show_Button_Done':True,
+				    'show_Button_Fail':True,
+				    'show_Button_Add_To_Mission':False,
+				    'grouping_attribute':'element',
+				    'grouping_list':l_Elements},
+
 		   
 		   'ImPe': {'set_title':'My Important People',
 		   			'set_name':'ImPe',
@@ -2155,7 +2181,7 @@ app = webapp2.WSGIApplication([
 							 ('/login', Login),
                              ('/logout', Logout),
                              ('/TodaysMission', TodaysMission),
-                             ('/Pipeline', Pipeline),
+                             ('/Upcoming', Upcoming),
                              ('/SetViewer/' + PAGE_RE, SetViewer),
 							 ('/NewKSU/' + PAGE_RE, NewKSU),
 							 ('/EditKSU', EditKSU),

@@ -35,6 +35,30 @@
 
 
 
+{% if set_name == 'KAS4' %}
+ 
+
+	<div class="row">
+		<div class="col-md-12"> <div class="section-title"> You were not able to control your self to avoid: </div></div>
+		<div class="col-md-12"> <div class="section-sub-title"> {{ksu['description']}} </div></div>
+	</div>
+
+	<br>
+
+	<form class="form-horizontal" method="post">
+
+		<br>
+
+		<div class="form-group">
+			<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Fail_Confirm">  Confirm :( </button> </div>	
+			<div class="col-md-2"> <button type="submit" class="btn btn-danger btn-lg  respect-space" name="action_description" value="Discard">  Discard  </button> </div>
+		</div>
+
+	</form>
+
+
+{% endif %}
+
 
 
 
