@@ -5,74 +5,74 @@
 
 
 
-<div class="row">
-	<div class="col-md-12"> <div class="section-title"> Awesome! You are done with: </div></div>
-	<div class="col-md-12"> <div class="section-sub-title"> {{ksu['description']}} </div></div>
-</div>
-
-<br>
-
-
-<form class="form-horizontal" method="post">
-
-	<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
-	<input type="text" class="form-control hidden" name="subtype" value="{{ksu['subtype']}}"> 
-
-
-
-
 {% if set_name == 'KAS1' %}
  
 
-	<div class="form-group">
+	<div class="row">
+		<div class="col-md-12"> <div class="section-title"> Awesome! You just experienced: </div></div>
+		<div class="col-md-12"> <div class="section-sub-title"> {{ksu['description']}} </div></div>
+	</div>
 
-		<div class="col-md-2"> 		
-			<label> Experience Duration </label>
-			<input type="text" class="form-control" name="duration" required value="1">
-		</div>	
+	<br>
+
+	<form class="form-horizontal" method="post">
+
+		<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+		<input type="text" class="form-control hidden" name="subtype" value="{{ksu['subtype']}}"> 
+
+		<div class="form-group">
+
+			<div class="col-md-2"> 		
+				<label> Experience Duration </label>
+				<input type="text" class="form-control" name="duration" required value="1">
+			</div>	
 
 
-		<div class="col-md-2"> 
-			<label> Intensity </label> 
-			<select class="form-control" name="intensity"> 
-				{% for i in constants['l_Fibonacci'] %}
-					{% if i == ksu['importance'] %}
-						<option selected="selected">{{i}}</option>
-					{% else %}		
-						<option> {{i}} </option>
-					{% endif %}
-				{% endfor %}
-					
-			</select>
+			<div class="col-md-2"> 
+				<label> Intensity </label> 
+				<select class="form-control" name="intensity"> 
+					{% for i in constants['l_Fibonacci'] %}
+						{% if i == ksu['importance'] %}
+							<option selected="selected">{{i}}</option>
+						{% else %}		
+							<option> {{i}} </option>
+						{% endif %}
+					{% endfor %}
+						
+				</select>
+			</div>
+
+			<div class="col-md-3">
+				<label> People to thank for this moment </label>
+					<select class="form-control" name="thanks">
+					{% for person in dropdowns['People'] %}
+						<option value="{{person[0]}}"> {{person[1]}} </option>
+					{% endfor %}
+				</select>
+			</div>	
+		</div>
+
+		<div class="form-group">
+			<div class="col-md-8">
+				<label> Comments </label>
+				<textarea class="form-control" name="comments">{% if ksu['comments']%}{{ksu['comments']}}{% endif %}</textarea> 
+			</div>
+		</div>
+
+		<br>
+
+		<div class="form-group">
+			<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Done_Confirm">   Confirm   </button> </div>	
+			<div class="col-md-2"> <button type="submit" class="btn btn-danger btn-lg  respect-space" name="action_description" value="Discard">  Discard  </button> </div>
 		</div>
 
 
-
-		<div class="col-md-3">
-			<label> People to thank for this moment </label>
-				<select class="form-control" name="thanks">
-				{% for person in dropdowns['People'] %}
-					<option value="{{person[0]}}"> {{person[1]}} </option>
-				{% endfor %}
-			</select>
-		</div>	
+	</form>
 
 
-
-
-	</div>
-
-	<div class="form-group">
-		<div class="col-md-8">
-			<label> Comments </label>
-			<textarea class="form-control" name="comments">{% if ksu['comments']%}{{ksu['comments']}}{% endif %}</textarea> 
-		</div>
-	</div>
 
 
 {% endif %}
-
-
 
 
 
@@ -82,62 +82,106 @@
 {% if set_name == 'KAS2' %}
  
 
-	<div class="form-group">
 
-		<div class="col-md-2"> 		
-			<label> Effort Duration </label>
-			<input type="text" class="form-control" name="duration" required value="{{ksu['time_cost']}}">
-		</div>	
-
-
-		<div class="col-md-2"> 
-			<label> Expected Impact </label> 
-			<select class="form-control" name="importance"> 
-				{% for i in constants['l_Fibonacci'] %}
-					{% if i == ksu['importance'] %}
-						<option selected="selected">{{i}}</option>
-					{% else %}		
-						<option> {{i}} </option>
-					{% endif %}
-				{% endfor %}
-					
-			</select>
-		</div>
-
-
-		<div class="col-md-2">
-	 		<div class="checkbox"> 
-	 			<label> <input type="checkbox" name="joy"> <b> Enjoyed doing this :) </b> </label> 
-	 		</div>
-		</div>
-
-	 	<div class="col-md-2">
-	 		<div class="checkbox"> 
-	 			<label> <input type="checkbox" name="disconfort"> <b> Pushed my self out of my confort zone ;) </b> </label> 
-	 		</div>
-		</div>
-
-
-
-
-
-
+	<div class="row">
+		<div class="col-md-12"> <div class="section-title"> Awesome! You are done with: </div></div>
+		<div class="col-md-12"> <div class="section-sub-title"> {{ksu['description']}} </div></div>
 	</div>
 
+	<br>
+
+
+	<form class="form-horizontal" method="post">
+
+		<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+		<input type="text" class="form-control hidden" name="subtype" value="{{ksu['subtype']}}"> 
+
+
+
+		<div class="form-group">
+
+			<div class="col-md-2"> 		
+				<label> Effort Duration </label>
+				<input type="text" class="form-control" name="duration" required value="{{ksu['time_cost']}}">
+			</div>	
+
+
+			<div class="col-md-2"> 
+				<label> Expected Impact </label> 
+				<select class="form-control" name="importance"> 
+					{% for i in constants['l_Fibonacci'] %}
+						{% if i == ksu['importance'] %}
+							<option selected="selected">{{i}}</option>
+						{% else %}		
+							<option> {{i}} </option>
+						{% endif %}
+					{% endfor %}
+						
+				</select>
+			</div>
+
+
+			<div class="col-md-2">
+		 		<div class="checkbox"> 
+		 			<label> <input type="checkbox" name="joy"> <b> Enjoyed doing this :) </b> </label> 
+		 		</div>
+			</div>
+
+		 	<div class="col-md-2">
+		 		<div class="checkbox"> 
+		 			<label> <input type="checkbox" name="disconfort"> <b> Pushed my self out of my confort zone ;) </b> </label> 
+		 		</div>
+			</div>
+
+		</div>
+
+
+		<br>
+
+		<div class="form-group">
+			<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Done_Confirm">   Confirm   </button> </div>	
+			<div class="col-md-2"> <button type="submit" class="btn btn-danger btn-lg  respect-space" name="action_description" value="Discard">  Discard  </button> </div>
+		</div>
+
+	</form>
 
 
 {% endif %}
 
 
-<br>
-
-<div class="form-group">
-	<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Done_Confirm">   Confirm   </button> </div>	
-	<div class="col-md-2"> <button type="submit" class="btn btn-danger btn-lg  respect-space" name="action_description" value="Discard">  Discard  </button> </div>
-</div>
+{% if set_name == 'KAS3' %}
+ 
 
 
-</form>
+	<div class="row">
+		<div class="col-md-12"> <div class="section-title"> Awesome! In the face of: </div></div>
+		<div class="col-md-12"> <div class="section-sub-title"> {{ksu['circumstance']}} </div></div>
+
+		<div class="col-md-12"> <div class="section-title"> You had this reaction: </div></div>
+		<div class="col-md-12"> <div class="section-sub-title"> {{ksu['description']}} </div></div>
+
+	</div>
+
+	<br>
+
+
+	<form class="form-horizontal" method="post">
+
+		<br>
+
+		<div class="form-group">
+			<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Done_Confirm">   Confirm   </button> </div>	
+			<div class="col-md-2"> <button type="submit" class="btn btn-danger btn-lg  respect-space" name="action_description" value="Discard">  Discard  </button> </div>
+		</div>
+
+	</form>
+
+
+{% endif %}
+
+
+
+
 
 
 

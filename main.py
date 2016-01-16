@@ -316,10 +316,13 @@ class SetViewer(Handler):
 			if user_action == 'EditKSU':			
 				self.redirect('/EditKSU?ksu_id=' + ksu_id + '&return_to=/SetViewer/' + set_name)
 
-			elif user_action == 'Done':
+			if user_action == 'Done':
 				self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/SetViewer/' + set_name)
 
-			elif user_action == 'Add_To_Mission':
+			if user_action == 'Fail':
+				self.redirect('/Failure?ksu_id=' + ksu_id + '&return_to=/SetViewer/' + set_name)
+
+			if user_action == 'Add_To_Mission':
 				user_Action_Add_To_Mission(self)
 				self.redirect('/SetViewer/' + set_name)
 
@@ -361,6 +364,7 @@ def make_ordered_ksu_set_list_for_SetViewer(ksu_set):
 	set_order = []
 	d_view_order_details = {'KAS1':{'attribute':'next_event', 'reverse':False},
 							'KAS2':{'attribute':'next_event', 'reverse':False},
+							'KAS3':{'attribute':'importance', 'reverse':False},
 							'ImPe':{'attribute':'contact_frequency', 'reverse':False}}
 
 	attribute = d_view_order_details[set_name]['attribute'] 
@@ -535,7 +539,7 @@ class Done(Handler):
 		post_details = get_post_details(self)
 		set_name = get_type_from_id(post_details['ksu_id'])
 		EndValue_sets = ['KAS1']
-		SmartEffort_sets = ['KAS2', 'KAS3']
+		SmartEffort_sets = ['KAS2', 'KAS3', 'KAS4'] 
 		
 		if post_details['action_description'] == 'Done_Confirm':
 			input_error = user_input_error(post_details)
@@ -554,9 +558,9 @@ class Done(Handler):
 				if set_name in EndValue_sets:
 					user_Action_Done_EndValue(self)
 				
-				if set_name in SmartEffort_sets:	
+				if set_name in SmartEffort_sets:
 					user_Action_Done_SmartEffort(self)
-				
+					
 				return_to = self.request.get('return_to')
 				self.redirect(return_to)
 
@@ -575,6 +579,63 @@ def make_dropdowns(theory):
 	ImPe = unpack_set(theory.ImPe)
 	dropdowns = {'People': make_ordered_dropdown_tuples_list_of_ImPe(ImPe)}
 	return dropdowns
+
+
+
+
+#--- Failure Handler ---
+
+class Failure(Handler):
+	def get(self):
+		if user_bouncer(self):
+			return
+		theory = self.theory
+		ksu_id = self.request.get('ksu_id')
+		set_name = get_type_from_id(ksu_id)
+		ksu_set = unpack_set(eval('theory.' + set_name))
+		# ksu_set = not_ugly_dates(ksu_set) #no need right now, to be deleted latter if no use
+		ksu = ksu_set[ksu_id]	
+		dropdowns = make_dropdowns(theory) #no need right now, to be deleted latter if no use
+		self.print_html('failure.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name)
+
+	def post(self):
+		if user_bouncer(self):
+			return
+		theory = self.theory	
+		post_details = get_post_details(self)
+		set_name = get_type_from_id(post_details['ksu_id'])
+		Stupidity_sets = ['KAS3', 'KAS4']
+		
+		if post_details['action_description'] == 'Fail_Confirm':
+			if set_name in Stupidity_sets:
+				user_Action_Fail_Stupidity(self) #xx
+				return_to = self.request.get('return_to')
+				self.redirect(return_to)
+
+			# input_error = user_input_error(post_details)  #To be deleted if there is no use for input validation
+			# if input_error:
+			# 	ksu_id = post_details['ksu_id']
+			# 	set_name = get_type_from_id(ksu_id)
+			# 	ksu_set = unpack_set(eval('theory.' + set_name))
+			# 	ksu_set = not_ugly_dates(ksu_set)
+			# 	ksu = ksu_set[ksu_id]
+			# 	ksu['time_cost'] = post_details['duration']
+			# 	dropdowns = make_dropdowns(theory)
+			# 	self.print_html('failure.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name, input_error=input_error)
+		
+			# else:
+			# 	if set_name in Stupidity_sets:
+			# 		user_Action_Fail_Stupidity(self)
+				
+			# 	return_to = self.request.get('return_to')
+			# 	self.redirect(return_to)
+
+
+
+
+
+
+
 
 
 #--- Effort Report Handler --- 
@@ -606,6 +667,9 @@ def create_effort_report(theory, date):
 			report_item['effort_reward'] = event['value']
 			result.append(report_item)
 	return result
+
+
+
 
 
 
@@ -764,6 +828,7 @@ def update_ksu_next_event(theory, post_details):
 	valid_sets = ['KAS1', 'KAS2']	
 	if set_name not in valid_sets:
 		return
+
 	ksu_set = unpack_set(eval('theory.' + set_name))
 	ksu = ksu_set[ksu_id]
 	user_action = post_details['action_description']
@@ -781,6 +846,31 @@ def update_ksu_next_event(theory, post_details):
 		ksu['next_event'] = tomorrow
 
 	update_theory(theory, ksu_set)	
+	return
+
+
+
+
+def update_ksu_streak_and_record(theory, post_details):
+	ksu_id = post_details['ksu_id']
+	set_name = get_type_from_id(ksu_id)
+	valid_sets = ['KAS3', 'KAS4']	
+	if set_name not in valid_sets:
+		return
+
+	ksu_set = unpack_set(eval('theory.' + set_name))
+	ksu = ksu_set[ksu_id]
+	user_action = post_details['action_description']
+
+	if user_action == 'Done_Confirm':
+		ksu['streak'] = int(ksu['streak']) + 1
+		if int(ksu['streak']) > int(ksu['record']):
+			ksu['record'] = ksu['streak']
+
+	if user_action == 'Fail_Confirm':
+		ksu['streak'] = "0"
+
+	update_theory(theory, ksu_set)
 	return
 
 
@@ -819,8 +909,9 @@ def update_MLog(theory, event):
 
 	date = event['date']
 	event_type = event['type']
+	score_events = ['Done', 'Fail']
 
-	if event_type == 'Done':
+	if event_type in score_events:
 		event_units = event['units']
 		event_value = int(event['value'])
 		log = MLog[date]
@@ -894,8 +985,8 @@ i_ReGen_KAS_KSU = {'element': None,
 i_Reactive_KAS_KSU = {'is_critical': False,
 					  'circumstance':None,
 					  'exceptions':None,
-			  		  'streak':0,
-			  		  'record':0}
+			  		  'streak':"0",
+			  		  'record':"0"}
 
 
 #KAS1 Specifics - End Value Generation Core Set - Acciones Recurrentes Proactivas con el objetivo de experimentar valor final
@@ -913,11 +1004,11 @@ i_KAS2_KSU = {'frequency': "7",
 
 
 
-#KAS3 Specifics - Acciones Reactivas Recurrentes con el objetivo de ejecutar una accion #xx
+#KAS3 Specifics - Acciones Reactivas Recurrentes con el objetivo de ejecutar una accion
 i_KAS3_KSU = {} 
 
 
-#KAS3 Specifics - Acciones Reactivas Recurrentes #xx
+#KAS3 Specifics - Acciones Reactivas Recurrentes
 i_KAS4_KSU = {'reaction':None} #La reaccion tiene que ser una accion a ejecutar, no simplemente dejar de hacer algo
 			  
 
@@ -971,8 +1062,7 @@ i_KAS2_Event = {'duration':None, # To calculate Amount of SmartEffort Points Ear
 			    'disconfort':False}
 
 
-i_KAS3_Event = {'importance':None,
-				'streak':None}
+i_KAS3_Event = {'importance':None}
 
 
 
@@ -1118,22 +1208,70 @@ def add_SmartEffort_event(theory, post_details): #Duration & Importance to be up
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
 	event = new_event(Hist, set_name)
+	ksu_set = unpack_set(eval('theory.' + set_name))
+	ksu = ksu_set[ksu_id]
+	poractive_sets = ['KAS1', 'KAS2']
+	reactive_sets = ['KAS3', 'KAS4']
 
 	event['ksu_id'] = ksu_id
 	event['type'] = 'Done'
 	event['units'] = 'SmartEffort'
-	event['duration'] = post_details['duration']
-	event['importance'] = post_details['importance']
-	if 'joy' in post_details:
-		event['joy'] = True
-	if 'disconfort' in post_details:
-		event['disconfort'] = True
-	event['value'] = int(post_details['duration'])*(int(post_details['importance']) + event['joy'] + event['disconfort'])
+
+	if set_name in poractive_sets:		
+		event['duration'] = post_details['duration']
+		event['importance'] = post_details['importance']
+		if 'joy' in post_details:
+			event['joy'] = True
+		if 'disconfort' in post_details:
+			event['disconfort'] = True
+		event['value'] = int(post_details['duration'])*(int(post_details['importance']) + event['joy'] + event['disconfort'])
+
+	if set_name in reactive_sets:
+		event['importance'] = ksu['importance'] 
+		event['streak'] = ksu['streak']
+		if int(event['importance']) < int(event['streak']):
+			event['value'] = int(event['importance']) * 2
+		else:
+			event['value'] = int(event['importance']) + int(event['streak'])
 
 	update_set(Hist, event)
 	update_MLog(theory, event)
 	theory.Hist = pack_set(Hist)
 	return event
+
+
+
+
+
+def add_Stupidity_event(theory, post_details): #xx
+	Hist = unpack_set(theory.Hist)
+	ksu_id = post_details['ksu_id']
+	set_name = get_type_from_id(ksu_id)
+	event = new_event(Hist, set_name)
+	ksu_set = unpack_set(eval('theory.' + set_name))
+	ksu = ksu_set[ksu_id]
+
+	event['ksu_id'] = ksu_id
+	event['type'] = 'Fail'
+	event['units'] = 'Stupidity'
+
+	event['importance'] = ksu['importance']
+	event['streak'] = ksu['streak']
+
+	if int(event['importance']) < int(event['streak']):
+		event['value'] = int(event['importance']) * 2
+	else:
+		event['value'] = int(event['importance']) + int(event['streak'])
+	
+	event['value'] = int(event['importance']) + int(event['streak'])
+
+	update_set(Hist, event)
+	update_MLog(theory, event)
+	theory.Hist = pack_set(Hist)	
+	return
+
+
+
 
 
 def add_EndValue_event(theory, post_details): #Duration & Importance to be updated from the post detail given that it could change
@@ -1279,10 +1417,22 @@ def user_Action_Done_SmartEffort(self):
 	update_ksu_next_event(theory, post_details)
 	update_ksu_in_mission(theory, post_details)
 	add_SmartEffort_event(theory, post_details)
+	update_ksu_streak_and_record(theory, post_details)
 	trigger_additional_actions(self)
 	theory.put()
 	return
 
+
+
+
+def user_Action_Fail_Stupidity(self):
+	theory = self.theory
+	post_details = get_post_details(self)	
+	add_Stupidity_event(theory, post_details) #xx
+	update_ksu_streak_and_record(theory, post_details)
+	trigger_additional_actions(self)
+	theory.put()
+	return
 
 
 def user_Action_Done_EndValue(self):
@@ -1506,24 +1656,26 @@ def triggered_Action_Done_ImPe_Contact(self):
 
 def developer_Action_Load_CSV(theory, set_name):
 	csv_path = create_csv_path(set_name)
-	standard_sets = [] 
+	standard_sets = ['KAS3'] 
 
 	if set_name in standard_sets:
 		developer_Action_Load_Set_CSV(theory, set_name, csv_path)
 
-	elif set_name == 'KAS1':
+	if set_name == 'KAS1':
 		developer_Action_Load_KAS1_CSV(theory, csv_path)
 
-	elif set_name == 'KAS2':
-		developer_Action_Load_KAS2_CSV(theory, csv_path)		
+	if set_name == 'KAS2':
+		developer_Action_Load_KAS2_CSV(theory, csv_path)
 
-	elif set_name == 'ImPe':
+	if set_name == 'ImPe':
 		developer_Action_Load_ImPe_CSV(theory, csv_path)
 
-	elif set_name == 'All':
+	if set_name == 'All':
 		developer_Action_Load_KAS1_CSV(theory, create_csv_path('KAS1'))
 		developer_Action_Load_KAS2_CSV(theory, create_csv_path('KAS2'))
+		developer_Action_Load_Set_CSV(theory, 'KAS3', create_csv_path('KAS3'))
 		developer_Action_Load_ImPe_CSV(theory, create_csv_path('ImPe'))
+		
 	return
 
 
@@ -1891,9 +2043,9 @@ d_Viewer ={'KAS1':{'set_title':'End Value Generation Core Set  (KAS1)',
 				    'set_name':'KAS3',
 				    'attributes':['circumstance','description','streak','record'],
 				    'fields':{'circumstance': 'Circumstance','description':'Target Reaction','streak':'Streak','record':'Record'},
-				    'columns':{'circumstance':3,'description':3,'streak':1,'record':1},
+				    'columns':{'circumstance':3,'description':4,'streak':1,'record':1},
 				    'show_Button_Done':True,
-				    'show_Button_Stupid':True, #xx pending to add this button
+				    'show_Button_Fail':True, #xx pending to add this button
 				    'show_Button_Add_To_Mission':False,
 				    'grouping_attribute':'element',
 				    'grouping_list':l_Elements},
@@ -1937,6 +2089,7 @@ app = webapp2.WSGIApplication([
 							 ('/NewKSU/' + PAGE_RE, NewKSU),
 							 ('/EditKSU', EditKSU),
 							 ('/Done', Done),
+							 ('/Failure', Failure),
 							 ('/effort-report',EffortReport),
 							 ('/email',Email),
 							 ('/LoadCSV/' + PAGE_RE, LoadCSV),

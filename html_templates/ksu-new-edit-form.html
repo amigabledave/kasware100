@@ -209,6 +209,65 @@
 
 
 
+{% if set_name == 'KAS3' %}
+ 
+
+
+	<div class="form-group">
+		<div class="col-md-12"> 
+			<label> Circumstance Description </label>
+			<input type="text" class="form-control tile-ksu-edit" name="circumstance" placeholder="e.g. When a love one is driving me crazy" required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">
+		</div>
+	</div>
+
+
+
+	<div class="form-group">
+		<div class="col-md-12"> 
+			<label> Target Reaction </label>
+			<input type="text" class="form-control tile-ksu-edit" name="description" placeholder="e.g. Make a mental list of at least 3 things that person has done for you" required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">
+		</div>
+	</div>
+
+
+	<div class="form-group">
+		
+		<div class="col-md-2">
+			<label>Element</label>
+				<select class="form-control" name="element">
+				{% for element in constants['l_Elements'] %}
+					{% if element[0] == ksu['element'] %}
+					<option selected="selected" value="{{element[0]}}"> {{element[1]}} </option>
+					{% else %}
+					<option value="{{element[0]}}"> {{element[1]}} </option>
+					{% endif %}
+				{% endfor %}
+			</select>
+		</div>
+
+
+		<div class="col-md-2"> 
+			<label> Relative Importance </label> 
+			<select class="form-control" name="importance"> 
+				{% for i in constants['l_Fibonacci'] %}
+					{% if i == ksu['importance'] %}
+						<option selected="selected">{{i}}</option>
+					{% else %}		
+						<option> {{i}} </option>
+					{% endif %}
+				{% endfor %}
+					
+			</select>
+		</div>
+
+	</div>
+
+
+{% endif %}
+
+
+
+
 {% if set_name == 'ImPe' %}
 	
 	<div class="form-group">
