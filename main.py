@@ -255,8 +255,9 @@ class Pipeline(Handler):
 		pipeline = current_pipeline(self)
 		pipeline = pretty_dates(pipeline)
 		pipeline = hide_invisible(pipeline)
-		pipeline = list(pipeline.values())
-		self.print_html('pipeline.html', pipeline=pipeline)
+		pipeline = make_ordered_ksu_set_list_for_pipeline(pipeline)
+		view_groups = define_pipeline_view_groups(pipeline)
+		self.print_html('pipeline.html', pipeline=pipeline, view_groups=view_groups)
 
 	def post(self):
 		if user_bouncer(self):
@@ -269,14 +270,83 @@ class Pipeline(Handler):
 
 
 def current_pipeline(self):
+
 	theory = self.theory
-	ksu_set = unpack_set(theory.KAS2) #need to generalize it to go over all sets
+	KAS1 = unpack_set(theory.KAS1)
+	KAS2 = unpack_set(theory.KAS2)
+	ksu_sets = [KAS1, KAS2]
 	result = {}
-	for ksu in ksu_set:
-		ksu = ksu_set[ksu]
-		if ksu['in_pipeline']:
-			result[ksu['id']] = ksu
+
+	for ksu_set in ksu_sets:
+		for ksu in ksu_set:
+			ksu = ksu_set[ksu]
+			if ksu['in_pipeline']:
+				result[ksu['id']] = ksu
+
 	return result
+
+
+
+def make_ordered_ksu_set_list_for_pipeline(current_pipeline): #xx este le cambio el nombre
+	ksu_set = current_pipeline 
+
+	if len(ksu_set) == 0:
+		return []
+	result = []
+	set_order = []
+
+	attribute = 'next_event'
+	reverse = False
+
+	for (key, ksu) in ksu_set.items():
+		set_order.append((ksu['id'],int(ksu[attribute])))
+	set_order = sorted(set_order, key=itemgetter(1), reverse=reverse)	
+
+	for e in set_order:
+		ksu_id = e[0]
+		ksu = ksu_set[ksu_id]
+		ksu['view_group'] = define_ksu_pipeline_group(int(ksu['next_event']))
+		result.append(ksu_set[ksu_id])
+
+	return result
+
+
+
+
+def define_ksu_pipeline_group(date_ordinal): #xx
+	date = datetime.fromordinal(date_ordinal)
+	date_month = date.strftime('%B')
+	date_year = date.strftime('%Y')
+	date = datetime.toordinal(date)
+
+	today = datetime.today().toordinal()
+	tomorrow = today + 1
+
+	if date <= today:
+		group = 'Today'
+
+	elif date == tomorrow:
+		group = 'Tomorrow'
+
+	elif today + 7 >= date:
+		group = 'This Week'
+
+	elif today + 30 >= date:
+		group = 'This Month'
+
+	else:
+		group = date_month + ' ' + date_year
+
+	return group
+
+def define_pipeline_view_groups(ordered_pipeline_list):
+	pipeline = ordered_pipeline_list
+	groups = []
+	for ksu in pipeline:
+		group = ksu['view_group']
+		if group not in groups:
+			groups.append(group)
+	return groups
 
 
 
