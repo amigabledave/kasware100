@@ -544,7 +544,7 @@ class NewKSU(Handler):
 			self.redirect(return_to)
 
 
-def update_child_with_parent(child_ksu, parent_ksu): ##xx
+def update_child_with_parent(child_ksu, parent_ksu):
 	inheritable_attributes = ['description','project','importance','time_cost','local_tags','in_mission','is_critical','comments','value_type']
 	child_attributes = list(child_ksu.keys())
 	parent_attributes = list(parent_ksu.keys())
@@ -619,7 +619,7 @@ def show_date_as_inputed(ksu, post_details):
 
 #---Done Handler---
 
-class Done(Handler): #xx
+class Done(Handler):
 
 	def get(self):
 		if user_bouncer(self):
@@ -687,13 +687,13 @@ class Done(Handler): #xx
 				self.print_html('done.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name, event_type=event_type, input_error=input_error)
 		
 			elif event_type == 'EndValue':
-				user_Action_Done_EndValue(self) #xx
-				self.redirect('/NewKSU/' + set_name + '?return_to=' + return_to + '&parent_id=' + parent_id) #xx
+				user_Action_Done_EndValue(self)
+				self.redirect('/NewKSU/' + set_name + '?return_to=' + return_to + '&parent_id=' + parent_id)
 
 				
 			elif event_type == 'SmartEffort':
 				user_Action_Done_SmartEffort(self)
-				self.redirect('/NewKSU/' + set_name + '?return_to=' + return_to + '&parent_id=' + parent_id) #xx
+				self.redirect('/NewKSU/' + set_name + '?return_to=' + return_to + '&parent_id=' + parent_id)
 
 
 		if user_action == 'Discard':
@@ -1228,6 +1228,7 @@ i_Score_Event = {'value':None, # Points Earned
 
 i_EndValue_Event = {'type':'EndValue',
 					'duration':None, # To calculate Amount of SmartEffort Points Earned
+					'effort':False,
 			    	'effort':False}
 
 
@@ -1237,7 +1238,8 @@ i_SmartEffort_Event = {'type':'SmartEffort',
 			    	   'disconfort':False}
 
 
-i_Stupidity_Event = {'type':'Stupidity'}
+i_Stupidity_Event = {'type':'Stupidity',
+					 'streak':None}
 
 
 
@@ -1468,10 +1470,17 @@ def add_EndValue_event(theory, post_details): #Duration & Importance to be updat
 	set_name = get_type_from_id(ksu_id)
 	event = new_event(Hist, 'EndValue')
 
+	if 'effort' in post_details: #xx
+		event['effort'] = True
+
 	event['ksu_id'] = ksu_id
 	event['duration'] = post_details['duration']
 	event['importance'] = post_details['importance']	
-	event['value'] = int(post_details['duration'])*int(post_details['importance'])
+	event['value'] = int(post_details['duration']) * int(post_details['importance']) + 20 * event['effort']
+
+
+
+
 
 	update_set(Hist, event)
 	update_MLog(theory, event)
@@ -1632,13 +1641,13 @@ def user_Action_Fail_Stupidity(self):
 	return
 
 
-def user_Action_Done_EndValue(self):
+def user_Action_Done_EndValue(self): #xx
 	theory = self.theory
 	post_details = get_post_details(self)
 	update_ksu_next_event(theory, post_details)
 	update_ksu_in_mission(theory, post_details)
 	add_EndValue_event(theory, post_details)
-	update_ksu_status(theory, post_details)	#xx
+	update_ksu_status(theory, post_details)
 	trigger_additional_actions(self)
 	theory.put()
 	return
