@@ -115,13 +115,15 @@ def make_ksu_template(set_name):
 
 # ---- Sorting ---
 
-student_tuples = [
-        ('john', 'A', 15),
-        ('jane', 'B', 12),
-        ('dave', 'B', 10)]
+# student_tuples = [
+#         ('john', 'A', 15),
+#         ('jane', 'B', 12),
+#         ('dave', 'B', 10)]
 
-from operator import itemgetter
-print sorted(student_tuples, key=itemgetter(2), reverse=True)
+# from operator import itemgetter
+# print sorted(student_tuples, key=itemgetter(2), reverse=True)
+
+
 
 
 

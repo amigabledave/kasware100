@@ -1,15 +1,15 @@
-element,description,circumstance,importance,exceptions,comments
-E400,Exprimirme granos,,13,Salvo por granos me esten doliendo y se vea que tienen buen chance de salir sin hacer mucho dano,
-E500,Romper una promesa que hice a otra persona,,13,,
-E500,Hablar a las espaldas de alguien de algo que no le diria de frente,,13,,
-E500,Picarle las costillas a Dani,,5,,Me dijo que le molestaba y que le dolia
-E700,Comprar objetos de algun tipo de contenido mientras mientras que tenga otro que no he consumido (libros<> audiolibros<> juegos de video<> juego de mesa),,8,,
-E800,Excederme del presupuesto que defini en Money Requirements,,13,Excederme por gastos que caigan dentro de la categoria Imprevistos (AKA Shit Happens),
-E100,Despertarme mas tarde de las 7:30 AM entre semana,,13,,
-E100,Procastinar,Cuando me de cuenta que estoy procastinandoDentro de los siguientes 2 minutos me voy: 1. Identificar que es aquello que estoy postergando hacer; 2. Comenzar a ejecutar Poner a hacer aquello que estoy postergando hacer.,13,,Voy a actuar como el Bufalo y dejar de actuar como la Vaca. En otras palabras<> aventarme de lleno contra la tormenta para minimizar el tiempo de exposicion<> en lugar de correr para intentar escapar de ella y asi solo conseguir maximizar el tiempo de exposicion :)
-E100,Romper una promesa que me hice a mi mismo,,13,,
-E100,Despertarme mas tarde de las 8:00 AM los domingos,,13,,
-E100,Ver mas de 2 capitulos de una serie al dia,,13,,Cuando veo mas seguro quizo decir que por flojo no hice otra actividad que pude haber disfrutado mas como leer
-E400,Seguir comiendo cuando ya no tengo hambre,Voy a dejar de comer por al menos 10 minutos,13,Vaccaciones. Comida gratis y deliciosa.,
-E400,Tomar Shots de Alcohol,Alguien me ofrece tomar un shotVoy a decir No gracias<> y si me pregunta que porque no<> voy a responder con una sonrisa  No hay necesidad de una explicacion,13,,
-E100,Lamentarme por una situacion de perdida de costo hundido,Voy a pensar de la siguiente forma: Perdi dinero<> ni pedo<> asi es la vida. Aprendamos lo que se pueda aprender<> recuperamos lo que se pueda recuperar sin perder mas TIEMPO o dinero y sigamos adelante,13,,
+value_type,description,circumstance,importance,exceptions,comments
+V400,Exprimirme granos,,13,Salvo por granos me esten doliendo y se vea que tienen buen chance de salir sin hacer mucho dano,
+V500,Romper una promesa que hice a otra persona,,13,,
+V500,Hablar a las espaldas de alguien de algo que no le diria de frente,,13,,
+V500,Picarle las costillas a Dani,,5,,Me dijo que le molestaba y que le dolia
+V700,Comprar objetos de algun tipo de contenido mientras mientras que tenga otro que no he consumido (libros<> audiolibros<> juegos de video<> juego de mesa),,8,,
+V800,Excederme del presupuesto que defini en Money Requirements,,13,Excederme por gastos que caigan dentro de la categoria Imprevistos (AKA Shit Happens),
+V100,Despertarme mas tarde de las 7:30 AM entre semana,,13,,
+V100,Procastinar,Cuando me de cuenta que estoy procastinandoDentro de los siguientes 2 minutos me voy: 1. Identificar que es aquello que estoy postergando hacer; 2. Comenzar a ejecutar Poner a hacer aquello que estoy postergando hacer.,13,,Voy a actuar como el Bufalo y dejar de actuar como la Vaca. En otras palabras<> aventarme de lleno contra la tormenta para minimizar el tiempo de exposicion<> en lugar de correr para intentar escapar de ella y asi solo conseguir maximizar el tiempo de exposicion :)
+V100,Romper una promesa que me hice a mi mismo,,13,,
+V100,Despertarme mas tarde de las 8:00 AM los domingos,,13,,
+V100,Ver mas de 2 capitulos de una serie al dia,,13,,Cuando veo mas seguro quizo decir que por flojo no hice otra actividad que pude haber disfrutado mas como leer
+V400,Seguir comiendo cuando ya no tengo hambre,Voy a dejar de comer por al menos 10 minutos,13,Vaccaciones. Comida gratis y deliciosa.,
+V400,Tomar Shots de Alcohol,Alguien me ofrece tomar un shotVoy a decir No gracias<> y si me pregunta que porque no<> voy a responder con una sonrisa  No hay necesidad de una explicacion,13,,
+V100,Lamentarme por una situacion de perdida de costo hundido,Voy a pensar de la siguiente forma: Perdi dinero<> ni pedo<> asi es la vida. Aprendamos lo que se pueda aprender<> recuperamos lo que se pueda recuperar sin perder mas TIEMPO o dinero y sigamos adelante,13,,

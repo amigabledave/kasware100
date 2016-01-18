@@ -1,57 +1,57 @@
-id,contact_frequency,last_contact,local_tags,description
-ImPe_1,7,735963,Familia,Mama
-ImPe_2,7,735963,Familia,Papa
-ImPe_3,7,735963,None,Zuzana Prokesova (Condesa)
-ImPe_4,7,735963,None,Jorge Alvarado (Magic)
-ImPe_5,30,735963,Linio,David Lobo
-ImPe_6,120,735931,Linio,Osman Mendoza
-ImPe_7,7,735963,CEMAC,Luis Lara
-ImPe_8,7,735963,McKinsey,Sergio Echeverria
-ImPe_9,60,735927,CEMAC,Alonso Baranda
-ImPe_10,30,735955,Linio,Elisabetta Pique
-ImPe_11,7,735963,None,Jimmy Sotelo
-ImPe_12,120,735862,McKinsey,Sofia Vargas
-ImPe_13,30,735955,ITAM,Ana Raquel Alonso
-ImPe_14,60,735916,ITAM,Juan Pablo Magic
-ImPe_15,60,735917,ITAM,Valery
-ImPe_16,120,735851,McKinsey,Richard Lee
-ImPe_17,60,735910,Familia,Iker Mejia
-ImPe_18,60,735910,CEMAC,Bernardo Gonzalez
-ImPe_19,60,735910,ITAM,Tatiana
-ImPe_20,60,735910,McKinsey,Rafael Rivera
-ImPe_21,60,735907,Linio,Sara El Alami
-ImPe_22,60,735911,Linio,Alexander Mann
-ImPe_23,60,735907,Linio,Abelardo Bravo
-ImPe_24,60,735910,Linio,Maria Usi
-ImPe_25,60,735900,ITAM,Checo - Sergio Guerrero
-ImPe_26,60,735903,CEMAC,Juan Pablo Riebeling
-ImPe_27,120,735903,CEMAC,Memo Huerta
-ImPe_28,60,735891,Familia,Juan Carlos Terroba
-ImPe_29,60,735903,McKinsey,Said Mena
-ImPe_30,60,735903,McKinsey,Daniela Vargas
-ImPe_31,60,735903,None,Clemente (Impro)
-ImPe_32,60,735963,Linio,Elena Alvarez
-ImPe_33,120,735898,McKinsey,Ximena Banura
-ImPe_34,60,735955,ITAM,Gerardo Ortiz (AKA Acapulco)
-ImPe_35,60,735956,Familia,Tia Gaby
-ImPe_36,120,735849,Familia,Laura Meza
-ImPe_37,120,735849,Familia,Alex Meza
-ImPe_38,120,735874,CEMAC,Francisco Tenopala
-ImPe_39,120,735874,CEMAC,Adrian Tovar
-ImPe_40,120,735874,McKinsey,Steven Ochs
-ImPe_41,120,735854,McKinsey,Diego Pinhao
-ImPe_42,120,735842,McKinsey,Dulce Kadise
-ImPe_43,7,735956,McKinsey,Dani
-ImPe_44,120,735841,McKinsey,Andres Chavez
-ImPe_45,120,735842,McKinsey,Vicente Saucedo
-ImPe_46,120,735849,McKinsey,Santiago Reguero
-ImPe_47,120,735849,McKinsey,Julio Fu
-ImPe_48,120,735820,None,Tomasz Piwovarzcyk
-ImPe_49,120,735849,Linio,Cerilenne Menendez
-ImPe_50,120,735955,Linio,Karmen Valencia
-ImPe_51,120,735814,Linio,Juan Plaza
-ImPe_52,120,735878,None,Arturo Aguila
-ImPe_53,120,735879,None,Mira Exenberg (Addis)
-ImPe_54,120,735849,None,Luigi Archundia (Joyas)
-ImPe_55,60,735903,Familia,Maureen Mejia
-ImPe_56,120,735915,McKinsey,Jose Manuel Zardain
+value_type,last_contact,local_tags,description
+7,735963,Familia,Mama
+7,735963,Familia,Papa
+7,735963,None,Zuzana Prokesova (Condesa)
+7,735963,None,Jorge Alvarado (Magic)
+30,735963,Linio,David Lobo
+120,735931,Linio,Osman Mendoza
+7,735963,CEMAC,Luis Lara
+7,735963,McKinsey,Sergio Echeverria
+60,735927,CEMAC,Alonso Baranda
+30,735955,Linio,Elisabetta Pique
+7,735963,None,Jimmy Sotelo
+120,735862,McKinsey,Sofia Vargas
+30,735955,ITAM,Ana Raquel Alonso
+60,735916,ITAM,Juan Pablo Magic
+60,735917,ITAM,Valery
+120,735851,McKinsey,Richard Lee
+60,735910,Familia,Iker Mejia
+60,735910,CEMAC,Bernardo Gonzalez
+60,735910,ITAM,Tatiana
+60,735910,McKinsey,Rafael Rivera
+60,735907,Linio,Sara El Alami
+60,735911,Linio,Alexander Mann
+60,735907,Linio,Abelardo Bravo
+60,735910,Linio,Maria Usi
+60,735900,ITAM,Checo - Sergio Guerrero
+60,735903,CEMAC,Juan Pablo Riebeling
+120,735903,CEMAC,Memo Huerta
+60,735891,Familia,Juan Carlos Terroba
+60,735903,McKinsey,Said Mena
+60,735903,McKinsey,Daniela Vargas
+60,735903,None,Clemente (Impro)
+60,735963,Linio,Elena Alvarez
+120,735898,McKinsey,Ximena Banura
+60,735955,ITAM,Gerardo Ortiz (AKA Acapulco)
+60,735956,Familia,Tia Gaby
+120,735849,Familia,Laura Meza
+120,735849,Familia,Alex Meza
+120,735874,CEMAC,Francisco Tenopala
+120,735874,CEMAC,Adrian Tovar
+120,735874,McKinsey,Steven Ochs
+120,735854,McKinsey,Diego Pinhao
+120,735842,McKinsey,Dulce Kadise
+7,735956,McKinsey,Dani
+120,735841,McKinsey,Andres Chavez
+120,735842,McKinsey,Vicente Saucedo
+120,735849,McKinsey,Santiago Reguero
+120,735849,McKinsey,Julio Fu
+120,735820,None,Tomasz Piwovarzcyk
+120,735849,Linio,Cerilenne Menendez
+120,735955,Linio,Karmen Valencia
+120,735814,Linio,Juan Plaza
+120,735878,None,Arturo Aguila
+120,735879,None,Mira Exenberg (Addis)
+120,735849,None,Luigi Archundia (Joyas)
+60,735903,Familia,Maureen Mejia
+120,735915,McKinsey,Jose Manuel Zardain
