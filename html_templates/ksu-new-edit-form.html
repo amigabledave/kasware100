@@ -232,7 +232,17 @@
 				{% endfor %}
 			</select>
 		</div>
+
+
+		<div class="col-md-4">
+			<label> Mini Objective (if any) </label>
+			<input type="text" class="form-control" name="project" placeholder="Optional" value="{% if ksu['project']%}{{ksu['project']}}{% endif %}">
+		</div>
+
 	</div>
+
+
+
 	
 {% endif %}
 

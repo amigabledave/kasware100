@@ -42,14 +42,7 @@
 			</div>
 		</div>
 
-		<br>
 
-		<div class="form-group">
-			<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Done_Confirm">   Confirm   </button> </div>	
-			<div class="col-md-2"> <button type="submit" class="btn btn-danger btn-lg  respect-space" name="action_description" value="Discard">  Discard  </button> </div>
-		</div>
-
-	</form>
 
 {% endif %}
 
@@ -57,7 +50,7 @@
 {% if event_type == 'SmartEffort' %}
 
 
-	{% if set_name == 'KAS2' %}
+	{% if set_name == 'KAS1' or 'KAS2' %}
 
 		<div class="row">
 			<div class="col-md-12"> <div class="section-title"> Awesome! You are done with: </div></div>
@@ -131,18 +124,35 @@
 
 		</div>
 
-
-		<br>
-
-		<div class="form-group">
-			<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Done_Confirm">   Confirm   </button> </div>	
-			<div class="col-md-2"> <button type="submit" class="btn btn-danger btn-lg  respect-space" name="action_description" value="Discard">  Discard  </button> </div>
-		</div>
-
-	</form>
+	
 
 
 {% endif %}
+
+
+	<br>
+
+	<div class="form-group">
+
+		{% if set_name == 'KAS2' %} 
+
+			<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Done_Confirm">   Confirm   </button> </div>
+	
+			<div class="col-md-4"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Done_Confirm_Continue"> Confirm and add Follow Up Action </button> </div>
+
+			<div class="col-md-2"> <button type="submit" class="btn btn-danger btn-lg  respect-space" name="action_description" value="Discard">  Discard  </button> </div>
+
+		{% else %}
+
+			<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Done_Confirm">   Confirm   </button> </div>
+			<div class="col-md-2"> <button type="submit" class="btn btn-danger btn-lg  respect-space" name="action_description" value="Discard">  Discard  </button> </div>
+
+		{% endif %}
+
+
+	</div>
+
+</form>
 
 
 {% if input_error %}

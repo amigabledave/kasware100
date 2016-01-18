@@ -38,7 +38,7 @@
 
 			<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
 
-			<div class="col-md-6">  {{ksu['description']}} {% if ksu['comments'] %} <em> -- {{ksu['comments']}} </em> {% endif %}</div>
+			<div class="col-md-6"> {% if ksu['project'] %} <b> {{ksu['project']}} </b> -- {% endif %} {{ksu['description']}} {% if ksu['comments'] %} -- <em> {{ksu['comments']}} </em> {% endif %}</div>
 
 			<div class="col-md-1">
 				<input type="submit" class="btn btn-md btn-success" name="action_description" value="Done">

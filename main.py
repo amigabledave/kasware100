@@ -379,7 +379,7 @@ class SetViewer(Handler):
 		user_action = post_details['action_description']	
 		
 		if user_action == 'NewKSU':
-			self.redirect('/NewKSU/' + set_name)
+			self.redirect('/NewKSU/' + set_name + '?return_to=/SetViewer/' + set_name)
 
 		else:
 			ksu_id = post_details['ksu_id']
@@ -427,7 +427,7 @@ def pretty_dates(ksu_set):
 	
 
 
-def make_ordered_ksu_set_list_for_SetViewer(ksu_set): #xx
+def make_ordered_ksu_set_list_for_SetViewer(ksu_set):
 	if len(ksu_set) == 0:
 		return []
 
@@ -473,20 +473,6 @@ def unpack_date(date_ordinal):
 
 
 
-# def not_ugly_dates(ksu_set): #Old to be deleted
-# 	date_attributes = ['last_event', 'next_event', 'last_contact', 'next_contact']
-# 	for date_attribute in date_attributes:
-# 		for ksu in ksu_set:
-# 			ksu = ksu_set[ksu]
-# 			valid_attributes = list(ksu.keys())
-# 			if date_attribute in valid_attributes:	
-# 				if ksu[date_attribute]:
-# 					number_date = int(ksu[date_attribute])
-# 					pretty_date = datetime.fromordinal(number_date).strftime('%d-%m-%Y')
-# 					ksu[date_attribute] = pretty_date
-# 	return ksu_set
-
-
 def not_ugly_dates(ksu):
 	date_attributes = ['last_event', 'next_event', 'last_contact', 'next_contact']
 	valid_attributes = list(ksu.keys())
@@ -497,8 +483,6 @@ def not_ugly_dates(ksu):
 				not_ugly_date = datetime.fromordinal(number_date).strftime('%d-%m-%Y')
 				ksu[date_attribute] = not_ugly_date
 	return ksu
-
-
 
 
 
@@ -525,9 +509,15 @@ class NewKSU(Handler):
 		if user_bouncer(self):
 			return
 		theory = self.theory
-		ksu_set = unpack_set(eval('theory.' + set_name))
+		ksu_set = unpack_set(eval('theory.' + set_name))	
 		ksu = new_ksu(self, set_name)
 		ksu = not_ugly_dates(ksu)
+
+		parent_id = self.request.get('parent_id')
+		if parent_id:
+			parent = ksu_set[parent_id]
+			update_child_with_parent(ksu, parent)
+		
 		self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name ,title='Create')
 
 	def post(self, set_name):
@@ -535,7 +525,10 @@ class NewKSU(Handler):
 			return
 		theory = self.theory	
 		post_details = get_post_details(self)
-		if post_details['action_description'] == 'Create':
+		return_to = self.request.get('return_to')
+		user_action = post_details['action_description']
+
+		if user_action == 'Create':
 			input_error = user_input_error(post_details)
 			if input_error:
 				ksu_set = unpack_set(eval('theory.' + set_name))
@@ -545,7 +538,22 @@ class NewKSU(Handler):
 				self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name, title='Create', input_error=input_error)
 			else:
 				user_Action_Create_ksu(self, set_name)
-				self.redirect('/SetViewer/' + set_name)
+				self.redirect(return_to)
+
+		if user_action == 'Discard':
+			self.redirect(return_to)
+
+
+def update_child_with_parent(child_ksu, parent_ksu): ##xx
+	inheritable_attributes = ['description','project','importance','time_cost','local_tags','in_mission','is_critical','comments','value_type']
+	child_attributes = list(child_ksu.keys())
+	parent_attributes = list(parent_ksu.keys())
+	for attribute in inheritable_attributes:
+		if attribute in child_attributes and attribute in parent_attributes:
+			child_ksu[attribute] = parent_ksu[attribute]
+	child_ksu['parent_id'] = parent_ksu['id']
+	return child_ksu
+
 
 
 
@@ -571,13 +579,15 @@ class EditKSU(Handler):
 		post_details = get_post_details(self)
 		set_name = get_type_from_id(post_details['ksu_id'])
 		return_to = self.request.get('return_to')
+		user_action = post_details['action_description']
 
-		if post_details['action_description'] == 'Save':
+		if user_action == 'Save':
 			input_error = user_input_error(post_details)
 
 			if input_error:
 				ksu_id = post_details['ksu_id']
 				set_name = get_type_from_id(ksu_id)
+				ksu_set = unpack_set(eval('theory.' + set_name))
 				ksu = ksu_set[ksu_id]
 				ksu = update_ksu_with_post_details(ksu, post_details)			
 				show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
@@ -588,14 +598,15 @@ class EditKSU(Handler):
 				self.redirect(return_to)
 
 
-		if post_details['action_description'] == 'Delete':
+		if user_action == 'Discard':
+			self.redirect(return_to)
+
+
+		if user_action == 'Delete':
 			user_Action_Delete_ksu(self)
 			self.redirect(return_to)
 
-			
-			
-
-
+						
 
 
 def show_date_as_inputed(ksu, post_details):
@@ -609,6 +620,7 @@ def show_date_as_inputed(ksu, post_details):
 #---Done Handler---
 
 class Done(Handler): #xx
+
 	def get(self):
 		if user_bouncer(self):
 			return
@@ -627,12 +639,14 @@ class Done(Handler): #xx
 		
 		self.print_html('done.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name, event_type=event_type)
 
+
 	def post(self):
 		if user_bouncer(self):
 			return
 		theory = self.theory	
 		post_details = get_post_details(self)
 		return_to = self.request.get('return_to')
+		user_action = post_details['action_description']
 		set_name = get_type_from_id(post_details['ksu_id'])
 		ksu_id = post_details['ksu_id']
 		set_name = get_type_from_id(ksu_id)
@@ -645,7 +659,7 @@ class Done(Handler): #xx
 			event_type = 'SmartEffort'
 
 		
-		if post_details['action_description'] == 'Done_Confirm':
+		if user_action == 'Done_Confirm':
 			input_error = user_input_error(post_details)
 
 			if input_error:
@@ -662,7 +676,27 @@ class Done(Handler): #xx
 				user_Action_Done_SmartEffort(self)
 				self.redirect(return_to)
 
-		elif post_details['action_description'] == 'Discard':
+		if user_action =='Done_Confirm_Continue':
+			input_error = user_input_error(post_details)
+			parent_id = ksu['id']
+
+			if input_error:
+				ksu['time_cost'] = post_details['duration']
+				dropdowns = make_dropdowns(theory)
+
+				self.print_html('done.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name, event_type=event_type, input_error=input_error)
+		
+			elif event_type == 'EndValue':
+				user_Action_Done_EndValue(self) #xx
+				self.redirect('/NewKSU/' + set_name + '?return_to=' + return_to + '&parent_id=' + parent_id) #xx
+
+				
+			elif event_type == 'SmartEffort':
+				user_Action_Done_SmartEffort(self)
+				self.redirect('/NewKSU/' + set_name + '?return_to=' + return_to + '&parent_id=' + parent_id) #xx
+
+
+		if user_action == 'Discard':
 			self.redirect(return_to)	
 
 				
@@ -1011,7 +1045,7 @@ def update_ksu_in_mission(theory, post_details):
 
 
 
-def update_ksu_status(theory, post_details): #xx
+def update_ksu_status(theory, post_details):
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
 	valid_sets = ['KAS2']	
@@ -1022,7 +1056,7 @@ def update_ksu_status(theory, post_details): #xx
 	ksu = ksu_set[ksu_id]	
 	user_action = post_details['action_description']
 
-	if user_action == 'Done_Confirm':
+	if user_action == 'Done_Confirm' or user_action == 'Done_Confirm_Continue':
 		ksu['status'] = 'Done'
 		ksu['is_visible'] = False
 		
@@ -1122,6 +1156,7 @@ i_Reactive_KAS_KSU = {'circumstance':None,
 #KAS1 Specifics	- Resource Generation Core Set - Acciones Recurrentes Proactivas con el objetivo de generar recursos	
 i_KAS1_KSU = {'charging_time': "7",
 			  'last_event': None,
+			  'project':None,
 			  'best_day': "None"} 
 
 
@@ -1336,7 +1371,7 @@ def add_Created_event(theory, ksu):
 
 
 
-def add_Edited_event(theory, ksu, changes): #xx
+def add_Edited_event(theory, ksu, changes):
 	Hist = unpack_set(theory.Hist)
 	ksu_id = ksu['id']
 	set_name = get_type_from_id(ksu_id)
@@ -1368,7 +1403,7 @@ def add_SmartEffort_event(theory, post_details): #Duration & Importance to be up
 	Hist = unpack_set(theory.Hist)
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
-	event = new_event(Hist, 'SmartEffort') #xx1 bug alert, necesito cambiar la forma en la que se actualiza mlog para que no cheque si el event type es Done porque eso ya no existe
+	event = new_event(Hist, 'SmartEffort') 
 	ksu_set = unpack_set(eval('theory.' + set_name))
 	ksu = ksu_set[ksu_id]
 	poractive_sets = ['KAS1', 'KAS2']
@@ -1565,7 +1600,7 @@ def determine_edit_changes(new_ksu, old_ksu):
 
 def user_Action_Delete_ksu(self):
 	theory = self.theory
-	ksu = add_deleted_ksu_to_set(self) #xx esto acualiza el status?
+	ksu = add_deleted_ksu_to_set(self)
 	add_Deleted_event(theory, ksu)
 	trigger_additional_actions(self)
 	theory.put()
@@ -1603,7 +1638,7 @@ def user_Action_Done_EndValue(self):
 	update_ksu_next_event(theory, post_details)
 	update_ksu_in_mission(theory, post_details)
 	add_EndValue_event(theory, post_details)
-	update_ksu_status(theory, post_details)	
+	update_ksu_status(theory, post_details)	#xx
 	trigger_additional_actions(self)
 	theory.put()
 	return
@@ -2134,7 +2169,7 @@ constants = {'l_Fibonacci':l_Fibonacci,
 
 
 
-d_Viewer ={'KAS1':{'set_title':'Resource Generation Core Set  (KAS1)',
+d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1)',
 				    'set_name':'KAS1',
 				    'attributes':['description','charging_time','importance','pretty_next_event'],
 				    'fields':{'description':'Description','charging_time':'C. Time','importance':'Exp. Imp.', 'pretty_next_event':'Next Event'},
@@ -2145,7 +2180,7 @@ d_Viewer ={'KAS1':{'set_title':'Resource Generation Core Set  (KAS1)',
 				    'grouping_list':l_Values},
 
 
-			'KAS2':{'set_title':'Value Generation Expantion Set  (KAS2)',
+			'KAS2':{'set_title':'Proactive Value Creation Actions Expantion Set  (KAS2)',
 				    'set_name':'KAS2',
 				    'attributes':['description','pretty_next_event','project'],
 				    'fields':{'description':'Action description', 'pretty_next_event':'Event Date', 'project':'Project (if any)'},
@@ -2156,7 +2191,7 @@ d_Viewer ={'KAS1':{'set_title':'Resource Generation Core Set  (KAS1)',
 				    'grouping_list':l_Values},
 
 
-			'KAS3':{'set_title':'Target Reactions Set (KAS3)',
+			'KAS3':{'set_title':'Reactive Value Creation Actions Set (KAS3)',
 				    'set_name':'KAS3',
 				    'attributes':['circumstance','description','streak','record'],
 				    'fields':{'circumstance': 'Circumstance','description':'Target Reaction','streak':'Streak','record':'Record'},
@@ -2168,12 +2203,14 @@ d_Viewer ={'KAS1':{'set_title':'Resource Generation Core Set  (KAS1)',
 				    'grouping_list':l_Values},
 
 
-			'KAS4':{'set_title':'Actions To Avoid Set (KAS4)',
+			'KAS4':{'set_title':'Value Destruction Actions Set -- To be avoided  (KAS4)',
 				    'set_name':'KAS4',
 				    'attributes':['description','circumstance','reaction','streak','record'],
 				    'fields':{'description':'Action to Avoid','circumstance':'Dangerous Circumstances & Potential Reactions', 'streak':'Streak','record':'Record'},
 				    'columns':{'description':3,'circumstance':4,'streak':1,'record':1},
-				    'show_Button_Done':True,
+				    
+				    'show_Button_Avoided':True,
+				    # 'show_Button_Done':True,
 				    'show_Button_Fail':True,
 				    'show_Button_Add_To_Mission':False,
 				    'grouping_attribute':'value_type',
