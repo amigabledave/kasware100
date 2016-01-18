@@ -1074,10 +1074,10 @@ def update_MLog(theory, event):
 	score_events = ['EndValue','SmartEffort','Stupidity']
 
 	if event_type in score_events:
-		event_units = event['type']
-		event_value = int(event['value'])
+		event_score = calculate_event_score(event)
 		log = MLog[date]
-		log[event_units] = log[event_units] + event_value
+		for (units, score) in list(event_score.items()):
+			log[units] = log[units] + score
 
 	ksu_id = event['ksu_id']
 	event_id = event['id']
@@ -1090,6 +1090,7 @@ def update_MLog(theory, event):
 
 	theory.MLog = pack_set(MLog)
 	return
+
 
 
 def update_set(ksu_set, ksu):
@@ -1228,14 +1229,14 @@ i_Score_Event = {'value':None, # Points Earned
 
 i_EndValue_Event = {'type':'EndValue',
 					'duration':None, # To calculate Amount of SmartEffort Points Earned
-					'effort':False,
-			    	'effort':False}
+					'effort':False}
 
 
 i_SmartEffort_Event = {'type':'SmartEffort',
 					   'duration':None, # To calculate Amount of SmartEffort Points Earned
 			    	   'joy':False,
-			    	   'disconfort':False}
+			    	   'disconfort':False,
+			    	   'streak':None}
 
 
 i_Stupidity_Event = {'type':'Stupidity',
@@ -1401,6 +1402,28 @@ def add_Deleted_event(theory, ksu):
 
 
 
+
+def add_EndValue_event(theory, post_details): #Duration & Importance to be updated from the post detail given that it could change
+	Hist = unpack_set(theory.Hist)
+	ksu_id = post_details['ksu_id']
+	set_name = get_type_from_id(ksu_id)
+	event = new_event(Hist, 'EndValue')
+
+	if 'effort' in post_details:
+		event['effort'] = True
+
+	event['ksu_id'] = ksu_id
+	event['duration'] = post_details['duration']
+	event['importance'] = post_details['importance']	
+	
+	update_set(Hist, event)
+	update_MLog(theory, event)
+	theory.Hist = pack_set(Hist)
+	return event
+
+
+
+
 def add_SmartEffort_event(theory, post_details): #Duration & Importance to be updated from the post detail given that it could change
 	Hist = unpack_set(theory.Hist)
 	ksu_id = post_details['ksu_id']
@@ -1410,8 +1433,9 @@ def add_SmartEffort_event(theory, post_details): #Duration & Importance to be up
 	ksu = ksu_set[ksu_id]
 	poractive_sets = ['KAS1', 'KAS2']
 	reactive_sets = ['KAS3', 'KAS4']
+	
 	event['ksu_id'] = ksu_id
-
+	
 	if set_name in poractive_sets:		
 		event['duration'] = post_details['duration']
 		event['importance'] = post_details['importance']
@@ -1419,16 +1443,11 @@ def add_SmartEffort_event(theory, post_details): #Duration & Importance to be up
 			event['joy'] = True
 		if 'disconfort' in post_details:
 			event['disconfort'] = True
-		event['value'] = int(post_details['duration'])*(int(post_details['importance']) + event['joy'] + event['disconfort'])
 
 	if set_name in reactive_sets:
-		event['importance'] = ksu['importance'] 
- 
-		if int(event['importance']) < int(ksu['streak']):
-			event['value'] = int(event['importance']) * 2
-		else:
-			event['value'] = int(event['importance']) + int(ksu['streak'])
-
+		event['importance'] = ksu['importance']
+		event['streak'] = ksu['streak']
+		
 	update_set(Hist, event)
 	update_MLog(theory, event)
 	theory.Hist = pack_set(Hist)
@@ -1447,14 +1466,8 @@ def add_Stupidity_event(theory, post_details):
 
 	event['ksu_id'] = ksu_id
 	event['importance'] = ksu['importance']
+	event['streak'] = ksu['streak']
 	
-	if int(event['importance']) < int(ksu['streak']):
-		event['value'] = int(event['importance']) * 2
-	else:
-		event['value'] = int(event['importance']) + int(ksu['streak'])
-	
-	event['value'] = int(event['importance']) + int(ksu['streak'])
-
 	update_set(Hist, event)
 	update_MLog(theory, event)
 	theory.Hist = pack_set(Hist)	
@@ -1464,31 +1477,38 @@ def add_Stupidity_event(theory, post_details):
 
 
 
-def add_EndValue_event(theory, post_details): #Duration & Importance to be updated from the post detail given that it could change
-	Hist = unpack_set(theory.Hist)
-	ksu_id = post_details['ksu_id']
-	set_name = get_type_from_id(ksu_id)
-	event = new_event(Hist, 'EndValue')
+def calculate_event_score(event): #xx
+	result = {'EndValue':0,'SmartEffort':0, 'Stupidity':0}
 
-	if 'effort' in post_details: #xx
-		event['effort'] = True
+	poractive_sets = ['KAS1', 'KAS2']
+	reactive_sets = ['KAS3', 'KAS4']
+	set_name = get_type_from_id(event['ksu_id'])
+	event_type = event['type']
 
-	event['ksu_id'] = ksu_id
-	event['duration'] = post_details['duration']
-	event['importance'] = post_details['importance']	
-	event['value'] = int(post_details['duration']) * int(post_details['importance']) + 20 * event['effort']
+	if event_type == 'EndValue':
+		result['EndValue'] = event['value'] = int(event['duration']) * int(event['importance'])
+		result['SmartEffort'] = 20 * event['effort']
+
+	elif event_type == 'SmartEffort':
+
+		if set_name in poractive_sets:		
+			result['SmartEffort'] = int(event['duration'])*(int(event['importance']) + event['disconfort']) 
+			result['EndValue'] = int(event['duration'])*event['joy']
+			
+		if set_name in reactive_sets: 
+			if int(event['importance']) < int(event['streak']):
+				result['SmartEffort'] = int(event['importance']) * 2
+			else:
+				result['SmartEffort'] = int(event['importance']) + int(event['streak'])
 
 
-
-
-
-	update_set(Hist, event)
-	update_MLog(theory, event)
-	theory.Hist = pack_set(Hist)
-	return event
-
-
-
+	elif event_type == 'Stupidity':
+		if int(event['importance']) < int(event['streak']):
+			result['Stupidity'] = int(event['importance']) * 2
+		else:
+			result['Stupidity'] = int(event['importance']) + int(event['streak'])
+	
+	return result
 
 
 
