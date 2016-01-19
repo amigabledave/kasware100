@@ -75,6 +75,18 @@
 				{% endif %}
 
 
+				{% if viewer_details['show_Button_Add_Child_KSU'] %}
+
+					<div class="col-md-1">
+							<form class="form-horizontal" method="post">
+							<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+						  	<button type="submit" class="btn btn-primary btn-md" name="action_description" value="Add_Child_KSU"> Add Action </button>
+						</form>	
+					</div>
+
+				{% endif %}
+
+
 				{% if viewer_details['show_Button_Done'] %}
 
 					<div class="col-md-1">
@@ -85,6 +97,20 @@
 					</div>
 
 				{% endif %}	
+
+
+
+				{% if viewer_details['show_Button_Achieved'] %}
+
+					<div class="col-md-1">
+						<form class="form-horizontal" method="post">
+							<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+						  	<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Achieved">  Achieved  </button>
+						</form>	
+					</div>
+
+				{% endif %}	
+
 
 
 				{% if viewer_details['show_Button_Avoided'] %}

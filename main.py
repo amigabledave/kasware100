@@ -24,6 +24,7 @@ class Theory(db.Model):
 	KAS2 = db.BlobProperty(required=True)	
 	KAS3 = db.BlobProperty(required=True)
 	KAS4 = db.BlobProperty(required=True)
+	BigO = db.BlobProperty(required=True)
 	ImPe = db.BlobProperty(required=True)
 	Hist = db.BlobProperty(required=True)	
 	MLog = db.BlobProperty(required=True)
@@ -49,9 +50,10 @@ class Theory(db.Model):
 					  KAS2=new_set_KSU('KAS2'),					  
 					  KAS3=new_set_KSU('KAS3'),
 					  KAS4=new_set_KSU('KAS4'),
+					  BigO=new_set_KSU('BigO'),
 					  ImPe=new_set_KSU('ImPe'),
-					  MLog=new_set_MLog(),
-					  Hist=new_set_Hist())
+					  Hist=new_set_Hist(),
+					  MLog=new_set_MLog())
 
 	@classmethod
 	def valid_login(cls, username, password):
@@ -438,6 +440,8 @@ def make_ordered_ksu_set_list_for_SetViewer(ksu_set):
 							'KAS2':{'attribute':'next_event', 'reverse':False},	
 							'KAS3':{'attribute':'importance', 'reverse':False},
 							'KAS4':{'attribute':'importance', 'reverse':False},
+
+							'BigO':{'attribute':'awesomeness', 'reverse':False},							
 							'ImPe':{'attribute':'contact_frequency', 'reverse':False}}
 
 	attribute = d_view_order_details[set_name]['attribute'] 
@@ -1109,6 +1113,8 @@ def update_theory(theory, ksu_set):
 		theory.KAS3 = pack_set(ksu_set)
 	if set_name == 'KAS4':
 		theory.KAS4 = pack_set(ksu_set)
+	if set_name == 'BigO':
+		theory.BigO = pack_set(ksu_set)
 	if set_name == 'ImPe':
 		theory.ImPe = pack_set(ksu_set)
 	return
@@ -1180,15 +1186,23 @@ i_KAS4_KSU = {'value_type':None,}
 			  
 
 
+i_BigO_KSU = {'value_type':None,
+			  'awesomeness':None, #How much awesomeness do you believe that achieving this goal would add to your life. Fibbo Scale. Can actually be 0. Formely known as achievement points.
+			  'days_required':None,
+			  'is_milestone':False,
+			  'target_date':None} #xx if no target date is provided is automatically calculated based bo days required			  
+			  
 
 
-i_KAS8_KSU = {'pipeline':"9"}
+# Big Objective Key Actions Set #xx
+i_BOKA_KSU = {'priority':"5"}
 
 
 
-i_Wish_KSU = {'nature': None, # End Value or Resoruce -- Names to be improved
-			  'exitement_lvl': None,
-			  'pipeline': "9"} 
+i_Wish_KSU = {'value_type': None,
+			  'awesomeness':None, #How much awesomeness do you believe that achieving this goal would add to your life. Fibbo Scale. Can actually be 0. Formely known as achievement points.			  
+			  'bucket_list':False,
+			  'milestone_target_date':None} #This is seen as 'milestone Target Date' only if this dream is also consider a milestone.
 
 
 
@@ -1239,8 +1253,15 @@ i_SmartEffort_Event = {'type':'SmartEffort',
 			    	   'streak':None}
 
 
+
 i_Stupidity_Event = {'type':'Stupidity',
 					 'streak':None}
+
+
+
+i_Achievement_Event = {'type':'Achievement', #xx
+					   'awesomeness':None,
+					   'target_date':None}
 
 
 
@@ -1250,6 +1271,10 @@ template_recipies = {'KAS1_KSU':[i_BASE_KSU, i_KAS_KSU, i_Proactive_KAS_KSU, i_K
 					 'KAS2_KSU':[i_BASE_KSU, i_KAS_KSU, i_Proactive_KAS_KSU, i_KAS2_KSU],
 					 'KAS3_KSU':[i_BASE_KSU, i_KAS_KSU, i_Reactive_KAS_KSU, i_KAS3_KSU],
 					 'KAS4_KSU':[i_BASE_KSU, i_KAS_KSU, i_Reactive_KAS_KSU, i_KAS4_KSU],
+
+					 'BigO_KSU':[i_BASE_KSU, i_BigO_KSU],
+					 'BOKA_KSU':[i_BASE_KSU, i_BOKA_KSU],
+
 					 'ImPe_KSU':[i_BASE_KSU, i_ImPe_KSU],
 					 
 					 'Created_Event':[i_BASE_Event, i_Created_Event],
@@ -1258,7 +1283,8 @@ template_recipies = {'KAS1_KSU':[i_BASE_KSU, i_KAS_KSU, i_Proactive_KAS_KSU, i_K
 
 					 'EndValue_Event':[i_BASE_Event, i_Score_Event, i_EndValue_Event],
 					 'SmartEffort_Event':[i_BASE_Event, i_Score_Event, i_SmartEffort_Event],
-					 'Stupidity_Event':[i_BASE_Event, i_Score_Event, i_Stupidity_Event]}
+					 'Stupidity_Event':[i_BASE_Event, i_Score_Event, i_Stupidity_Event],
+					 'Achievement_Event':[i_BASE_Event, i_Achievement_Event]}
 
 
 
@@ -1477,7 +1503,7 @@ def add_Stupidity_event(theory, post_details):
 
 
 
-def calculate_event_score(event): #xx
+def calculate_event_score(event):
 	result = {'EndValue':0,'SmartEffort':0, 'Stupidity':0}
 
 	poractive_sets = ['KAS1', 'KAS2']
@@ -1562,13 +1588,14 @@ def add_deleted_ksu_to_set(self):
 
 
 def prepare_details_for_saving(post_details):
-	checkboxes = ['is_critical', 'is_private', 'in_upcoming', 'any_any']
+	checkboxes = ['is_critical', 'is_private', 'in_upcoming', 'any_any', 'is_milestone']
 	details = {'is_critical':False,
 			   'is_private':False,
 			   'in_upcoming':False,
 			   'any_any':False,
 			   'local_tags':None,
 	    	   'global_tags':None,
+	    	   'is_milestone':False,
 	    	   'comments':None}
 
 	for (attribute, value) in post_details.items():
@@ -1661,7 +1688,7 @@ def user_Action_Fail_Stupidity(self):
 	return
 
 
-def user_Action_Done_EndValue(self): #xx
+def user_Action_Done_EndValue(self):
 	theory = self.theory
 	post_details = get_post_details(self)
 	update_ksu_next_event(theory, post_details)
@@ -2155,7 +2182,7 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 
 
 
-l_Fibonacci = ['1','2','3','5','8','13','21','34','55','89','144']
+l_Fibonacci = ['1','2','3','5','8','13','21','34','55','89','144','233','377','610','987']
 
 
 
@@ -2236,14 +2263,24 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 				    'set_name':'KAS4',
 				    'attributes':['description','circumstance','reaction','streak','record'],
 				    'fields':{'description':'Action to Avoid','circumstance':'Dangerous Circumstances & Potential Reactions', 'streak':'Streak','record':'Record'},
-				    'columns':{'description':3,'circumstance':4,'streak':1,'record':1},
-				    
+				    'columns':{'description':3,'circumstance':4,'streak':1,'record':1},				    
 				    'show_Button_Avoided':True,
 				    # 'show_Button_Done':True,
 				    'show_Button_Fail':True,
 				    'show_Button_Add_To_Mission':False,
 				    'grouping_attribute':'value_type',
 				    'grouping_list':l_Values},
+
+
+			'BigO':{'set_title':'Big Objectives Set  (BigO)',
+				    'set_name':'BigO',
+				    'attributes':['description','pretty_target_date','awesomeness'], #xx
+				    'fields':{'description':'Objective description', 'pretty_target_date':'Target Date', 'awesomeness':'Expected Awesomeness'},
+				    'columns':{'description':5, 'pretty_target_date':2, 'awesomeness':2},
+				    'show_Button_Achieved':True,
+				    'show_Button_Add_Child_KSU':True,				    
+				    'grouping_attribute':'local_tags', #xx esto es nada mas pa que funcione por ahora
+				    'grouping_list':None},
 
 		   
 		   'ImPe': {'set_title':'My Important People',
