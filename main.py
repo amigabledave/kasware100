@@ -680,7 +680,7 @@ class Done(Handler):
 				user_Action_Done_SmartEffort(self)
 				self.redirect(return_to)
 
-		if user_action =='Done_Confirm_Continue':
+		elif user_action =='Done_Confirm_Continue':
 			input_error = user_input_error(post_details)
 			parent_id = ksu['id']
 
@@ -700,7 +700,12 @@ class Done(Handler):
 				self.redirect('/NewKSU/' + set_name + '?return_to=' + return_to + '&parent_id=' + parent_id)
 
 
-		if user_action == 'Discard':
+		elif user_action == 'Achieved_Confirm':
+			user_Action_Done_Achievement(self) #xx
+			self.redirect(return_to)
+
+
+		elif user_action == 'Discard':
 			self.redirect(return_to)	
 
 				
@@ -1052,7 +1057,7 @@ def update_ksu_in_mission(theory, post_details):
 def update_ksu_status(theory, post_details):
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
-	valid_sets = ['KAS2']	
+	valid_sets = ['KAS2', 'BigO']	
 	if set_name not in valid_sets:
 		return
 
@@ -1063,8 +1068,13 @@ def update_ksu_status(theory, post_details):
 	if user_action == 'Done_Confirm' or user_action == 'Done_Confirm_Continue':
 		ksu['status'] = 'Done'
 		ksu['is_visible'] = False
-		
-	update_theory(theory, ksu_set)	
+	
+	elif user_action == 'Achieved_Confirm':
+		ksu['status'] = 'Achieved'
+		ksu['is_visible'] = False
+
+	update_theory(theory, ksu_set)
+
 	return
 
 
@@ -1075,7 +1085,7 @@ def update_MLog(theory, event):
 
 	date = event['date']
 	event_type = event['type']
-	score_events = ['EndValue','SmartEffort','Stupidity']
+	score_events = ['EndValue','SmartEffort','Stupidity', 'Achievement']
 
 	if event_type in score_events:
 		event_score = calculate_event_score(event)
@@ -1194,7 +1204,7 @@ i_BigO_KSU = {'value_type':None,
 			  
 
 
-# Big Objective Key Actions Set #xx
+# Big Objective Key Actions Set
 i_BOKA_KSU = {'priority':"5"}
 
 
@@ -1261,7 +1271,9 @@ i_Stupidity_Event = {'type':'Stupidity',
 
 i_Achievement_Event = {'type':'Achievement', #xx
 					   'awesomeness':None,
-					   'target_date':None}
+					   'target_date':None,
+					   'comments':None,
+					   'met_expectations':False}
 
 
 
@@ -1348,7 +1360,7 @@ def new_set_Hist():
 def new_set_MLog(start_date=(735964), end_date=(735964+366)): #start_date = Jan 1, 2016 |  end_date = Dec 31, 2016  
 	result = {}
 	for date in range(start_date, end_date):
-		entry = {'EndValue':0, 'SmartEffort':0, 'Stupidity':0}
+		entry = {'EndValue':0, 'SmartEffort':0, 'Stupidity':0, 'Achievement':0}
 		entry['date'] = datetime.fromordinal(date).strftime('%d-%m-%Y')
 		result[date] = entry
 	return pack_set(result)
@@ -1482,6 +1494,32 @@ def add_SmartEffort_event(theory, post_details): #Duration & Importance to be up
 
 
 
+def add_Achievement_event(theory, post_details):
+	Hist = unpack_set(theory.Hist)
+	ksu_id = post_details['ksu_id']
+	set_name = get_type_from_id(ksu_id)
+	event = new_event(Hist, 'Achievement') 
+	ksu_set = unpack_set(eval('theory.' + set_name))
+	ksu = ksu_set[ksu_id]
+
+	event['ksu_id'] = ksu_id
+	event['awesomeness'] = ksu['awesomeness']  #xx
+	event['target_date'] = ksu['target_date']
+	event['comments'] = post_details['comments']
+
+	if 'met_expectations' in post_details:
+		event['met_expectations'] = True
+	
+	update_set(Hist, event)
+	update_MLog(theory, event)
+	theory.Hist = pack_set(Hist)
+
+
+	return event
+
+
+
+
 def add_Stupidity_event(theory, post_details):
 	Hist = unpack_set(theory.Hist)
 	ksu_id = post_details['ksu_id']
@@ -1504,7 +1542,7 @@ def add_Stupidity_event(theory, post_details):
 
 
 def calculate_event_score(event):
-	result = {'EndValue':0,'SmartEffort':0, 'Stupidity':0}
+	result = {'EndValue':0,'SmartEffort':0, 'Stupidity':0, 'Achievement':0}
 
 	poractive_sets = ['KAS1', 'KAS2']
 	reactive_sets = ['KAS3', 'KAS4']
@@ -1527,12 +1565,15 @@ def calculate_event_score(event):
 			else:
 				result['SmartEffort'] = int(event['importance']) + int(event['streak'])
 
-
 	elif event_type == 'Stupidity':
+
 		if int(event['importance']) < int(event['streak']):
 			result['Stupidity'] = int(event['importance']) * 2
 		else:
 			result['Stupidity'] = int(event['importance']) + int(event['streak'])
+
+	elif event_type == 'Achievement':
+		result['Achievement'] = int(event['awesomeness'])
 	
 	return result
 
@@ -1678,6 +1719,17 @@ def user_Action_Done_SmartEffort(self):
 
 
 
+def user_Action_Done_Achievement(self):  #xx
+	theory = self.theory
+	post_details = get_post_details(self)
+	add_Achievement_event(theory, post_details) 
+	update_ksu_status(theory, post_details) 
+	trigger_additional_actions(self)
+	theory.put()
+	return
+
+
+
 def user_Action_Fail_Stupidity(self):
 	theory = self.theory
 	post_details = get_post_details(self)	
@@ -1753,6 +1805,13 @@ def trigger_additional_actions(self):
 		if ksu_subtype == 'ImPe_Contact':
 			triggered_Action_Done_ImPe_Contact(self)
 
+
+	if action_type == 'Achieved_Confirm':
+
+		if ksu_type == 'BigO':
+			triggered_Action_delete_BOKA_remains(self)
+
+
 	if action_type == 'Delete':
 		
 		if ksu_type == 'ImPe':
@@ -1808,6 +1867,11 @@ def triggered_Action_create_ImPe_Contact(self):
 	theory.ImPe = pack_set(ImPe)
 	add_Created_event(theory, ksu)
 	return ksu
+
+
+
+def triggered_Action_delete_BOKA_remains(self):
+	return #xx to be define once the BOKA set is operative
 
 
 def triggered_Action_update_ImPe_Contact(self):
@@ -2274,7 +2338,7 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 
 			'BigO':{'set_title':'Big Objectives Set  (BigO)',
 				    'set_name':'BigO',
-				    'attributes':['description','pretty_target_date','awesomeness'], #xx
+				    'attributes':['description','pretty_target_date','awesomeness'],
 				    'fields':{'description':'Objective description', 'pretty_target_date':'Target Date', 'awesomeness':'Expected Awesomeness'},
 				    'columns':{'description':5, 'pretty_target_date':2, 'awesomeness':2},
 				    'show_Button_Achieved':True,
