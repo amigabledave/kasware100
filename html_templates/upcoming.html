@@ -45,8 +45,18 @@
 					</form>	
 				</div>
 
+
 				<div class="col-md-5">  <div> {{ksu['description']}} </div> </div>
 				<div class="col-md-2">  <div> {{ksu['pretty_next_event']}} </div> </div>
+
+
+				<div class="col-md-1">
+						<form class="form-horizontal" method="post">
+						<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+					  	<button type="submit" class="btn btn-primary btn-md" name="action_description" value="Add_To_Mission"> To Mission </button>
+					</form>	
+				</div>
+
 			
 			</div>
 			<hr>

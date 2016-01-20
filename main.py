@@ -17,17 +17,23 @@ tomorrow = today + 1
 # --- Datastore Entities ----------------------------------------------------------------------------
 
 class Theory(db.Model):
+
 	username = db.StringProperty(required=True)
 	password_hash = db.StringProperty(required=True)
 	email = db.StringProperty(required=True)
+
 	KAS1 = db.BlobProperty(required=True)
 	KAS2 = db.BlobProperty(required=True)	
 	KAS3 = db.BlobProperty(required=True)
 	KAS4 = db.BlobProperty(required=True)
+
 	BigO = db.BlobProperty(required=True)
+	BOKA = db.BlobProperty(required=True)
 	ImPe = db.BlobProperty(required=True)
+
 	Hist = db.BlobProperty(required=True)	
 	MLog = db.BlobProperty(required=True)
+
 	created = db.DateTimeProperty(auto_now_add=True)
 	last_modified = db.DateTimeProperty(auto_now=True)
 	
@@ -46,12 +52,16 @@ class Theory(db.Model):
 		return Theory(username=username, 
 					  password_hash=password_hash,
 					  email=email,
+					 
 					  KAS1=new_set_KSU('KAS1'),
 					  KAS2=new_set_KSU('KAS2'),					  
 					  KAS3=new_set_KSU('KAS3'),
 					  KAS4=new_set_KSU('KAS4'),
+					 
 					  BigO=new_set_KSU('BigO'),
+					  BOKA=new_set_KSU('BOKA'),
 					  ImPe=new_set_KSU('ImPe'),
+					 
 					  Hist=new_set_Hist(),
 					  MLog=new_set_MLog())
 
@@ -229,7 +239,9 @@ def todays_mission(self):
 	theory = self.theory
 	KAS1 = unpack_set(theory.KAS1)
 	KAS2 = unpack_set(theory.KAS2)
-	ksu_sets = [KAS1, KAS2]
+	BOKA = unpack_set(theory.BOKA)
+
+	ksu_sets = [KAS1, KAS2, BOKA]
 	result = []
 
 	for ksu_set in ksu_sets:
@@ -265,10 +277,17 @@ class Upcoming(Handler):
 
 	def post(self):
 		if user_bouncer(self):
-			return
-		post_details = get_post_details(self)	
-		ksu_id = post_details['ksu_id']
-		self.redirect('/EditKSU?ksu_id=' + ksu_id)
+			return			
+		post_details = get_post_details(self)
+		user_action = post_details['action_description']
+
+		if user_action == 'Add_To_Mission': #xx
+			user_Action_Add_To_Mission(self)
+			self.redirect('/Upcoming')
+
+		if user_action == 'EditKSU':
+			ksu_id = post_details['ksu_id']
+			self.redirect('/EditKSU?ksu_id=' + ksu_id + '&return_to=/Upcoming')
 
 
 
@@ -278,7 +297,8 @@ def current_upcoming(self):
 	theory = self.theory
 	KAS1 = unpack_set(theory.KAS1)
 	KAS2 = unpack_set(theory.KAS2)
-	ksu_sets = [KAS1, KAS2]
+	BOKA = unpack_set(theory.BOKA)
+	ksu_sets = [KAS1, KAS2, BOKA]
 	result = {}
 
 	for ksu_set in ksu_sets:
@@ -365,7 +385,9 @@ class SetViewer(Handler):
 		ksu_set = unpack_set(eval('theory.' + set_name))
 		set_details = ksu_set['set_details']
 		ksu_set = pretty_dates(ksu_set)
-		ksu_set = hide_invisible(ksu_set)
+		
+		if set_name != 'Hist':
+			ksu_set = hide_invisible(ksu_set)
 		ksu_set = make_ordered_ksu_set_list_for_SetViewer(ksu_set)
 
 		viewer_details = d_Viewer[set_name]
@@ -434,6 +456,10 @@ def make_ordered_ksu_set_list_for_SetViewer(ksu_set):
 		return []
 
 	set_name = get_type_from_id(ksu_set.keys()[0])
+
+	if set_name == 'Event':
+		set_name = 'Hist'
+
 	result = []
 	set_order = []
 	d_view_order_details = {'KAS1':{'attribute':'next_event', 'reverse':False},
@@ -441,8 +467,11 @@ def make_ordered_ksu_set_list_for_SetViewer(ksu_set):
 							'KAS3':{'attribute':'importance', 'reverse':False},
 							'KAS4':{'attribute':'importance', 'reverse':False},
 
-							'BigO':{'attribute':'awesomeness', 'reverse':False},							
-							'ImPe':{'attribute':'contact_frequency', 'reverse':False}}
+							'BigO':{'attribute':'awesomeness', 'reverse':False},
+							'BOKA':{'attribute':'priority', 'reverse':False},
+
+							'ImPe':{'attribute':'contact_frequency', 'reverse':False},
+							'Hist':{'attribute':'date', 'reverse':False}}
 
 	attribute = d_view_order_details[set_name]['attribute'] 
 	reverse = d_view_order_details[set_name]['reverse']
@@ -701,7 +730,7 @@ class Done(Handler):
 
 
 		elif user_action == 'Achieved_Confirm':
-			user_Action_Done_Achievement(self) #xx
+			user_Action_Done_Achievement(self)
 			self.redirect(return_to)
 
 
@@ -971,7 +1000,7 @@ def update_ksu_with_post_details(ksu, details):
 def update_ksu_next_event(theory, post_details):
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
-	valid_sets = ['KAS1', 'KAS2']	
+	valid_sets = ['KAS1', 'KAS2', 'BOKA']	
 	if set_name not in valid_sets:
 		return
 
@@ -985,8 +1014,12 @@ def update_ksu_next_event(theory, post_details):
 		if set_name == 'KAS1':
 			ksu['next_event'] = today + int(ksu['charging_time'])
 
-		if set_name == 'KAS2':
+		elif set_name == 'KAS2':
 			ksu['next_event'] = None
+
+		elif set_name == 'BOKA':
+			ksu['next_event'] = None
+
 
 			
 	elif user_action == 'Push':
@@ -1032,7 +1065,7 @@ def update_ksu_streak_and_record(theory, post_details):
 def update_ksu_in_mission(theory, post_details):
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
-	valid_sets = ['KAS1', 'KAS2']	
+	valid_sets = ['KAS1', 'KAS2', 'BOKA']	
 	if set_name not in valid_sets:
 		return
 
@@ -1057,7 +1090,7 @@ def update_ksu_in_mission(theory, post_details):
 def update_ksu_status(theory, post_details):
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
-	valid_sets = ['KAS2', 'BigO']	
+	valid_sets = ['KAS2', 'BigO', 'BOKA']	
 	if set_name not in valid_sets:
 		return
 
@@ -1115,6 +1148,7 @@ def update_set(ksu_set, ksu):
 
 def update_theory(theory, ksu_set):
 	set_name = ksu_set['set_details']['set_type']
+
 	if set_name == 'KAS1':
 		theory.KAS1 = pack_set(ksu_set)
 	if set_name == 'KAS2':
@@ -1123,8 +1157,12 @@ def update_theory(theory, ksu_set):
 		theory.KAS3 = pack_set(ksu_set)
 	if set_name == 'KAS4':
 		theory.KAS4 = pack_set(ksu_set)
+
 	if set_name == 'BigO':
 		theory.BigO = pack_set(ksu_set)
+	if set_name == 'BOKA':
+		theory.BOKA = pack_set(ksu_set)
+
 	if set_name == 'ImPe':
 		theory.ImPe = pack_set(ksu_set)
 	return
@@ -1188,11 +1226,11 @@ i_KAS2_KSU = {'value_type':None,
 
 
 #KAS3 Specifics - Acciones Reactivas Recurrentes con el objetivo de ejecutar una accion
-i_KAS3_KSU = {'value_type':None,} 
+i_KAS3_KSU = {'value_type':None} 
 
 
 #KAS3 Specifics - Acciones Reactivas Recurrentes
-i_KAS4_KSU = {'value_type':None,}
+i_KAS4_KSU = {'value_type':None}
 			  
 
 
@@ -1200,12 +1238,13 @@ i_BigO_KSU = {'value_type':None,
 			  'awesomeness':None, #How much awesomeness do you believe that achieving this goal would add to your life. Fibbo Scale. Can actually be 0. Formely known as achievement points.
 			  'days_required':None,
 			  'is_milestone':False,
-			  'target_date':None} #xx if no target date is provided is automatically calculated based bo days required			  
+			  'target_date':None} # if no target date is provided is automatically calculated based on days required			  
 			  
 
 
-# Big Objective Key Actions Set
-i_BOKA_KSU = {'priority':"5"}
+# Big Objective Key Actions Set Specifics
+i_BOKA_KSU = {'importance':"3",
+			  'priority':"5"}
 
 
 
@@ -1269,7 +1308,7 @@ i_Stupidity_Event = {'type':'Stupidity',
 
 
 
-i_Achievement_Event = {'type':'Achievement', #xx
+i_Achievement_Event = {'type':'Achievement',
 					   'awesomeness':None,
 					   'target_date':None,
 					   'comments':None,
@@ -1285,7 +1324,7 @@ template_recipies = {'KAS1_KSU':[i_BASE_KSU, i_KAS_KSU, i_Proactive_KAS_KSU, i_K
 					 'KAS4_KSU':[i_BASE_KSU, i_KAS_KSU, i_Reactive_KAS_KSU, i_KAS4_KSU],
 
 					 'BigO_KSU':[i_BASE_KSU, i_BigO_KSU],
-					 'BOKA_KSU':[i_BASE_KSU, i_BOKA_KSU],
+					 'BOKA_KSU':[i_BASE_KSU, i_Proactive_KAS_KSU, i_BOKA_KSU],
 
 					 'ImPe_KSU':[i_BASE_KSU, i_ImPe_KSU],
 					 
@@ -1469,7 +1508,7 @@ def add_SmartEffort_event(theory, post_details): #Duration & Importance to be up
 	event = new_event(Hist, 'SmartEffort') 
 	ksu_set = unpack_set(eval('theory.' + set_name))
 	ksu = ksu_set[ksu_id]
-	poractive_sets = ['KAS1', 'KAS2']
+	poractive_sets = ['KAS1', 'KAS2', 'BOKA']
 	reactive_sets = ['KAS3', 'KAS4']
 	
 	event['ksu_id'] = ksu_id
@@ -1503,7 +1542,7 @@ def add_Achievement_event(theory, post_details):
 	ksu = ksu_set[ksu_id]
 
 	event['ksu_id'] = ksu_id
-	event['awesomeness'] = ksu['awesomeness']  #xx
+	event['awesomeness'] = ksu['awesomeness']
 	event['target_date'] = ksu['target_date']
 	event['comments'] = post_details['comments']
 
@@ -1544,7 +1583,7 @@ def add_Stupidity_event(theory, post_details):
 def calculate_event_score(event):
 	result = {'EndValue':0,'SmartEffort':0, 'Stupidity':0, 'Achievement':0}
 
-	poractive_sets = ['KAS1', 'KAS2']
+	poractive_sets = ['KAS1', 'KAS2', 'BOKA']
 	reactive_sets = ['KAS3', 'KAS4']
 	set_name = get_type_from_id(event['ksu_id'])
 	event_type = event['type']
@@ -1710,7 +1749,7 @@ def user_Action_Done_SmartEffort(self):
 	post_details = get_post_details(self)
 	update_ksu_next_event(theory, post_details)
 	update_ksu_in_mission(theory, post_details)
-	add_SmartEffort_event(theory, post_details)
+	add_SmartEffort_event(theory, post_details) #xx
 	update_ksu_status(theory, post_details)
 	update_ksu_streak_and_record(theory, post_details)
 	trigger_additional_actions(self)
@@ -1719,7 +1758,7 @@ def user_Action_Done_SmartEffort(self):
 
 
 
-def user_Action_Done_Achievement(self):  #xx
+def user_Action_Done_Achievement(self):
 	theory = self.theory
 	post_details = get_post_details(self)
 	add_Achievement_event(theory, post_details) 
@@ -1792,6 +1831,9 @@ def trigger_additional_actions(self):
 		
 		if ksu_type == 'KAS1':
 			triggered_Action_create_KAS1_next_event(self)
+
+		elif ksu_type == 'BOKA':
+			triggered_Action_BOKA_add_value_type(self)	
 		
 		elif ksu_type == 'ImPe':
 				triggered_Action_create_ImPe_Contact(self)		
@@ -1867,6 +1909,23 @@ def triggered_Action_create_ImPe_Contact(self):
 	theory.ImPe = pack_set(ImPe)
 	add_Created_event(theory, ksu)
 	return ksu
+
+
+def triggered_Action_BOKA_add_value_type(self):
+	theory = self.theory
+	post_details = get_post_details(self)
+	ksu_id = post_details['ksu_id']
+	BigO = unpack_set(theory.BigO)
+	BOKA = unpack_set(theory.BOKA)
+	
+	ksu = BOKA[ksu_id]
+	objective = BigO[ksu['parent_id']]
+	ksu['value_type'] = objective['value_type']
+
+	update_set(BOKA, ksu)
+	theory.BOKA = pack_set(BOKA)
+	return
+
 
 
 
@@ -2318,7 +2377,6 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 				    'columns':{'circumstance':3,'description':4,'streak':1,'record':1},
 				    'show_Button_Done':True,
 				    'show_Button_Fail':True,
-				    'show_Button_Add_To_Mission':False,
 				    'grouping_attribute':'value_type',
 				    'grouping_list':l_Values},
 
@@ -2329,21 +2387,30 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 				    'fields':{'description':'Action to Avoid','circumstance':'Dangerous Circumstances & Potential Reactions', 'streak':'Streak','record':'Record'},
 				    'columns':{'description':3,'circumstance':4,'streak':1,'record':1},				    
 				    'show_Button_Avoided':True,
-				    # 'show_Button_Done':True,
 				    'show_Button_Fail':True,
-				    'show_Button_Add_To_Mission':False,
 				    'grouping_attribute':'value_type',
 				    'grouping_list':l_Values},
 
 
-			'BigO':{'set_title':'Big Objectives Set  (BigO)',
+			'BigO':{'set_title':'Big Objectives Set  (BigO)', #ToBeDeleted once BigO have its custom SetViewer esto es nada mas pa que funcione por ahora
 				    'set_name':'BigO',
-				    'attributes':['description','pretty_target_date','awesomeness'],
-				    'fields':{'description':'Objective description', 'pretty_target_date':'Target Date', 'awesomeness':'Expected Awesomeness'},
-				    'columns':{'description':5, 'pretty_target_date':2, 'awesomeness':2},
+				    'attributes':['id', 'description','pretty_target_date'],
+				    'fields':{'description':'Objective description', 'pretty_target_date':'Target Date', 'id':'ID'},
+				    'columns':{'description':5, 'pretty_target_date':2, 'id':1},
 				    'show_Button_Achieved':True,
 				    'show_Button_Add_Child_KSU':True,				    
-				    'grouping_attribute':'local_tags', #xx esto es nada mas pa que funcione por ahora
+				    'grouping_attribute':'local_tags',
+				    'grouping_list':None},
+
+
+			'BOKA':{'set_title':'Big Objectives Key Actions Set  (BOKA)', #ToBeDeleted once BigO have its custom SetViewer esto es nada mas pa que funcione por ahora
+				    'set_name':'BOKA',
+				    'attributes':['parent_id', 'description', 'priority', 'pretty_target_date'],
+				    'fields':{'parent_id':'BigO id','priority':'Priority','description':'Action description', 'pretty_target_date':'Target Date'},
+				    'columns':{'parent_id':1, 'description':5, 'priority':1, 'pretty_target_date':2},
+				    'show_Button_Done':True,
+				    'show_Button_Add_To_Mission':True,			    
+				    'grouping_attribute':'local_tags',
 				    'grouping_list':None},
 
 		   
@@ -2355,6 +2422,15 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 				    'show_Button_Done':False,
 				    'show_Button_Add_To_Mission':False,
 				    'grouping_attribute':'local_tags',
+				    'grouping_list':None},
+
+
+			'ImPe': {'set_title':'Events History',
+		   			'set_name':'Hist',
+					'attributes':['id', 'ksu_id', 'type'],
+				    'fields':{'id':'Event ID', 'ksu_id':'KSU ID', 'type':'Event Type'},
+				    'columns':{'id':1, 'ksu_id':1, 'type':2},
+				    'grouping_attribute':'date',
 				    'grouping_list':None}}
 
 
