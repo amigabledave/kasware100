@@ -281,7 +281,7 @@ class Upcoming(Handler):
 		post_details = get_post_details(self)
 		user_action = post_details['action_description']
 
-		if user_action == 'Add_To_Mission': #xx
+		if user_action == 'Add_To_Mission':
 			user_Action_Add_To_Mission(self)
 			self.redirect('/Upcoming')
 
@@ -437,7 +437,6 @@ def hide_invisible(ksu_set):
 
 
 def pretty_dates(ksu_set):
-	date_attributes = ['last_event', 'next_event', 'last_contact', 'next_contact']
 	for date_attribute in date_attributes:
 		for ksu in ksu_set:
 			ksu = ksu_set[ksu]
@@ -507,7 +506,6 @@ def unpack_date(date_ordinal):
 
 
 def not_ugly_dates(ksu):
-	date_attributes = ['last_event', 'next_event', 'last_contact', 'next_contact']
 	valid_attributes = list(ksu.keys())
 	for date_attribute in date_attributes:
 		if date_attribute in valid_attributes:	
@@ -534,6 +532,74 @@ def make_local_tags_grouping_list(ksu_set):
 
 
 
+#---Big Os Viwer Handler --
+
+class BigOViewer(Handler):
+	def get(self):
+		if user_bouncer(self):
+			return
+		theory = self.theory
+		
+		BigO = unpack_set(theory.BigO)
+		BigO = hide_invisible(BigO)
+		BOKA = unpack_set(theory.BOKA) #xx
+		BOKA = hide_invisible(BOKA)
+	
+		# set_details = ksu_set['set_details']
+		# ksu_set = pretty_dates(ksu_set)
+
+		# viewer_details = d_Viewer[set_name]
+		# if viewer_details['grouping_attribute'] == 'local_tags':
+		# 	viewer_details['grouping_list'] = make_local_tags_grouping_list(ksu_set)
+
+		self.print_html('BigOViewer.html', BigO=BigO, BOKA=BOKA ) #viewer_details=viewer_details
+
+
+	def post(self):
+		if user_bouncer(self):
+			return
+		post_details = get_post_details(self)
+		user_action = post_details['action_description']
+	
+		
+		if user_action == 'NewKSU':
+			self.redirect('/NewKSU/BigO?return_to=/BigOViewer')
+
+
+		elif user_action == 'Add_Child_KSU':
+			parent_id = post_details['ksu_id']
+			self.redirect('/NewKSU/BOKA?return_to=/BigOViewer&parent_id=' + parent_id)
+		
+
+		else:
+			ksu_id = post_details['ksu_id']
+			set_name = get_type_from_id(ksu_id)
+				
+			if user_action == 'EditKSU':			
+				self.redirect('/EditKSU?ksu_id=' + ksu_id + '&return_to=/BigOViewer')
+
+			if user_action == 'Done':
+				self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/BigOViewer')
+
+			if user_action == 'Fail':
+				self.redirect('/Failure?ksu_id=' + ksu_id + '&return_to=/BigOViewer')
+
+			if user_action == 'Add_To_Mission':
+				user_Action_Add_To_Mission(self)
+				self.redirect('/BigOViewer')
+
+
+
+
+
+
+
+
+
+
+
+
+
 #---New KSU Handler ---
 
 class NewKSU(Handler):
@@ -548,8 +614,11 @@ class NewKSU(Handler):
 
 		parent_id = self.request.get('parent_id')
 		if parent_id:
-			parent = ksu_set[parent_id]
-			update_child_with_parent(ksu, parent)
+			if set_name == 'BOKA':
+				ksu['parent_id'] = parent_id
+			else:
+				parent = ksu_set[parent_id]
+				update_child_with_parent(ksu, parent)
 		
 		self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name ,title='Create')
 
@@ -1080,6 +1149,7 @@ def update_ksu_in_mission(theory, post_details):
 		ksu['in_mission'] = False
 
 	elif user_action == 'Push':
+		ksu['in_upcoming'] = True
 		ksu['in_mission'] = False		
 
 	update_theory(theory, ksu_set)	
@@ -1243,8 +1313,10 @@ i_BigO_KSU = {'value_type':None,
 
 
 # Big Objective Key Actions Set Specifics
-i_BOKA_KSU = {'importance':"3",
-			  'priority':"5"}
+i_BOKA_KSU = {'in_upcoming':False, #To overwrite the proactiveness auto true
+			  'importance':"3",
+			  'priority':"5",
+			  'next_event':today}
 
 
 
@@ -1683,7 +1755,7 @@ def prepare_details_for_saving(post_details):
 		if attribute in checkboxes:
 			details[attribute] = True
 		
-		elif attribute == 'last_event' or attribute == 'next_event':
+		elif attribute in date_attributes:
 			details[attribute] = pack_date(value)
 
 		elif value and value!='' and value!='None':
@@ -1749,7 +1821,7 @@ def user_Action_Done_SmartEffort(self):
 	post_details = get_post_details(self)
 	update_ksu_next_event(theory, post_details)
 	update_ksu_in_mission(theory, post_details)
-	add_SmartEffort_event(theory, post_details) #xx
+	add_SmartEffort_event(theory, post_details)
 	update_ksu_status(theory, post_details)
 	update_ksu_streak_and_record(theory, post_details)
 	trigger_additional_actions(self)
@@ -2015,7 +2087,7 @@ def triggered_Action_Done_ImPe_Contact(self):
 #--- Developer Actions ---
 def developer_Action_Load_CSV(theory, set_name):
 	csv_path = create_csv_path(set_name)
-	standard_sets = ['KAS2','KAS3', 'KAS4'] 
+	standard_sets = ['KAS2','KAS3', 'KAS4', 'BigO', 'BOKA'] 
 
 	if set_name in standard_sets:
 		developer_Action_Load_Set_CSV(theory, set_name, csv_path)
@@ -2031,6 +2103,10 @@ def developer_Action_Load_CSV(theory, set_name):
 		developer_Action_Load_Set_CSV(theory, 'KAS2', create_csv_path('KAS2'))
 		developer_Action_Load_Set_CSV(theory, 'KAS3', create_csv_path('KAS3'))
 		developer_Action_Load_Set_CSV(theory, 'KAS4', create_csv_path('KAS4'))
+
+		developer_Action_Load_Set_CSV(theory, 'BigO', create_csv_path('BigO'))
+		developer_Action_Load_Set_CSV(theory, 'BOKA', create_csv_path('BOKA'))
+
 		developer_Action_Load_ImPe_CSV(theory, create_csv_path('ImPe'))
 		
 	return
@@ -2253,20 +2329,22 @@ def user_input_error(post_details):
 
 def input_error(target_attribute, user_input):
 	
-	validation_attributes = ['username', 'password', 'description', 'charging_time', 'duration', 'last_event', 'next_event', 'comments']
+	validation_attributes = ['username', 'password', 'description', 'charging_time', 'duration', 'last_event', 'next_event', 'target_date', 'comments']
+	date_attributes = ['last_event', 'next_event', 'target_date']
 
 	if target_attribute not in validation_attributes:
 		return None
 	error_key = target_attribute + '_error' 
 		
-	if target_attribute == 'last_event' or target_attribute == 'next_event':
+	if target_attribute in date_attributes:
 		if valid_date(user_input):
 			return None
 		else:
 			return d_RE[error_key]
 
-	if d_RE[target_attribute].match(user_input):
+	elif d_RE[target_attribute].match(user_input):
 		return None
+	
 	else:
 		return d_RE[error_key]
 
@@ -2281,8 +2359,8 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 		'email': re.compile(r'^[\S]+@[\S]+\.[\S]+$'),
 		'email_error': 'Invalid Email Syntax',
 
-		'description': re.compile(r"^.{5,100}$"),
-		'description_error': 'Descriotion max lenght is 100 characters and min 5.',
+		'description': re.compile(r"^.{5,200}$"),
+		'description_error': 'Descriotion max lenght is 200 characters and min 5.',
 
 		'charging_time': re.compile(r"^[0-9]{1,3}$"),
 		'charging_time_error': 'Charging Time should be an integer with maximum 3 digits',
@@ -2291,6 +2369,8 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 		'duration_error': 'Duration should be an integer with maximum 3 digits',
 
 		'last_event_error':'Last event format must be DD-MM-YYYY',
+		'next_event_error':'Next event format must be DD-MM-YYYY',
+		'target_date_error':'Target date format must be DD-MM-YYYY',
 
 		'comments': re.compile(r"^.{0,400}$"),
 		'comments_error': 'Comments cannot excede 400 characters'}
@@ -2303,7 +2383,7 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 #---Global Variables ------------------------------------------------------------------------------
 
 
-
+date_attributes = ['last_event', 'next_event', 'last_contact', 'next_contact', 'target_date']
 
 l_Fibonacci = ['1','2','3','5','8','13','21','34','55','89','144','233','377','610','987']
 
@@ -2455,14 +2535,21 @@ app = webapp2.WSGIApplication([
 							 ('/signup', Signup),
 							 ('/login', Login),
                              ('/logout', Logout),
+                             
+
+                             ('/SetViewer/' + PAGE_RE, SetViewer),
+                             ('/BigOViewer', BigOViewer),
+
                              ('/TodaysMission', TodaysMission),
                              ('/Upcoming', Upcoming),
-                             ('/SetViewer/' + PAGE_RE, SetViewer),
+                             ('/effort-report',EffortReport),
+							 
 							 ('/NewKSU/' + PAGE_RE, NewKSU),
 							 ('/EditKSU', EditKSU),
+							 
 							 ('/Done', Done),
 							 ('/Failure', Failure),
-							 ('/effort-report',EffortReport),
+							 
 							 ('/email',Email),
 							 ('/LoadCSV/' + PAGE_RE, LoadCSV),
 							 ('/csv-backup',CSVBackup),
