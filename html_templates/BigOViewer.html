@@ -16,21 +16,6 @@
 	</div>
 </div>
 
-<div class="row">
-	<div class="col-md-1"></div>
-	<div class="col-md-8">  <div class="field-header">  Action Description </div> </div>
- 	<div class="col-md-2">  <div class="field-header"> Priority </div> </div>
-
-</div>
-
-
-
-
-
-
-
-
-
 
 <!-- <hr class="thick-hr-1px"> -->
 
@@ -42,11 +27,11 @@
 
 	<div class="row">
 
-		<div class="col-md-8"> <div class="BigO-title"> {{BigO[O]['description']}} </div></div>
+		<div class="col-md-8"> <div class="BigO-title"> {{O['description']}} </div> <div class="red">{{'Target Date:  ' + O['pretty_target_date'] + '.   Days left: ' + O['days_left_to_target_date'] }}</div> </div>
 		<div class="col-md-1"></div>
-		<div class="col-md-3"> 			
+		<div class="col-md-3"> 
 			<form method="Post"> 
-				<input type="text" class="form-control hidden" name="ksu_id" value="{{BigO[O]['id']}}">
+				<input type="text" class="form-control hidden" name="ksu_id" value="{{O['id']}}">
 			  	<button type="submit" class="btn btn-primary btn-md" name="action_description" value="Add_Child_KSU"> Add Action </button>
 			  	<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Done">  Achieved  </button>
 			  	<button type="submit" class="btn btn-primary btn-md respect-space" name="action_description" value="EditKSU"> Edit </button>
@@ -56,37 +41,45 @@
 
 	<hr class="thick-hr-1px">
 
+	<div class="row">
+		<div class="col-md-1"></div>
+		<div class="col-md-8">  <div class="field-header">  Action Description </div> </div>
+	 	<div class="col-md-2">  <div class="field-header"> Priority </div> </div>
+	</div>
+	<br>
+
+
 
 
 <!-- Rows. One per KSU -->
 
 	{% for ksu in BOKA %}
 
-		{% if BOKA[ksu]['parent_id'] == O %}
+		{% if ksu['parent_id'] == O['id'] %}
 
 			<div class="row">
 
 				<div class="col-md-1">
 					<form class="form-horizontal" method="post">
-						<input type="text" class="form-control hidden" name="ksu_id" value="{{BOKA[ksu]['id']}}"> 
+						<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}"> 
 					  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="EditKSU"> Edit </button>
 					</form>	
 				</div>
 
 
-				<div class="col-md-8">  <div>{{BOKA[ksu]['description']}}</div> </div>
-			 	<div class="col-md-1">  <div>{{BOKA[ksu]['priority']}}</div> </div>
+				<div class="col-md-8">  <div>{{ksu['description']}}</div> </div>
+			 	<div class="col-md-1">  <div>{{ksu['priority']}}</div> </div>
 
 				<div class="col-md-1">
 						<form class="form-horizontal" method="post">
-						<input type="text" class="form-control hidden" name="ksu_id" value="{{BOKA[ksu]['id']}}">
+						<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
 					  	<button type="submit" class="btn btn-primary btn-md" name="action_description" value="Add_To_Mission"> To Mission </button>
 					</form>	
 				</div>
 
 				<div class="col-md-1">
 					<form class="form-horizontal" method="post">
-						<input type="text" class="form-control hidden" name="ksu_id" value="{{BOKA[ksu]['id']}}">
+						<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
 					  	<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Done">  Done  </button>
 					</form>	
 				</div>

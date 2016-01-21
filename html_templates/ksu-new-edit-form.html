@@ -422,15 +422,9 @@
 			</select>
 		</div>
 
-
-		<div class="col-md-2"> 		
-			<label> Days Requirement <span class="red">*</span> </label>
-			<input type="text" class="form-control" name="days_required" required value="{% if ksu['days_required']%}{{ksu['days_required']}}{% endif %}" placeholder="e.g. 20">
-		</div>	
-
 		<div class="col-md-2">
-			<label> Target Date </label>
-			<input type="text" class="form-control" name="target_date" placeholder="DD-MM-YYYY" value="{% if ksu['target_date']%}{{ksu['target_date']}}{% endif %}">
+			<label> Target Date <span class="red">*</span></label>
+			<input type="text" class="form-control" name="target_date" placeholder="DD-MM-YYYY" value="{% if ksu['target_date']%}{{ksu['target_date']}}{% endif %}" required>
 		</div>
 
 	
@@ -489,16 +483,32 @@
 		</div>
 
 
-
-		<div class="col-md-2">
-			<label> Target Date </label>
-			<input type="text" class="form-control" name="next_event" placeholder="DD-MM-YYYY" value="{% if ksu['next_event']%}{{ksu['next_event']}}{% endif %}">
+		<div class="col-md-2"> 
+			<label> Expected Impact <span class="red">*</span> </label> 
+			<select class="form-control" name="importance"> 
+				{% for i in constants['l_Fibonacci'] %}
+					{% if i == ksu['importance'] %}
+						<option selected="selected">{{i}}</option>
+					{% else %}		
+						<option> {{i}} </option>
+					{% endif %}
+				{% endfor %}
+					
+			</select>
 		</div>
 
 
-		<div class="col-md-2">
-			<label> Preferred Time (24hrs.)</label>
-			<input type="text" class="form-control" name="best_time" placeholder="00:00">
+		<div class="col-md-2"> 
+			<label> Expected Duration <span class="red">*</span> </label>
+			<select class="form-control" name="time_cost">
+				{% for t in constants['l_Fibonacci'] %}
+					{% if t == ksu['time_cost']  %}
+						<option selected="selected">{{t}}</option>
+					{% else %}
+						<option> {{t}} </option>
+					{% endif %}
+				{% endfor %}
+			</select>
 		</div>
 	
 		<div class="col-md-2">
@@ -527,33 +537,17 @@
 
 
 	<div class="form-group">
-		
-		<div class="col-md-2"> 
-			<label> Expected Impact <span class="red">*</span> </label> 
-			<select class="form-control" name="importance"> 
-				{% for i in constants['l_Fibonacci'] %}
-					{% if i == ksu['importance'] %}
-						<option selected="selected">{{i}}</option>
-					{% else %}		
-						<option> {{i}} </option>
-					{% endif %}
-				{% endfor %}
-					
-			</select>
+
+
+		<div class="col-md-2">
+			<label> Target Date </label>
+			<input type="text" class="form-control" name="next_event" placeholder="DD-MM-YYYY" value="{% if ksu['next_event']%}{{ksu['next_event']}}{% endif %}">
 		</div>
 
 
-		<div class="col-md-2"> 
-			<label> Expected Duration <span class="red">*</span> </label>
-			<select class="form-control" name="time_cost">
-				{% for t in constants['l_Fibonacci'] %}
-					{% if t == ksu['time_cost']  %}
-						<option selected="selected">{{t}}</option>
-					{% else %}
-						<option> {{t}} </option>
-					{% endif %}
-				{% endfor %}
-			</select>
+		<div class="col-md-2">
+			<label> Preferred Time (24hrs.)</label>
+			<input type="text" class="form-control" name="best_time" placeholder="00:00">
 		</div>
 
 	</div>
@@ -598,31 +592,14 @@
 
 
 	<div class="form-group">
-
-		<div class="col-md-2">
-			<label> Parent KSU </label>
-			<input type="text" class="form-control" name="parent_id" placeholder="Optional">
-		</div>
-
-
-		<div class="col-md-2">
-			<label> Local Tag </label>
-			<input type="text" class="form-control" name="local_tags" placeholder="Optional" value="{% if ksu['local_tags']%}{{ksu['local_tags']}}{% endif %}">
-		</div>
-
-		<div class="col-md-2">
-			<label> Global Tag </label>
-			<input type="text" class="form-control" name="global_tags" placeholder="Optional">
-		</div>
-
-	</div>
-
-
-
-	<div class="form-group">
-		<div class="col-md-8">
+		<div class="col-md-6">
 			<label> Comments </label>
 			<textarea class="form-control" name="comments">{% if ksu['comments']%}{{ksu['comments']}}{% endif %}</textarea> 
+		</div>
+
+		<div class="col-md-4">
+			<label> Tags (Please separete using pipes) </label>
+			<input type="text" class="form-control" name="local_tags" placeholder="Tag|Tag|Tag" value="{% if ksu['local_tags']%}{{ksu['local_tags']}}{% endif %}">
 		</div>
 
 	</div>

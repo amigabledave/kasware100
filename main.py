@@ -466,7 +466,7 @@ def make_ordered_ksu_set_list_for_SetViewer(ksu_set):
 							'KAS3':{'attribute':'importance', 'reverse':False},
 							'KAS4':{'attribute':'importance', 'reverse':False},
 
-							'BigO':{'attribute':'awesomeness', 'reverse':False},
+							'BigO':{'attribute':'target_date', 'reverse':False},
 							'BOKA':{'attribute':'priority', 'reverse':False},
 
 							'ImPe':{'attribute':'contact_frequency', 'reverse':False},
@@ -476,7 +476,7 @@ def make_ordered_ksu_set_list_for_SetViewer(ksu_set):
 	reverse = d_view_order_details[set_name]['reverse']
 
 	# number_attributes = ['contact_frequency']
-	number_attributes = ['last_event', 'next_event', 'contact_frequency']
+	number_attributes = ['last_event', 'next_event', 'contact_frequency', 'target_date']
 
 	if attribute in number_attributes:	
 		for (key, ksu) in ksu_set.items():
@@ -540,10 +540,15 @@ class BigOViewer(Handler):
 			return
 		theory = self.theory
 		
-		BigO = unpack_set(theory.BigO)
+		BigO = unpack_set(theory.BigO)	
 		BigO = hide_invisible(BigO)
+		BigO = pretty_dates(BigO)
+		BigO = add_days_left(BigO)
+		BigO = make_ordered_ksu_set_list_for_SetViewer(BigO)
+
 		BOKA = unpack_set(theory.BOKA) #xx
 		BOKA = hide_invisible(BOKA)
+		BOKA = make_ordered_ksu_set_list_for_SetViewer(BOKA)
 	
 		# set_details = ksu_set['set_details']
 		# ksu_set = pretty_dates(ksu_set)
@@ -552,7 +557,7 @@ class BigOViewer(Handler):
 		# if viewer_details['grouping_attribute'] == 'local_tags':
 		# 	viewer_details['grouping_list'] = make_local_tags_grouping_list(ksu_set)
 
-		self.print_html('BigOViewer.html', BigO=BigO, BOKA=BOKA ) #viewer_details=viewer_details
+		self.print_html('BigOViewer.html', BigO=BigO, BOKA=BOKA, today=today ) #viewer_details=viewer_details
 
 
 	def post(self):
@@ -592,7 +597,17 @@ class BigOViewer(Handler):
 
 
 
-
+def add_days_left(ksu_set): #xx
+	for date_attribute in date_attributes:
+		for ksu in ksu_set:
+			ksu = ksu_set[ksu]
+			valid_attributes = list(ksu.keys())
+			if date_attribute in valid_attributes:	
+				if ksu[date_attribute]:
+					date_ordinal = int(ksu[date_attribute])
+					days_left = date_ordinal - today
+					ksu['days_left_to_' + date_attribute] = str(days_left)
+	return ksu_set
 
 
 
@@ -734,10 +749,15 @@ class Done(Handler):
 		ksu = ksu_set[ksu_id]	
 		dropdowns = make_dropdowns(theory)
 		
-		if ksu['value_type'] == 'V000':
-			event_type = 'EndValue'
+
+		if set_name == 'BigO' or set_name == 'Wish':
+			event_type = 'Achievement' 
 		else:
-			event_type = 'SmartEffort'
+			if ksu['value_type'] == 'V000':
+				event_type = 'EndValue'
+			else:
+				event_type = 'SmartEffort'
+
 		
 		self.print_html('done.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name, event_type=event_type)
 
@@ -1306,9 +1326,8 @@ i_KAS4_KSU = {'value_type':None}
 
 i_BigO_KSU = {'value_type':None,
 			  'awesomeness':None, #How much awesomeness do you believe that achieving this goal would add to your life. Fibbo Scale. Can actually be 0. Formely known as achievement points.
-			  'days_required':None,
 			  'is_milestone':False,
-			  'target_date':None} # if no target date is provided is automatically calculated based on days required			  
+			  'target_date':today+90} # if no target date is provided is automatically calculated based on days required			  
 			  
 
 
@@ -1914,6 +1933,9 @@ def trigger_additional_actions(self):
   		if ksu_type == 'ImPe':
   			triggered_Action_update_ImPe_Contact(self)
 
+		if ksu_type =='BigO':
+			triggered_Action_BOKA_update_value_type(self)
+
 	if action_type == 'Done_Confirm':
 		
 		if ksu_subtype == 'ImPe_Contact':
@@ -1950,6 +1972,8 @@ def triggered_Action_create_KAS1_next_event(self):
 	update_set(KAS1, ksu)
 	theory.KAS1 = pack_set(KAS1)
 	return
+
+
 
 
 def triggered_Action_create_ImPe_Contact(self):
@@ -1999,10 +2023,23 @@ def triggered_Action_BOKA_add_value_type(self):
 	return
 
 
+def triggered_Action_BOKA_update_value_type(self):
+	theory = self.theory
+	post_details = get_post_details(self)
+	BigO_id = post_details['ksu_id']
+	BigO = unpack_set(theory.BigO)
+	BOKA = unpack_set(theory.BOKA)
+	objective = BigO[BigO_id]
+
+	for (ksu_id, ksu) in BOKA.items():
+		if ksu['parent_id'] == BigO_id:
+			ksu['value_type'] = objective['value_type']
+
+	update_set(BOKA, ksu)
+	theory.BOKA = pack_set(BOKA)
+	return
 
 
-def triggered_Action_delete_BOKA_remains(self):
-	return #xx to be define once the BOKA set is operative
 
 
 def triggered_Action_update_ImPe_Contact(self):
