@@ -399,9 +399,9 @@
 				<select class="form-control" name="value_type">
 				{% for value in constants['l_Values'] %}
 					{% if value[0] == ksu['value_type'] %}
-					<option selected="selected" value="{{value[0]}}"> {{value[1]}} </option>
-					{% else %}
-					<option value="{{value[0]}}"> {{value[1]}} </option>
+						<option selected="selected" value="{{value[0]}}"> {{value[1]}} </option>
+					{% elif value[0] != 'V000' %}
+						<option value="{{value[0]}}"> {{value[1]}} </option>
 					{% endif %}
 				{% endfor %}
 			</select>

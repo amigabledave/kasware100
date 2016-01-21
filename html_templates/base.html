@@ -12,11 +12,8 @@
 		<div class="row">
 
 			<div class="col-md-3"> <h1 class="main-title"> KASware </h1></div>
-			<!-- <div class="col-md-1">  </div> -->
 			
 			{% if theory %}
-<!-- 				<div class="col-md-4"> <div class="score-title"> Today's Score: <a href=""> End Value </a>  = ? pts. |  <a href="/effort-report"> Smart Effort </a>  = {{todays_effort}} pts. </div></div> -->
-
 
 				<div class="col-md-6"> 
 					<div class="score-title"> Today's Score [ {{EndValue + SmartEffort - Stupidity}} ] = <a href=""> End Value [ {{EndValue}} ] </a> + <a href="/effort-report"> Smart Effort [ {{SmartEffort}} ] </a> - <a href=""> Stupidity [ {{Stupidity}} ] </a></div>
@@ -41,7 +38,6 @@
 			{% endif %}
 					
 		
-
 		{% block content %}
 		{% endblock %}
 
