@@ -3,11 +3,35 @@
 {% block content %}
 
 <div class="row">
-	<div class="col-md-9"> <div class="section-title">Important Indicators</div></div>
-	<div class="col-md-3"> </div>
+	<div class="col-md-4"> <div class="section-title">Important Indicators</div></div>
+
+	<div class="col-md-2 error respect-space">{% if input_error%}{{input_error}}{% else %} {% endif %}</div>
+
+	<form method="Post"> 	
+		<div class="form-group">
+
+		<div class="col-md-2">
+			<label> Period's End </label>
+			<input type="text" class="form-control" name="period_end" placeholder="DD-MM-YYYY" value="{{period_end}}">
+		</div>
+
+		<div class="col-md-2"> 		
+			<label> Period's Duration </label>
+			<input type="text" class="form-control" name="period_duration" required value="{{period_duration}}">
+		</div>	
+
+
+		<div class="col-md-2">
+			<button type="submit" class="btn btn-lg btn-primary new-ksu-button respect-space" name="action_description" value="update_period"> Update Period </button>	
+		</div>
+
+
+		</div>	
+	</form>
 	
 </div>
 
+<br>
 
 <div class="row">
 	<div class="col-md-1"></div>

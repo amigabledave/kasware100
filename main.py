@@ -13,6 +13,8 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), a
 
 today = datetime.today().toordinal()
 tomorrow = today + 1
+not_ugly_today = datetime.today().strftime('%d-%m-%Y')
+
 
 # --- Datastore Entities ----------------------------------------------------------------------------
 
@@ -514,6 +516,7 @@ def not_ugly_dates(ksu):
 
 
 
+
 def make_local_tags_grouping_list(ksu_set):
 	result = []
 	local_tags = []
@@ -610,9 +613,17 @@ class ImInViewer(Handler): #xx
 		ksu_set = hide_invisible(ksu_set)
 		ksu_set = make_ordered_ksu_set_list_for_SetViewer(ksu_set)
 		viewer_details = d_Viewer['ImIn']
-	
-		self.print_html('ImInViewer.html', viewer_details=viewer_details, ksu_set=ksu_set, set_name='ImIn') #viewer_details=viewer_details
 
+		period_end = self.request.get('period_end')
+		if not period_end:
+			period_end = not_ugly_today
+
+		period_duration = self.request.get('period_duration')
+		if not period_duration:
+			period_duration = '21'
+
+		# ksu_set = add_indicator_value_in_target_period_to_ImIn(theory, period_end, period_duration) #xx formula in development
+		self.print_html('ImInViewer.html', viewer_details=viewer_details, ksu_set=ksu_set, set_name='ImIn', period_end=period_end, period_duration=period_duration) #viewer_details=viewer_details
 
 
 	def post(self):
@@ -621,32 +632,107 @@ class ImInViewer(Handler): #xx
 		post_details = get_post_details(self)
 		user_action = post_details['action_description']
 	
-		
-		if user_action == 'NewKSU':
-			self.redirect('/NewKSU/BigO?return_to=/BigOViewer')
-
-
-		elif user_action == 'Add_Child_KSU':
-			parent_id = post_details['ksu_id']
-			self.redirect('/NewKSU/BOKA?return_to=/BigOViewer&parent_id=' + parent_id)
-		
-
-		else:
-			ksu_id = post_details['ksu_id']
-			set_name = get_type_from_id(ksu_id)
+		if user_action == 'update_period':
+			
+			input_error = user_input_error(post_details)
+	
+			if input_error:
+				period_end = post_details['period_end']
+				period_duration = post_details['period_duration']				
+				self.print_html('ImInViewer.html', viewer_details=viewer_details, ksu_set=ksu_set, set_name='ImIn', period_end=period_end, period_duration=period_duration, input_error=input_error)
+			
+			else:
+				period_duration = post_details['period_duration'] #xx
+				period_end = post_details['period_end']
+				self.redirect('/ImInViewer?period_end=' + period_end +'&period_duration=' + period_duration)
 				
-			if user_action == 'EditKSU':			
-				self.redirect('/EditKSU?ksu_id=' + ksu_id + '&return_to=/BigOViewer')
 
-			if user_action == 'Done':
-				self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/BigOViewer')
+		elif user_action == 'EditKSU':
+			ksu_id = post_details['ksu_id']		
+			self.redirect('/EditKSU?ksu_id=' + ksu_id + '&return_to=/ImInViewer')
 
-			if user_action == 'Fail':
-				self.redirect('/Failure?ksu_id=' + ksu_id + '&return_to=/BigOViewer')
 
-			if user_action == 'Add_To_Mission':
-				user_Action_Add_To_Mission(self)
-				self.redirect('/BigOViewer')
+
+def add_indicator_value_in_target_period_to_ImIn(theory, period_end, period_duration):#xx
+	return ksu_set
+
+
+def ImIn_calculate_indicator_value(theory, indicator, period_end, period_duration): #xx
+	value = None
+	subtype = indicator['subtype']
+	scope = indicator['scope']
+	units = indicator['units']
+
+	relevant_history = prepare_relevant_history(theory, period_end, period_duration)
+	Score_history = relevant_history['Score_history']
+
+	if subtype == 'Score':
+		value = 0
+
+		if scope == 'Total':			
+			for event in Score_history:
+				event_score = event['score']
+				event_value += event_score[units]
+		
+		else:
+			event_target_value_type = event['target_value_type']
+			for event in Score_history:
+				if scope == event_target_value_type:
+					event_score = event['score']
+					value += event_score[units]
+
+	return value
+
+
+
+
+def prepare_relevant_history(theory, period_end, period_duration):
+	result = {'Score_history':{},'Awesomeness_history':{}, 'AcumulatedPerception_history':{},'RealitySnapshot_history':{}, 'Behaviour_history':{}}
+	
+	Hist = unpack_set(theory.Hist)
+	mega_set = create_mega_set(theory)
+
+	relevant_event_types = ['EndValue', 'SmartEffort', 'Stupidity', 'Achievement']
+	score_subtypes = ['EndValue', 'SmartEffort', 'Stupidity', 'Achievement']
+	period_start = int(period_end) - int(period_duration)
+
+	for (Event_id, Event) in list(Hist.items()):
+		Event_type = Event['type']
+		Event_date = int(Event['Date'])
+
+		if Event_type in relevant_event_types and Event_date >= period_start and Event_date <= period_end:		
+			if Event_type in score_subtypes:
+				Event['score'] = calculate_event_score(Event)
+				ksu_id = Event['ksu_id']
+				ksu = mega_set[ksu_id]
+				ksu_type = get_type_from_id(ksu_id)
+				if ksu_type == 'BOKA':
+					ksu = mega_set[ksu['parent_id']]
+				Event['target_value_type'] = ksu['value_type']
+				Score_history = result['Score_history']
+				Score_history[Event_id] = Event
+
+	return result
+
+
+
+def create_mega_set(theory):
+	mega_set = {}
+
+	KAS1 = unpack_set(theory.KAS1)
+	KAS2 = unpack_set(theory.KAS2)
+	KAS3 = unpack_set(theory.KAS3)
+	KAS4 = unpack_set(theory.KAS4)
+	BigO = unpack_set(theory.BigO)
+	BOKA = unpack_set(theory.BOKA)
+	
+	all_ksu_sets = [KAS1, KAS2, KAS3, KAS4, BigO, BOKA]
+	
+	for ksu_set in all_ksu_sets:
+		mega_set.update(ksu_set)
+
+	return mega_set
+
 
 
 
@@ -1418,7 +1504,7 @@ i_ImPe_KSU = {'contact_ksu_id':None,
 
 #xx
 # Possible indicators subtypes # Score, AcumulatedPerception, RealitySnapshot, TimeUse
-i_ImIn_KSU = {'relevant':True, #users cannot create their own indicators, so here they choose if this one in particular they find relevantamolavida
+i_ImIn_KSU = {'relevant':True, #users cannot create their own indicators, so here they choose if this one in particular they find relevant
 			  'scope':None, #Indicator of the precense/absence of a certain value_type
 			  'units':None,
 			  'viewer_hierarchy':None,
@@ -2450,8 +2536,18 @@ def user_input_error(post_details):
 
 def input_error(target_attribute, user_input):
 	
-	validation_attributes = ['username', 'password', 'description', 'charging_time', 'duration', 'last_event', 'next_event', 'target_date', 'comments']
-	date_attributes = ['last_event', 'next_event', 'target_date']
+	validation_attributes = ['username', 
+							 'password',
+							 'description',
+							 'charging_time',
+							 'duration', 
+							 'last_event', 
+							 'next_event', 
+							 'target_date', 
+							 'comments', 
+							 'period_end',
+							 'period_duration']
+	date_attributes = ['last_event', 'next_event', 'target_date', 'period_end']
 
 	if target_attribute not in validation_attributes:
 		return None
@@ -2489,9 +2585,13 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 		'duration': re.compile(r"^[0-9]{1,3}$"),
 		'duration_error': 'Duration should be an integer with maximum 3 digits',
 
+		'period_duration': re.compile(r"^[0-9]{1,3}$"),
+		'period_duration_error': "Period's duration should be an integer with maximum 3 digits",
+
 		'last_event_error':'Last event format must be DD-MM-YYYY',
 		'next_event_error':'Next event format must be DD-MM-YYYY',
 		'target_date_error':'Target date format must be DD-MM-YYYY',
+		'period_end_error':"Period's End format must be DD-MM-YYYY",
 
 		'comments': re.compile(r"^.{0,400}$"),
 		'comments_error': 'Comments cannot excede 400 characters'}
@@ -2537,15 +2637,6 @@ d_Scope = {'Total': 'Total Results',
 		   'V900': '9. Money & Power'}
 
 l_Scope = sorted(d_Scope.items())
-
-
-
-
-
-
-
-
-
 
 
 
