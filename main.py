@@ -1320,7 +1320,7 @@ i_KAS4_KSU = {'value_type':None}
 
 
 i_BigO_KSU = {'value_type':None,
-			  'awesomeness':None, #How much awesomeness do you believe that achieving this goal would add to your life. Fibbo Scale. Can actually be 0. Formely known as achievement points.
+			  'Achievement_Value':None, #How much Achievement Points do you believe that achieving this goal would add to your life. Fibbo Scale. Can actually be 0. Formely known as achievement points.
 			  'is_milestone':False,
 			  'target_date':today+90} # if no target date is provided is automatically calculated based on days required			  
 			  
@@ -1335,10 +1335,14 @@ i_BOKA_KSU = {'in_upcoming':False, #To overwrite the proactiveness auto true
 
 
 i_Wish_KSU = {'value_type': None,
-			  'awesomeness':None, #How much awesomeness do you believe that achieving this goal would add to your life. Fibbo Scale. Can actually be 0. Formely known as achievement points.			  
+			  'Achievement_Value':None, #How much Achievement Points do you believe that achieving this goal would add to your life. Fibbo Scale. Can actually be 0. Formely known as achievement points.			  
 			  'bucket_list':False,
 			  'milestone_target_date':None} #This is seen as 'milestone Target Date' only if this dream is also consider a milestone.
 
+
+#xx
+i_RTBG_KSU = {'Awesomeness_Value':'3', #How much awesomeness Points is worth this reason to be gratefull
+			  'time_frame':'Present'} # Present, Past, Future
 
 
 i_ImPe_KSU = {'contact_ksu_id':None,
@@ -1418,7 +1422,7 @@ i_Stupidity_Event = {'type':'Stupidity',
 
 
 i_Achievement_Event = {'type':'Achievement',
-					   'awesomeness':None,
+					   'value':None,
 					   'target_date':None,
 					   'comments':None,
 					   'met_expectations':False}
@@ -1652,7 +1656,7 @@ def add_Achievement_event(theory, post_details):
 	ksu = ksu_set[ksu_id]
 
 	event['ksu_id'] = ksu_id
-	event['awesomeness'] = ksu['awesomeness']
+	event['value'] = ksu['Achievement_Value']
 	event['target_date'] = ksu['target_date']
 	event['comments'] = post_details['comments']
 
@@ -1722,7 +1726,7 @@ def calculate_event_score(event):
 			result['Stupidity'] = int(event['importance']) + int(event['streak'])
 
 	elif event_type == 'Achievement':
-		result['Achievement'] = int(event['awesomeness'])
+		result['Achievement'] = int(event['value'])
 	
 	return result
 
@@ -2441,10 +2445,9 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 
 date_attributes = ['last_event', 'next_event', 'last_contact', 'next_contact', 'target_date']
 
-l_Fibonacci = ['1','2','3','5','8','13','21','34','55','89','144','233','377','610','987']
+l_Fibonacci = ['1','2','3','5','8','13']
 
-
-l_Small_Fibonacci = ['1','2','3','5','8','13','21']
+# l_long_Fibonacci = ['1','2','3','5','8','13','21','34','55','89','144','233','377','610','987']
 
 
 d_Values = {'V000': '0. End Value',
