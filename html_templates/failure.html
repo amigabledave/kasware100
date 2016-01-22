@@ -8,7 +8,7 @@
 
 
 	<div class="row">
-		<div class="col-md-12"> <div class="section-title"> Sorry to hear that in the face of: </div></div>
+		<div class="col-md-12"> <div class="section-title"> :( Sorry to hear that in the face of: </div></div>
 		<div class="col-md-12"> <div class="section-sub-title"> {{ksu['circumstance']}} </div></div>
 
 		<div class="col-md-12"> <div class="section-title"> You did not had this reaction (or equivalent): </div></div>
@@ -20,6 +20,32 @@
 
 
 	<form class="form-horizontal" method="post">
+
+
+		<div class="form-group">
+
+			<div class="col-md-2"> 
+				<label> Stupidity Level </label> 
+				<select class="form-control" name="importance"> 
+					{% for i in constants['l_Fibonacci'] %}
+						{% if i == ksu['importance'] %}
+							<option selected="selected">{{i}}</option>
+						{% else %}		
+							<option> {{i}} </option>
+						{% endif %}
+					{% endfor %}
+						
+				</select>
+			</div>
+
+
+			<div class="col-md-2"> 		
+				<label> Number of Repetitions </label>
+				<input type="text" class="form-control" name="repetitions" required value="1">
+			</div>
+
+		</div>
+
 
 		<br>
 
@@ -46,6 +72,30 @@
 	<br>
 
 	<form class="form-horizontal" method="post">
+
+		<div class="form-group">
+
+			<div class="col-md-2"> 
+				<label> Stupidity Level </label> 
+				<select class="form-control" name="importance"> 
+					{% for i in constants['l_Fibonacci'] %}
+						{% if i == ksu['importance'] %}
+							<option selected="selected">{{i}}</option>
+						{% else %}		
+							<option> {{i}} </option>
+						{% endif %}
+					{% endfor %}
+						
+				</select>
+			</div>
+
+
+			<div class="col-md-2"> 		
+				<label> Number of Repetitions </label>
+				<input type="text" class="form-control" name="repetitions" required value="1">
+			</div>
+
+		</div>
 
 		<br>
 

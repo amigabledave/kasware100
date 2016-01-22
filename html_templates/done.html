@@ -54,7 +54,6 @@
 				<input type="text" class="form-control" name="duration" required value="{{ksu['time_cost']}}">
 			</div>	
 
-
 			<div class="col-md-2"> 
 				<label> Intensity </label> 
 				<select class="form-control" name="importance"> 
@@ -68,6 +67,14 @@
 						
 				</select>
 			</div>
+
+
+			<div class="col-md-2"> 		
+				<label> Number of Repetitions </label>
+				<input type="text" class="form-control" name="repetitions" required value="1">
+			</div>
+
+
 
 			<div class="col-md-2">
 		 		<div class="checkbox">
@@ -130,7 +137,6 @@
 					<input type="text" class="form-control" name="duration" required value="{{ksu['time_cost']}}">
 				</div>	
 
-
 				<div class="col-md-2"> 
 					<label> Expected Impact </label> 
 					<select class="form-control" name="importance"> 
@@ -143,6 +149,12 @@
 						{% endfor %}
 							
 					</select>
+				</div>
+
+
+				<div class="col-md-2"> 		
+					<label> Number of Repetitions </label>
+					<input type="text" class="form-control" name="repetitions" required value="1">
 				</div>
 
 

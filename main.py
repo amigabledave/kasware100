@@ -88,10 +88,11 @@ class Handler(webapp2.RequestHandler):
 			theory = self.theory
 			MLog = unpack_set(theory.MLog)
 			todays_log = MLog[today]
-			EndValue = todays_log['EndValue'] 
-			SmartEffort = todays_log['SmartEffort']
-			Stupidity = todays_log['Stupidity']
-			return t.render(theory=theory, EndValue=EndValue, SmartEffort=SmartEffort, Stupidity=Stupidity, **kw)		
+			EndValue = "{:,}".format(todays_log['EndValue'])
+			SmartEffort = "{:,}".format(todays_log['SmartEffort'])
+			Stupidity = "{:,}".format(todays_log['Stupidity'])
+			TodaysScore = "{:,}".format(int(todays_log['EndValue'])+int(todays_log['SmartEffort'])-int(todays_log['Stupidity']))
+			return t.render(theory=theory, EndValue=EndValue, SmartEffort=SmartEffort, Stupidity=Stupidity, TodaysScore=TodaysScore, **kw)		
 		else:
 			return t.render(**kw)
 
@@ -386,15 +387,14 @@ class SetViewer(Handler):
 		set_details = ksu_set['set_details']
 		ksu_set = pretty_dates(ksu_set)
 		
-		if set_name != 'Hist':
-			ksu_set = hide_invisible(ksu_set)
+		ksu_set = hide_invisible(ksu_set)
 		ksu_set = make_ordered_ksu_set_list_for_SetViewer(ksu_set)
 
 		viewer_details = d_Viewer[set_name]
 		if viewer_details['grouping_attribute'] == 'local_tags':
 			viewer_details['grouping_list'] = make_local_tags_grouping_list(ksu_set)
 
-		self.print_html('set-viewer.html', viewer_details=viewer_details, ksu_set=ksu_set)
+		self.print_html('set-viewer.html', viewer_details=viewer_details, ksu_set=ksu_set, set_name=set_name)
 
 	def post(self, set_name):
 		if user_bouncer(self):
@@ -453,12 +453,7 @@ def pretty_dates(ksu_set):
 def make_ordered_ksu_set_list_for_SetViewer(ksu_set):
 	if len(ksu_set) == 0:
 		return []
-
 	set_name = get_type_from_id(ksu_set.keys()[0])
-
-	if set_name == 'Event':
-		set_name = 'Hist'
-
 	result = []
 	set_order = []
 	d_view_order_details = {'KAS1':{'attribute':'next_event', 'reverse':False},
@@ -587,9 +582,6 @@ class BigOViewer(Handler):
 				self.redirect('/BigOViewer')
 
 
-
-
-
 def add_days_left(ksu_set):
 	for date_attribute in date_attributes:
 		for ksu in ksu_set:
@@ -601,6 +593,65 @@ def add_days_left(ksu_set):
 					days_left = date_ordinal - today
 					ksu['days_left_to_' + date_attribute] = str(days_left)
 	return ksu_set
+
+
+
+
+#--- Important Indicator Viewer Handler
+
+class ImInViewer(Handler): #xx
+	def get(self):
+		if user_bouncer(self):
+			return
+		theory = self.theory
+		
+		BigO = unpack_set(theory.BigO)	
+		BigO = hide_invisible(BigO)
+		BigO = pretty_dates(BigO)
+		BigO = add_days_left(BigO)
+		BigO = make_ordered_ksu_set_list_for_SetViewer(BigO)
+
+		BOKA = unpack_set(theory.BOKA)
+		BOKA = hide_invisible(BOKA)
+		BOKA = make_ordered_ksu_set_list_for_SetViewer(BOKA)
+	
+		self.print_html('ImInViewer.html', BigO=BigO, BOKA=BOKA, today=today ) #viewer_details=viewer_details
+
+
+	def post(self):
+		if user_bouncer(self):
+			return
+		post_details = get_post_details(self)
+		user_action = post_details['action_description']
+	
+		
+		if user_action == 'NewKSU':
+			self.redirect('/NewKSU/BigO?return_to=/BigOViewer')
+
+
+		elif user_action == 'Add_Child_KSU':
+			parent_id = post_details['ksu_id']
+			self.redirect('/NewKSU/BOKA?return_to=/BigOViewer&parent_id=' + parent_id)
+		
+
+		else:
+			ksu_id = post_details['ksu_id']
+			set_name = get_type_from_id(ksu_id)
+				
+			if user_action == 'EditKSU':			
+				self.redirect('/EditKSU?ksu_id=' + ksu_id + '&return_to=/BigOViewer')
+
+			if user_action == 'Done':
+				self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/BigOViewer')
+
+			if user_action == 'Fail':
+				self.redirect('/Failure?ksu_id=' + ksu_id + '&return_to=/BigOViewer')
+
+			if user_action == 'Add_To_Mission':
+				user_Action_Add_To_Mission(self)
+				self.redirect('/BigOViewer')
+
+
 
 
 
@@ -1296,8 +1347,10 @@ i_KAS1_KSU = {'charging_time': "7",
 			  'last_event': None,
 			  'project':None,
 			  'best_day': "None",
-			  'TimeUse_target_min':None, #xx
-			  'TimeUse_target_max':None} 
+			  'TimeUse_target_min':None,
+			  'TimeUse_target_max':None,
+			  'Repetition_target_min':None,
+			  'Repetition_target_max':None} 
 
 
 
@@ -1340,7 +1393,6 @@ i_Wish_KSU = {'value_type': None,
 			  'milestone_target_date':None} #This is seen as 'milestone Target Date' only if this dream is also consider a milestone.
 
 
-#xx
 i_RTBG_KSU = {'Awesomeness_Value':'3', #How much awesomeness Points is worth this reason to be gratefull
 			  'time_frame':'Present'} # Present, Past, Future
 
@@ -1410,6 +1462,7 @@ i_EndValue_Event = {'type':'EndValue',
 
 i_SmartEffort_Event = {'type':'SmartEffort',
 					   'duration':None, # To calculate Amount of SmartEffort Points Earned
+					   'repetitions':'1',
 			    	   'joy':False,
 			    	   'disconfort':False,
 			    	   'streak':None}
@@ -1417,6 +1470,7 @@ i_SmartEffort_Event = {'type':'SmartEffort',
 
 
 i_Stupidity_Event = {'type':'Stupidity',
+					 'repetitions':'1',
 					 'streak':None}
 
 
@@ -1638,6 +1692,8 @@ def add_SmartEffort_event(theory, post_details): #Duration & Importance to be up
 	if set_name in reactive_sets:
 		event['importance'] = ksu['importance']
 		event['streak'] = ksu['streak']
+
+	event['repetitions'] = post_details['repetitions']	
 		
 	update_set(Hist, event)
 	update_MLog(theory, event)
@@ -1684,6 +1740,7 @@ def add_Stupidity_event(theory, post_details):
 	event['ksu_id'] = ksu_id
 	event['importance'] = ksu['importance']
 	event['streak'] = ksu['streak']
+	event['repetitions'] = post_details['repetitions']
 	
 	update_set(Hist, event)
 	update_MLog(theory, event)
@@ -1721,9 +1778,9 @@ def calculate_event_score(event):
 	elif event_type == 'Stupidity':
 
 		if int(event['importance']) < int(event['streak']):
-			result['Stupidity'] = int(event['importance']) * 2
+			result['Stupidity'] = int(event['importance']) * int(event['repetitions']) + int(event['importance'])
 		else:
-			result['Stupidity'] = int(event['importance']) + int(event['streak'])
+			result['Stupidity'] = int(event['importance']) * int(event['repetitions']) + int(event['streak'])
 
 	elif event_type == 'Achievement':
 		result['Achievement'] = int(event['value'])
@@ -2563,15 +2620,6 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 				    'show_Button_Done':False,
 				    'show_Button_Add_To_Mission':False,
 				    'grouping_attribute':'local_tags',
-				    'grouping_list':None},
-
-
-			'ImPe': {'set_title':'Events History',
-		   			'set_name':'Hist',
-					'attributes':['id', 'ksu_id', 'type'],
-				    'fields':{'id':'Event ID', 'ksu_id':'KSU ID', 'type':'Event Type'},
-				    'columns':{'id':1, 'ksu_id':1, 'type':2},
-				    'grouping_attribute':'date',
 				    'grouping_list':None}}
 
 
@@ -2600,6 +2648,7 @@ app = webapp2.WSGIApplication([
 
                              ('/SetViewer/' + PAGE_RE, SetViewer),
                              ('/BigOViewer', BigOViewer),
+                             ('/ImInViewer', ImInViewer),
 
                              ('/TodaysMission', TodaysMission),
                              ('/Upcoming', Upcoming),

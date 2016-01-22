@@ -409,11 +409,11 @@
 
 
 		<div class="col-md-2"> 
-			<label> Exp. Awesomeness <span class="red">*</span> </label> 
-			<select class="form-control" name="awesomeness"> 
+			<label> Achievement Value <span class="red">*</span> </label> 
+			<select class="form-control" name="Achievement_Value"> 
 				{% for i in constants['l_Fibonacci'] %}
-					{% if i == ksu['awesomeness'] %}
-						<option selected="awesomeness">{{i}}</option>
+					{% if i == ksu['Achievement_Value'] %}
+						<option selected="Achievement_Value">{{i}}</option>
 					{% else %}		
 						<option> {{i}} </option>
 					{% endif %}
