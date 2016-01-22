@@ -1,0 +1,113 @@
+subtype,description,comments,scope,units,viewer_hierarchy,measurement_best_time,measurement_frequency,next_measurement,target_min,target_max,question,reverse
+Score,Total End Value experienced during target time period,,Total,EndValue,1,,,,0,,,False
+Score,Total Smart Effort made during target time period,,Total,SmartEffort,2,,,,0,,,False
+Score,Smart Effort made during target time period,,V100,SmartEffort,2,,,,0,,,False
+Score,Smart Effort made during target time period,,V200,SmartEffort,2,,,,0,,,False
+Score,Smart Effort made during target time period,,V300,SmartEffort,2,,,,0,,,False
+Score,Smart Effort made during target time period,,V400,SmartEffort,2,,,,0,,,False
+Score,Smart Effort made during target time period,,V500,SmartEffort,2,,,,0,,,False
+Score,Smart Effort made during target time period,,V600,SmartEffort,2,,,,0,,,False
+Score,Smart Effort made during target time period,,V700,SmartEffort,2,,,,0,,,False
+Score,Smart Effort made during target time period,,V800,SmartEffort,2,,,,0,,,False
+Score,Smart Effort made during target time period,,V900,SmartEffort,2,,,,0,,,False
+Score,Total Stupidity commited during target time period,,Total,Stupidity,3,,,,,0,,True
+Score,Stupidity commited during target time period,,V100,Stupidity,3,,,,,0,,True
+Score,Stupidity commited during target time period,,V200,Stupidity,3,,,,,0,,True
+Score,Stupidity commited during target time period,,V300,Stupidity,3,,,,,0,,True
+Score,Stupidity commited during target time period,,V400,Stupidity,3,,,,,0,,True
+Score,Stupidity commited during target time period,,V500,Stupidity,3,,,,,0,,True
+Score,Stupidity commited during target time period,,V600,Stupidity,3,,,,,0,,True
+Score,Stupidity commited during target time period,,V700,Stupidity,3,,,,,0,,True
+Score,Stupidity commited during target time period,,V800,Stupidity,3,,,,,0,,True
+Score,Stupidity commited during target time period,,V900,Stupidity,3,,,,,0,,True
+Score,Total Achievements during target time period,,Total,Achievement,4,,,,0,,,False
+Score,Achievements during target time period,,V100,Achievement,4,,,,0,,,False
+Score,Achievements during target time period,,V200,Achievement,4,,,,0,,,False
+Score,Achievements during target time period,,V300,Achievement,4,,,,0,,,False
+Score,Achievements during target time period,,V400,Achievement,4,,,,0,,,False
+Score,Achievements during target time period,,V500,Achievement,4,,,,0,,,False
+Score,Achievements during target time period,,V600,Achievement,4,,,,0,,,False
+Score,Achievements during target time period,,V700,Achievement,4,,,,0,,,False
+Score,Achievements during target time period,,V800,Achievement,4,,,,0,,,False
+Score,Achievements during target time period,,V900,Achievement,4,,,,0,,,False
+Score,Total increase in Awesomeness,,Total,Awesomeness_Increase,5,,,,0,,,False
+Score,Increase in Awesomeness,,V100,Awesomeness_Increase,5,,,,0,,,False
+Score,Increase in Awesomeness,,V200,Awesomeness_Increase,5,,,,0,,,False
+Score,Increase in Awesomeness,,V300,Awesomeness_Increase,5,,,,0,,,False
+Score,Increase in Awesomeness,,V400,Awesomeness_Increase,5,,,,0,,,False
+Score,Increase in Awesomeness,,V500,Awesomeness_Increase,5,,,,0,,,False
+Score,Increase in Awesomeness,,V600,Awesomeness_Increase,5,,,,0,,,False
+Score,Increase in Awesomeness,,V700,Awesomeness_Increase,5,,,,0,,,False
+Score,Increase in Awesomeness,,V800,Awesomeness_Increase,5,,,,0,,,False
+Score,Increase in Awesomeness,,V900,Awesomeness_Increase,5,,,,0,,,False
+Score,Total present Awesomeness,,Total,Awesomeness_Present,7,,,,0,,,False
+Score,Present Awesomeness,,V100,Awesomeness_Present,7,,,,0,,,False
+Score,Present Awesomeness,,V200,Awesomeness_Present,7,,,,0,,,False
+Score,Present Awesomeness,,V300,Awesomeness_Present,7,,,,0,,,False
+Score,Present Awesomeness,,V400,Awesomeness_Present,7,,,,0,,,False
+Score,Present Awesomeness,,V500,Awesomeness_Present,7,,,,0,,,False
+Score,Present Awesomeness,,V600,Awesomeness_Present,7,,,,0,,,False
+Score,Present Awesomeness,,V700,Awesomeness_Present,7,,,,0,,,False
+Score,Present Awesomeness,,V800,Awesomeness_Present,7,,,,0,,,False
+Score,Present Awesomeness,,V900,Awesomeness_Present,7,,,,0,,,False
+Score,Total decrease in Awesomeness,,Total,Awesomeness_Decrease,6,,,,,0,,True
+Score,Decrease in Awesomeness,,V100,Awesomeness_Decrease,6,,,,,0,,True
+Score,Decrease in Awesomeness,,V200,Awesomeness_Decrease,6,,,,,0,,True
+Score,Decrease in Awesomeness,,V300,Awesomeness_Decrease,6,,,,,0,,True
+Score,Decrease in Awesomeness,,V400,Awesomeness_Decrease,6,,,,,0,,True
+Score,Decrease in Awesomeness,,V500,Awesomeness_Decrease,6,,,,,0,,True
+Score,Decrease in Awesomeness,,V600,Awesomeness_Decrease,6,,,,,0,,True
+Score,Decrease in Awesomeness,,V700,Awesomeness_Decrease,6,,,,,0,,True
+Score,Decrease in Awesomeness,,V800,Awesomeness_Decrease,6,,,,,0,,True
+Score,Decrease in Awesomeness,,V900,Awesomeness_Decrease,6,,,,,0,,True
+AcumulatedPerception,Life excitement,Description to be changed. Question as dummy.,Total,binary,8,Morning,1,735985,0,,Did you wake up felling excited about this day?,False
+AcumulatedPerception,Did you feel signigicantly upset or stressed yesterday? ,Description to be changed. Question as dummy.,V100,binary,8,Morning,1,735985,,0,Did you feel signigicantly upset or stressed yesterday? ,True
+AcumulatedPerception,Do you feel like you had enough fun yesterday?,Description to be changed. Question as dummy.,V200,binary,8,Morning,1,735985,0,,Do you feel like you had enough fun yesterday?,False
+AcumulatedPerception,Did you wake up today felling tired?,Description to be changed. Question as dummy.,V400,binary,8,Morning,1,735985,,0,Did you wake up today felling tired?,True
+AcumulatedPerception,Do you feel like you advanced enough towards your goals today?,Description to be changed. Question as dummy.,V300,binary,8,Night,1,735985,0,,Do you feel like you advanced enough towards your goals today?,False
+AcumulatedPerception,Do you feel like you spend most of your day doing stuff that you find truly important?,Description to be changed. Question as dummy.,V300,binary,8,Morning,7,735986,0,,Do you feel like you spend most of your day doing stuff that you find truly important?,False
+AcumulatedPerception,Do you believe that you will be able to make your dreams come true?,Description to be changed. Question as dummy.,V300,binary,8,Morning,30,735986,0,,Do you believe that you will be able to make your dreams come true?,False
+AcumulatedPerception,Did you feel any significant pain or bothersome from your body yesterday?,Description to be changed. Question as dummy.,V400,binary,8,Morning,1,735985,,0,Did you feel any significant pain or bothersome from your body yesterday?,True
+AcumulatedPerception,Do you feel confortable with your phisical endurance?,Description to be changed. Question as dummy.,V400,binary,8,Morning,30,735987,0,,Do you feel confortable with your phisical endurance?,False
+AcumulatedPerception,Do you feel confortable with your phisical strenght?,Description to be changed. Question as dummy.,V400,binary,8,Morning,30,735988,0,,Do you feel confortable with your phisical strenght?,False
+AcumulatedPerception,Do you feel confortable with your phisical flexibility?,Description to be changed. Question as dummy.,V400,binary,8,Morning,30,735989,0,,Do you feel confortable with your phisical flexibility?,False
+AcumulatedPerception,Do you feel confortable with your physical apereance?,Description to be changed. Question as dummy.,V400,binary,8,Morning,30,735990,0,,Do you feel confortable with your physical apereance?,False
+AcumulatedPerception,Did you feel loved by your partner yesterday?,Description to be changed. Question as dummy.,V500,binary,8,Morning,1,735985,0,,Did you feel loved by your partner yesterday?,False
+AcumulatedPerception,Did your partner upset you significantly today?,Description to be changed. Question as dummy.,V500,binary,8,Night,1,735985,,0,Did your partner upset you significantly today?,True
+AcumulatedPerception,Do you feel like you wold like to continue with your current relationship status for the rest of your life?,Description to be changed. Question as dummy.,V500,binary,8,Morning,30,735991,0,,Do you feel like you wold like to continue with your current relationship status for the rest of your life?,False
+AcumulatedPerception,Do you feel like you have enough good friends?,Description to be changed. Question as dummy.,V500,binary,8,Morning,30,735992,0,,Do you feel like you have enough good friends?,False
+AcumulatedPerception,Do you feel like you learned enough new things today?,Description to be changed. Question as dummy.,V600,binary,8,Night,1,735985,0,,Do you feel like you learned enough new things today?,False
+AcumulatedPerception,Do you feel like you are improved your arts in the last week?,Description to be changed. Question as dummy.,V600,binary,8,Morning,7,735987,0,,Do you feel like you are improved your arts in the last week?,False
+AcumulatedPerception,Do you think improved in your practical skills in the last week?,Description to be changed. Question as dummy.,V600,binary,8,Morning,7,735988,0,,Do you think improved in your practical skills in the last week?,False
+AcumulatedPerception,Are you confortable at your work place?,Description to be changed. Question as dummy.,V700,binary,8,Morning,7,735989,0,,Are you confortable at your work place?,False
+AcumulatedPerception,Are you feel confortable at your home?,Description to be changed. Question as dummy.,V700,binary,8,Morning,7,735990,0,,Are you feel confortable at your home?,False
+AcumulatedPerception,Do you feel significantly annoyed for any of your posetions?,Description to be changed. Question as dummy.,V800,binary,8,Morning,1,735985,,0,Do you feel significantly annoyed for any of your posetions?,True
+AcumulatedPerception,Do you feel constrained by money in a signigicant way?,Description to be changed. Question as dummy.,V900,binary,8,Morning,7,735991,,0,Do you feel constrained by money in a signigicant way?,True
+RealitySnapshot,How much do I weight? (in kg),Description to be changed. Question as dummy.,V400,number,9,Morning,7,735992,0,,How much do I weight?,False
+RealitySnapshot,Whats my body fat? (in %),Description to be changed. Question as dummy.,V400,number,9,Morning,7,735993,0,,Whats my body fat?,False
+RealitySnapshot,How fast can you ran a mile? (in seconds),Description to be changed. Question as dummy.,V400,number,9,Morning,14,735994,0,,How fast can you ran a mile?,False
+RealitySnapshot,How many consecutive pushups can you do?,Description to be changed. Question as dummy.,V400,number,9,Morning,14,735995,0,,How many consecutive pushups can you do?,False
+RealitySnapshot,Can you easily touch your feet holding your legs straigh?,Description to be changed. Question as dummy.,V400,binary,9,Morning,14,735996,0,,Can you easily touch your feet holding your legs straigh?,False
+RealitySnapshot,How many people proactively contacted you yesterday because they care for you?,Not work related. And also the people that lives with you doesn’t count. Description to be changed. Question as dummy.,V500,number,9,Morning,1,735985,0,,How many people proactively contacted you yesterday because they care for you?,False
+RealitySnapshot,Whats your net worth? (in currency of you choice),Description to be changed. Question as dummy.,V900,number,9,Morning,90,735985,0,,Whats your net worth?,False
+RealitySnapshot,How much money did you earned in the last month? (in currency of you choice),Description to be changed. Question as dummy.,V900,number,9,Morning,30,735993,0,,How much money did you earned in the last month?,False
+Behaviour,Total time used experiencing End Value,,Total,duration,10,,,,0,,,False
+Behaviour,Total time used woking for 'Inner Peace & Consciousness',,V100,duration,10,,,,0,,,False
+Behaviour,Total time used woking for 'Fun & Excitement',,V200,duration,10,,,,0,,,False
+Behaviour,Total time used woking for 'Meaning & Direction',,V300,duration,10,,,,0,,,False
+Behaviour,Total time used woking for 'Health & Vitality',,V400,duration,10,,,,0,,,False
+Behaviour,Total time used woking for 'Love & Friendship',,V500,duration,10,,,,0,,,False
+Behaviour,Total time used woking for 'Knowledge & Skills',,V600,duration,10,,,,0,,,False
+Behaviour,Total time used woking for 'Outer Order & Peace',,V700,duration,10,,,,0,,,False
+Behaviour,Total time used woking for 'Stuff',,V800,duration,10,,,,0,,,False
+Behaviour,Total time used woking for 'Money & Power',,V900,duration,10,,,,0,,,False
+Behaviour,Total repetitions experiencing End Value,,Total,repetitions,12,,,,0,,,False
+Behaviour,Total repetitions woking for 'Inner Peace & Consciousness',,V100,repetitions,12,,,,0,,,False
+Behaviour,Total repetitions woking for 'Fun & Excitement',,V200,repetitions,12,,,,0,,,False
+Behaviour,Total repetitions woking for 'Meaning & Direction',,V300,repetitions,12,,,,0,,,False
+Behaviour,Total repetitions woking for 'Health & Vitality',,V400,repetitions,12,,,,0,,,False
+Behaviour,Total repetitions woking for 'Love & Friendship',,V500,repetitions,12,,,,0,,,False
+Behaviour,Total repetitions woking for 'Knowledge & Skills',,V600,repetitions,12,,,,0,,,False
+Behaviour,Total repetitions woking for 'Outer Order & Peace',,V700,repetitions,12,,,,0,,,False
+Behaviour,Total repetitions woking for 'Stuff',,V800,repetitions,12,,,,0,,,False
+Behaviour,Total repetitions woking for 'Money & Power',,V900,repetitions,12,,,,0,,,False

@@ -30,6 +30,7 @@ class Theory(db.Model):
 	BigO = db.BlobProperty(required=True)
 	BOKA = db.BlobProperty(required=True)
 	ImPe = db.BlobProperty(required=True)
+	ImIn = db.BlobProperty(required=True)
 
 	Hist = db.BlobProperty(required=True)	
 	MLog = db.BlobProperty(required=True)
@@ -61,6 +62,7 @@ class Theory(db.Model):
 					  BigO=new_set_KSU('BigO'),
 					  BOKA=new_set_KSU('BOKA'),
 					  ImPe=new_set_KSU('ImPe'),
+					  ImIn=new_set_KSU('ImIn'),
 					 
 					  Hist=new_set_Hist(),
 					  MLog=new_set_MLog())
@@ -465,13 +467,13 @@ def make_ordered_ksu_set_list_for_SetViewer(ksu_set):
 							'BOKA':{'attribute':'priority', 'reverse':False},
 
 							'ImPe':{'attribute':'contact_frequency', 'reverse':False},
-							'Hist':{'attribute':'date', 'reverse':False}}
+							'ImIn':{'attribute':'viewer_hierarchy', 'reverse':False}}
 
 	attribute = d_view_order_details[set_name]['attribute'] 
 	reverse = d_view_order_details[set_name]['reverse']
 
 	# number_attributes = ['contact_frequency']
-	number_attributes = ['last_event', 'next_event', 'contact_frequency', 'target_date']
+	number_attributes = ['last_event', 'next_event', 'contact_frequency', 'target_date', 'viewer_hierarchy']
 
 	if attribute in number_attributes:	
 		for (key, ksu) in ksu_set.items():
@@ -604,18 +606,13 @@ class ImInViewer(Handler): #xx
 		if user_bouncer(self):
 			return
 		theory = self.theory
-		
-		BigO = unpack_set(theory.BigO)	
-		BigO = hide_invisible(BigO)
-		BigO = pretty_dates(BigO)
-		BigO = add_days_left(BigO)
-		BigO = make_ordered_ksu_set_list_for_SetViewer(BigO)
-
-		BOKA = unpack_set(theory.BOKA)
-		BOKA = hide_invisible(BOKA)
-		BOKA = make_ordered_ksu_set_list_for_SetViewer(BOKA)
+		ksu_set = unpack_set(theory.ImIn)		
+		ksu_set = hide_invisible(ksu_set)
+		ksu_set = make_ordered_ksu_set_list_for_SetViewer(ksu_set)
+		viewer_details = d_Viewer['ImIn']
 	
-		self.print_html('ImInViewer.html', BigO=BigO, BOKA=BOKA, today=today ) #viewer_details=viewer_details
+		self.print_html('ImInViewer.html', viewer_details=viewer_details, ksu_set=ksu_set, set_name='ImIn') #viewer_details=viewer_details
+
 
 
 	def post(self):
@@ -995,6 +992,8 @@ class LoadCSV(Handler):
 		developer_Action_Load_CSV(theory, set_name)
 		if set_name == 'All':
 			self.redirect('/TodaysMission')
+		elif set_name == 'ImIn':
+			self.redirect('/ImInViewer')
 		else:
 			self.redirect('/SetViewer/' + set_name)	
 
@@ -1299,6 +1298,9 @@ def update_theory(theory, ksu_set):
 
 	if set_name == 'ImPe':
 		theory.ImPe = pack_set(ksu_set)
+	if set_name == 'ImIn':
+		theory.ImIn = pack_set(ksu_set)
+		
 	return
 
 
@@ -1417,8 +1419,9 @@ i_ImPe_KSU = {'contact_ksu_id':None,
 #xx
 # Possible indicators subtypes # Score, AcumulatedPerception, RealitySnapshot, TimeUse
 i_ImIn_KSU = {'relevant':True, #users cannot create their own indicators, so here they choose if this one in particular they find relevantamolavida
-			  'value_type':None, #Indicator of the precense/absence of a certain value_type
-			  'measurement_units':None,
+			  'scope':None, #Indicator of the precense/absence of a certain value_type
+			  'units':None,
+			  'viewer_hierarchy':None,
 
 			  'measurement_best_time':None,
 			  'measurement_frecuency':None,
@@ -2204,7 +2207,7 @@ def triggered_Action_Done_ImPe_Contact(self):
 #--- Developer Actions ---
 def developer_Action_Load_CSV(theory, set_name):
 	csv_path = create_csv_path(set_name)
-	standard_sets = ['KAS2','KAS3', 'KAS4', 'BigO', 'BOKA'] 
+	standard_sets = ['KAS2','KAS3', 'KAS4', 'BigO', 'BOKA', 'ImIn'] 
 
 	if set_name in standard_sets:
 		developer_Action_Load_Set_CSV(theory, set_name, csv_path)
@@ -2214,6 +2217,7 @@ def developer_Action_Load_CSV(theory, set_name):
 
 	if set_name == 'ImPe':
 		developer_Action_Load_ImPe_CSV(theory, csv_path)
+
 
 	if set_name == 'All':
 		developer_Action_Load_KAS1_CSV(theory, create_csv_path('KAS1'))
@@ -2521,6 +2525,29 @@ d_Values = {'V000': '0. End Value',
 l_Values = sorted(d_Values.items())
 
 
+d_Scope = {'Total': 'Total Results',
+		   'V100': '1. Inner Peace & Consciousness',
+		   'V200': '2. Fun & Excitement', 
+		   'V300': '3. Meaning & Direction', 
+		   'V400': '4. Health & Vitality', 
+		   'V500': '5. Love & Friendship', 
+		   'V600': '6. Knowledge & Skills', 
+	       'V700': '7. Outer Order & Peace', 
+	       'V800': '8. Stuff',
+		   'V900': '9. Money & Power'}
+
+l_Scope = sorted(d_Scope.items())
+
+
+
+
+
+
+
+
+
+
+
 
 d_Days = {'None':'None',
 		  '1':'1. Sunday',
@@ -2620,7 +2647,15 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 				    'show_Button_Done':False,
 				    'show_Button_Add_To_Mission':False,
 				    'grouping_attribute':'local_tags',
-				    'grouping_list':None}}
+				    'grouping_list':None},
+
+			'ImIn':{'set_title':'Important Indicators', #xx
+				    'set_name':'ImIn',
+				    'attributes':['subtype','description','units'],
+				    'fields':{'subtype':'Subtype','description':'Description','units':'Units'},
+				    'columns':{'subtype':2,'description':4,'units':2},
+				    'grouping_attribute':'scope',
+				    'grouping_list':l_Scope}}
 
 
 secret = 'elzecreto'
