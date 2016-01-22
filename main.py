@@ -546,17 +546,10 @@ class BigOViewer(Handler):
 		BigO = add_days_left(BigO)
 		BigO = make_ordered_ksu_set_list_for_SetViewer(BigO)
 
-		BOKA = unpack_set(theory.BOKA) #xx
+		BOKA = unpack_set(theory.BOKA)
 		BOKA = hide_invisible(BOKA)
 		BOKA = make_ordered_ksu_set_list_for_SetViewer(BOKA)
 	
-		# set_details = ksu_set['set_details']
-		# ksu_set = pretty_dates(ksu_set)
-
-		# viewer_details = d_Viewer[set_name]
-		# if viewer_details['grouping_attribute'] == 'local_tags':
-		# 	viewer_details['grouping_list'] = make_local_tags_grouping_list(ksu_set)
-
 		self.print_html('BigOViewer.html', BigO=BigO, BOKA=BOKA, today=today ) #viewer_details=viewer_details
 
 
@@ -597,7 +590,7 @@ class BigOViewer(Handler):
 
 
 
-def add_days_left(ksu_set): #xx
+def add_days_left(ksu_set):
 	for date_attribute in date_attributes:
 		for ksu in ksu_set:
 			ksu = ksu_set[ksu]
@@ -1302,7 +1295,9 @@ i_Reactive_KAS_KSU = {'circumstance':None,
 i_KAS1_KSU = {'charging_time': "7",
 			  'last_event': None,
 			  'project':None,
-			  'best_day': "None"} 
+			  'best_day': "None",
+			  'TimeUse_target_min':None, #xx
+			  'TimeUse_target_max':None} 
 
 
 
@@ -1362,6 +1357,29 @@ i_ImPe_KSU = {'contact_ksu_id':None,
 
 
 
+
+#xx
+# Possible indicators subtypes # Score, AcumulatedPerception, RealitySnapshot, TimeUse
+i_ImIn_KSU = {'relevant':True, #users cannot create their own indicators, so here they choose if this one in particular they find relevantamolavida
+			  'value_type':None, #Indicator of the precense/absence of a certain value_type
+			  'measurement_units':None,
+
+			  'measurement_best_time':None,
+			  'measurement_frecuency':None,
+			  'next_measurement':None,
+
+			  'target_min':None,
+			  'target_max':None,
+			  'question':None,
+			  'reverse':False}
+
+
+i_ImIn_Event = {'type':'Measurement',
+				'value':None}
+
+
+
+
 i_BASE_Event = {'id':None,
 				'ksu_id':None,
 				'date':today,
@@ -1418,6 +1436,7 @@ template_recipies = {'KAS1_KSU':[i_BASE_KSU, i_KAS_KSU, i_Proactive_KAS_KSU, i_K
 					 'BOKA_KSU':[i_BASE_KSU, i_Proactive_KAS_KSU, i_BOKA_KSU],
 
 					 'ImPe_KSU':[i_BASE_KSU, i_ImPe_KSU],
+					 'ImIn_KSU':[i_BASE_KSU, i_ImIn_KSU],
 					 
 					 'Created_Event':[i_BASE_Event, i_Created_Event],
 					 'Edited_Event':[i_BASE_Event, i_Edited_Event],
@@ -2424,6 +2443,8 @@ date_attributes = ['last_event', 'next_event', 'last_contact', 'next_contact', '
 
 l_Fibonacci = ['1','2','3','5','8','13','21','34','55','89','144','233','377','610','987']
 
+
+l_Small_Fibonacci = ['1','2','3','5','8','13','21']
 
 
 d_Values = {'V000': '0. End Value',

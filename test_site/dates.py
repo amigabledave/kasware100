@@ -1,12 +1,12 @@
 from datetime import datetime
 
 # --- Formulas basicas de datetime:
-# today = datetime.today()
-# # tomorrow = today + 1
-# print today
+today = datetime.today()
+# tomorrow = today + 1
+print today
 
-# today_number = today.toordinal()
-# print today_number
+today_number = today.toordinal()
+print today_number
 
 # today_from_number = datetime.fromordinal(today_number)
 # print today_from_number
@@ -30,34 +30,34 @@ from datetime import datetime
 # print valid_csv_date(735851)
 
 
-def pipeline_grouping(date_ordinal):
-	date = datetime.fromordinal(date_ordinal)
-	date_month = date.strftime('%B')
-	date_year = date.strftime('%Y')
-	date = datetime.toordinal(date)
+# def pipeline_grouping(date_ordinal):
+# 	date = datetime.fromordinal(date_ordinal)
+# 	date_month = date.strftime('%B')
+# 	date_year = date.strftime('%Y')
+# 	date = datetime.toordinal(date)
 
-	today = datetime.today().toordinal()
-	tomorrow = today + 1
+# 	today = datetime.today().toordinal()
+# 	tomorrow = today + 1
 
-	if date == today:
-		group = 'Today'
+# 	if date == today:
+# 		group = 'Today'
 
-	elif date == tomorrow:
-		group = 'Tomorrow'
+# 	elif date == tomorrow:
+# 		group = 'Tomorrow'
 
-	elif today + 7 >= date:
-		group = 'This Week'
+# 	elif today + 7 >= date:
+# 		group = 'This Week'
 
-	elif today + 30 >= date:
-		group = 'This Month'
+# 	elif today + 30 >= date:
+# 		group = 'This Month'
 
-	else:
-		group = date_month + ' ' + date_year
+# 	else:
+# 		group = date_month + ' ' + date_year
 
-	return group
+# 	return group
 
 
-target_date = 735978 + 31
+# target_date = 735978 + 31
 
-print pipeline_grouping(target_date)
+# print pipeline_grouping(target_date)
 
