@@ -672,7 +672,7 @@ def ImIn_calculate_indicator_value(theory, indicator, period_end, period_duratio
 		if scope == 'Total':			
 			for event in Score_history:
 				event_score = event['score']
-				event_value += event_score[units]
+				value += event_score[units]
 		
 		else:
 			event_target_value_type = event['target_value_type']
@@ -698,7 +698,7 @@ def prepare_relevant_history(theory, period_end, period_duration):
 
 	for (Event_id, Event) in list(Hist.items()):
 		Event_type = Event['type']
-		Event_date = int(Event['Date'])
+		Event_date = int(Event['date'])
 
 		if Event_type in relevant_event_types and Event_date >= period_start and Event_date <= period_end:		
 			if Event_type in score_subtypes:
@@ -732,10 +732,6 @@ def create_mega_set(theory):
 		mega_set.update(ksu_set)
 
 	return mega_set
-
-
-
-
 
 
 
@@ -920,6 +916,7 @@ class Done(Handler):
 			elif event_type == 'EndValue':
 				user_Action_Done_EndValue(self)
 				self.redirect(return_to)
+
 				
 			elif event_type == 'SmartEffort':
 				user_Action_Done_SmartEffort(self)
@@ -2625,7 +2622,7 @@ d_Values = {'V000': '0. End Value',
 l_Values = sorted(d_Values.items())
 
 
-d_Scope = {'Total': 'Total Results',
+d_Scope = {'Total': 'Overall Results',
 		   'V100': '1. Inner Peace & Consciousness',
 		   'V200': '2. Fun & Excitement', 
 		   'V300': '3. Meaning & Direction', 
@@ -2742,9 +2739,9 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 
 			'ImIn':{'set_title':'Important Indicators', #xx
 				    'set_name':'ImIn',
-				    'attributes':['subtype','description','units'],
-				    'fields':{'subtype':'Subtype','description':'Description','units':'Units'},
-				    'columns':{'subtype':2,'description':4,'units':2},
+				    'attributes':['id','description','subtype','units'],
+				    'fields':{'id':'ID','subtype':'Subtype','description':'Description','units':'Units'},
+				    'columns':{'id':1,'subtype':2,'description':4,'units':2},
 				    'grouping_attribute':'scope',
 				    'grouping_list':l_Scope}}
 
