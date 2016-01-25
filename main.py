@@ -1082,6 +1082,12 @@ class LoadCSV(Handler):
 
 
 
+#--- Load Python Backup
+
+
+
+
+
 #--- Create CSV Backup ---
 
 class CSVBackup(Handler):
@@ -1766,9 +1772,9 @@ def add_SmartEffort_event(theory, post_details): #Duration & Importance to be up
 	reactive_sets = ['KAS3', 'KAS4']
 	
 	event['ksu_id'] = ksu_id
-	
+	event['duration'] = post_details['duration']
+
 	if set_name in poractive_sets:		
-		event['duration'] = post_details['duration']
 		event['importance'] = post_details['importance']
 		if 'joy' in post_details:
 			event['joy'] = True
@@ -2623,6 +2629,7 @@ l_Values = sorted(d_Values.items())
 
 
 d_Scope = {'Total': 'Overall Results',
+		   'V000': '0. End Value',
 		   'V100': '1. Inner Peace & Consciousness',
 		   'V200': '2. Fun & Excitement', 
 		   'V300': '3. Meaning & Direction', 
