@@ -160,7 +160,7 @@ def create_mega_set(): #The original takes theory as an input argument
 
 # print create_mega_set().keys()
 
-all_ids = ['KAS1_3', 'KAS1_2', 'KAS1_1', 'KAS1_7', 'KAS1_6', 'KAS1_5', 'KAS1_4', 'BOKA_10', 'BOKA_11', 'KAS1_9', 'KAS1_8', 'BOKA_14', 'BOKA_15', 'BOKA_16', 'BOKA_17', 'KAS3_5', 'KAS3_4', 'KAS3_7', 'KAS3_6', 'KAS3_1', 'KAS3_3', 'KAS3_2', 'KAS3_9', 'KAS3_8', 'KAS3_14', 'KAS1_57', 'KAS1_56', 'KAS1_55', 'KAS1_54', 'KAS1_53', 'KAS1_52', 'KAS1_51', 'KAS1_50', 'BOKA_12', 'KAS1_59', 'KAS1_58', 'BOKA_13', 'BOKA_2', 'BOKA_3', 'BOKA_1', 'BOKA_6', 'BOKA_7', 'BOKA_4', 'BOKA_5', 'BOKA_8', 'BOKA_9', 'KAS1_93', 'KAS1_92', 'KAS1_44', 'KAS1_45', 'KAS1_46', 'KAS1_47', 'KAS1_40', 'KAS1_41', 'KAS1_42', 'KAS1_43', 'KAS1_48', 'KAS1_49', 'KAS3_11', 'KAS3_10', 'KAS3_13', 'KAS3_12', 'KAS1_108', 'KAS1_109', 'KAS3_17', 'KAS3_16', 'KAS1_104', 'KAS1_105', 'KAS1_106', 'KAS1_107', 'KAS1_100', 'KAS1_101', 'KAS1_102', 'KAS1_103', 'KAS1_119', 'KAS1_71', 'KAS1_70', 'KAS1_73', 'KAS1_72', 'KAS1_75', 'KAS1_74', 'KAS1_77', 'KAS1_76', 'KAS1_79', 'KAS1_78', 'BOKA_18', 'KAS1_118', 'KAS1_117', 'KAS1_116', 'KAS1_115', 'KAS1_114', 'KAS1_113', 'KAS1_112', 'KAS1_111', 'KAS1_110', 'KAS1_154', 'KAS2_8', 'KAS2_9', 'KAS1_152', 'KAS2_4', 'KAS2_5', 'KAS2_6', 'KAS2_7', 'KAS2_1', 'KAS2_2', 'KAS2_3', 'KAS1_68', 'KAS1_69', 'KAS4_6', 'KAS4_7', 'KAS1_64', 'KAS1_65', 'KAS1_62', 'KAS1_63', 'KAS1_60', 'KAS1_61', 'KAS1_122', 'KAS1_123', 'KAS1_120', 'KAS1_121', 'KAS1_126', 'KAS1_127', 'KAS1_124', 'KAS1_125', 'KAS1_128', 'KAS1_129', 'BigO_2', 'BigO_3', 'KAS1_91', 'KAS1_90', 'KAS1_97', 'KAS1_96', 'KAS1_95', 'KAS1_94', 'KAS4_14', 'KAS3_15', 'KAS1_99', 'KAS1_98', 'KAS4_10', 'KAS4_11', 'KAS4_12', 'KAS4_13', 'KAS3_19', 'KAS1_19', 'KAS1_18', 'KAS3_18', 'KAS1_13', 'KAS1_12', 'KAS1_11', 'KAS1_10', 'KAS1_17', 'KAS1_16', 'KAS1_15', 'KAS1_14', 'KAS1_135', 'KAS1_134', 'KAS1_137', 'KAS1_136', 'KAS1_131', 'KAS1_130', 'KAS1_133', 'KAS1_132', 'KAS1_139', 'KAS1_138', 'KAS1_80', 'KAS1_81', 'KAS1_82', 'KAS1_83', 'KAS1_84', 'KAS1_85', 'KAS1_86', 'KAS1_87', 'KAS1_88', 'KAS1_89', 'KAS1_21', 'BigO_1', 'KAS1_140', 'KAS1_141', 'KAS1_142', 'KAS1_143', 'KAS1_144', 'KAS1_145', 'KAS1_146', 'KAS1_147', 'KAS1_148', 'KAS1_149', 'KAS1_35', 'KAS1_34', 'KAS1_37', 'KAS1_36', 'KAS1_31', 'KAS1_30', 'KAS1_33', 'KAS1_32', 'KAS1_39', 'KAS1_38', 'KAS2_10', 'KAS4_8', 'KAS4_9', 'KAS1_153', 'KAS1_66', 'KAS1_151', 'KAS1_150', 'KAS1_156', 'KAS1_155', 'KAS1_67', 'KAS4_4', 'KAS1_22', 'KAS1_23', 'KAS1_20', 'KAS4_5', 'KAS1_26', 'KAS1_27', 'KAS1_24', 'KAS1_25', 'KAS4_2', 'KAS1_28', 'KAS1_29', 'KAS4_3', 'KAS4_1']
+all_ids = create_mega_set().keys()
 
 
 
@@ -340,7 +340,7 @@ random_post_details = {'ksu_id':random.choice(all_ids),
 
 
 def generate_random_Hist_size_n(n):
-	Hist = unpack_set(new_set_Hist())
+	Hist = unpack_set(theory.Hist)
 	mega_set = create_mega_set()
 
 	for i in range(0, n):
@@ -383,7 +383,7 @@ def generate_random_Hist_size_n(n):
 		Hist[event['id']] = event
 	
 	return Hist
-# print generate_random_Hist_size_n(2000) #xx
+print generate_random_Hist_size_n(2000) #xx
 
 
 
@@ -474,8 +474,7 @@ def ImIn_calculate_indicators_values(period_end, period_duration):
 
 period_end = str(today)
 period_duration = '180'
-
-print ImIn_calculate_indicators_values(period_end,period_duration)
+# print ImIn_calculate_indicators_values(period_end,period_duration)
 
 
 
