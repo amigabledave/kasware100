@@ -3,6 +3,12 @@ import theory, time
 import re, os, logging, hashlib, random, string, csv, pickle
 from datetime import datetime, timedelta
 from operator import itemgetter
+from test_import import sample_theory
+# print sample_theory.Hist
+
+# from test_import import awesomeness
+# awesomeness.awesome_things()
+
 
 today = datetime.today().toordinal()
 # tomorrow = today + 1

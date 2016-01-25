@@ -6,6 +6,7 @@ from google.appengine.ext import db
 from google.appengine.api import memcache
 from google.appengine.api import mail
 from operator import itemgetter
+from python_files import sample_theory
 
 
 template_dir = os.path.join(os.path.dirname(__file__), 'html_templates')
@@ -457,7 +458,7 @@ def pretty_dates(ksu_set):
 def make_ordered_ksu_set_list_for_SetViewer(ksu_set):
 	if len(ksu_set) == 0:
 		return []
-	set_name = get_type_from_id(ksu_set.keys()[0])
+	set_name = get_type_from_id(ksu_set.keys()[0]) # tambien podria ser ksu_set['set_details']['set_type'] #
 	result = []
 	set_order = []
 	d_view_order_details = {'KAS1':{'attribute':'next_event', 'reverse':False},
@@ -509,10 +510,16 @@ def not_ugly_dates(ksu):
 	for date_attribute in date_attributes:
 		if date_attribute in valid_attributes:	
 			if ksu[date_attribute]:
-				number_date = int(ksu[date_attribute])
-				not_ugly_date = datetime.fromordinal(number_date).strftime('%d-%m-%Y')
+				date_ordinal = ksu[date_attribute]
+				not_ugly_date = make_not_ugly(date_ordinal)
 				ksu[date_attribute] = not_ugly_date
 	return ksu
+
+
+def make_not_ugly(date_ordinal):
+	number_date = int(date_ordinal)
+	return datetime.fromordinal(number_date).strftime('%d-%m-%Y')
+
 
 
 
@@ -609,20 +616,24 @@ class ImInViewer(Handler): #xx
 		if user_bouncer(self):
 			return
 		theory = self.theory
-		ksu_set = unpack_set(theory.ImIn)		
-		ksu_set = hide_invisible(ksu_set)
-		ksu_set = make_ordered_ksu_set_list_for_SetViewer(ksu_set)
-		viewer_details = d_Viewer['ImIn']
-
+		
 		period_end = self.request.get('period_end')
 		if not period_end:
-			period_end = not_ugly_today
-
+			period_end = make_not_ugly(str(today))
+		period_end = pack_date(period_end)
+		
 		period_duration = self.request.get('period_duration')
 		if not period_duration:
-			period_duration = '21'
+			period_duration = '21'		
 
-		# ksu_set = add_indicator_value_in_target_period_to_ImIn(theory, period_end, period_duration) #xx formula in development
+		ksu_set = unpack_set(theory.ImIn)		
+		ksu_set = add_indicators_values_to_to_ImIn(theory, period_end, period_duration)
+		ksu_set = hide_invisible(ksu_set)
+		ksu_set = make_ordered_ksu_set_list_for_SetViewer(ksu_set)
+		
+		viewer_details = d_Viewer['ImIn']
+		period_end = make_not_ugly(period_end)
+
 		self.print_html('ImInViewer.html', viewer_details=viewer_details, ksu_set=ksu_set, set_name='ImIn', period_end=period_end, period_duration=period_duration) #viewer_details=viewer_details
 
 
@@ -642,7 +653,7 @@ class ImInViewer(Handler): #xx
 				self.print_html('ImInViewer.html', viewer_details=viewer_details, ksu_set=ksu_set, set_name='ImIn', period_end=period_end, period_duration=period_duration, input_error=input_error)
 			
 			else:
-				period_duration = post_details['period_duration'] #xx
+				period_duration = post_details['period_duration'] 
 				period_end = post_details['period_end']
 				self.redirect('/ImInViewer?period_end=' + period_end +'&period_duration=' + period_duration)
 				
@@ -653,35 +664,77 @@ class ImInViewer(Handler): #xx
 
 
 
-def add_indicator_value_in_target_period_to_ImIn(theory, period_end, period_duration):#xx
-	return ksu_set
+def add_indicators_values_to_to_ImIn(theory, period_end, period_duration):
+	ImIn = unpack_set(theory.ImIn)
+	# period_end = pack_date(period_end)	
+	comparison_end = str(period_end - int(period_duration))
+	holder_units = ['EndValue', 'SmartEffort', 'Stupidity', 'Achievement', 'duration', 'Awesomeness']
+
+	base_values = ImIn_calculate_indicators_values(theory, period_end, period_duration)
+	comparison_values = ImIn_calculate_indicators_values(theory, comparison_end, period_duration)
+
+	for indicator in ImIn:
+		indicator = ImIn[indicator]
+		indicator['base_value'] = None
+		indicator['comparison_value'] = None
+
+		if indicator['is_visible']:
+			scope = indicator['scope']
+			units = indicator['units']
+
+			if units in holder_units:
+				indicator['base_value'] = "{:,}".format(base_values[scope][units]) #xx
+				indicator['comparison_value'] = "{:,}".format(comparison_values[scope][units])
+	
+	return ImIn
 
 
-def ImIn_calculate_indicator_value(theory, indicator, period_end, period_duration): #xx
-	value = None
-	subtype = indicator['subtype']
-	scope = indicator['scope']
-	units = indicator['units']
 
+
+def ImIn_calculate_indicators_values(theory, period_end, period_duration):
+	results_holder = make_results_holder()
 	relevant_history = prepare_relevant_history(theory, period_end, period_duration)
-	Score_history = relevant_history['Score_history']
+	score_history = relevant_history['Score_history']
+	score_units = ['EndValue','SmartEffort','Stupidity','Achievement']
 
-	if subtype == 'Score':
-		value = 0
+	for event in score_history:
+		event = score_history[event]
+		score = event['score']
 
-		if scope == 'Total':			
-			for event in Score_history:
-				event_score = event['score']
-				value += event_score[units]
-		
+		event_type = event['type']
+		if event_type == 'Stupidity' or event_type == 'Achievement':
+			duration = 0
 		else:
-			event_target_value_type = event['target_value_type']
-			for event in Score_history:
-				if scope == event_target_value_type:
-					event_score = event['score']
-					value += event_score[units]
+			duration = event['duration']
+		
+		target_value_type = event['target_value_type']
+		target_holder =	results_holder[target_value_type]
+		
+		for unit in score_units:
+			target_holder[unit] += score[unit]
+		target_holder['duration'] += int(duration)
 
-	return value
+	target_holder = results_holder['Total']
+
+	values = ['V000', 'V100', 'V200', 'V300', 'V400', 'V500', 'V600', 'V700', 'V800', 'V900']
+
+	for value_type in values:
+		score = results_holder[value_type]
+		for unit in score_units:
+			target_holder[unit] += score[unit]
+			target_holder['duration'] += score['duration']
+
+	return results_holder
+
+
+
+def make_results_holder():
+	result = {}
+	values = ['V000', 'V100', 'V200', 'V300', 'V400', 'V500', 'V600', 'V700', 'V800', 'V900']
+	for value_type in values:
+		result[value_type] = {'EndValue':0, 'SmartEffort':0, 'Stupidity':0, 'Achievement':0, 'duration':0, 'Awesomeness':0}
+	result['Total'] = {'EndValue':0, 'SmartEffort':0, 'Stupidity':0, 'Achievement':0, 'duration':0, 'Awesomeness':0}
+	return result
 
 
 
@@ -694,25 +747,30 @@ def prepare_relevant_history(theory, period_end, period_duration):
 
 	relevant_event_types = ['EndValue', 'SmartEffort', 'Stupidity', 'Achievement']
 	score_subtypes = ['EndValue', 'SmartEffort', 'Stupidity', 'Achievement']
-	period_start = int(period_end) - int(period_duration)
-
+	period_end = int(period_end)
+	period_start = period_end - int(period_duration)
+	
 	for (Event_id, Event) in list(Hist.items()):
 		Event_type = Event['type']
 		Event_date = int(Event['date'])
 
 		if Event_type in relevant_event_types and Event_date >= period_start and Event_date <= period_end:		
+			
 			if Event_type in score_subtypes:
 				Event['score'] = calculate_event_score(Event)
 				ksu_id = Event['ksu_id']
 				ksu = mega_set[ksu_id]
-				ksu_type = get_type_from_id(ksu_id)
+
+				ksu_type = get_type_from_id(ksu_id)	
 				if ksu_type == 'BOKA':
 					ksu = mega_set[ksu['parent_id']]
+				
 				Event['target_value_type'] = ksu['value_type']
 				Score_history = result['Score_history']
 				Score_history[Event_id] = Event
-
 	return result
+
+
 
 
 
@@ -1084,33 +1142,16 @@ class LoadCSV(Handler):
 
 #--- Load Python Backup
 
-
-
-
-
-#--- Create CSV Backup ---
-
-class CSVBackup(Handler):
-	def get(self):
+class LoadPythonBackup(Handler):
+	def get(self, set_name):	
 		if user_bouncer(self):
 			return
-		KAS1 = unpack_set(theory.KAS1)
-		output = create_csv_backup(KAS1, ['id','description','charging_time','last_event','status'])
-		self.write(output)
-
-
-
-def create_csv_backup(ksu_set, required_attributes):
-	result = ""
-	i = 0
-	for attribute in required_attributes:
-		result += attribute + ',' 
-	for ksu in ksu_set:
-		ksu = ksu_set[ksu]
-		result += '<br>'
-		for attribute in required_attributes:
-			result += str(ksu[attribute]) + ','
-	return result
+		theory = self.theory
+		developer_Action_Load_PythonBackup(theory, set_name)
+		if set_name == 'All':
+			self.redirect('/TodaysMission')
+		else:
+			self.redirect('/PythonBackup/' + set_name)
 
 
 
@@ -2318,8 +2359,47 @@ def developer_Action_Load_CSV(theory, set_name):
 		developer_Action_Load_Set_CSV(theory, 'BOKA', create_csv_path('BOKA'))
 
 		developer_Action_Load_ImPe_CSV(theory, create_csv_path('ImPe'))
-		
+		developer_Action_Load_Set_CSV(theory, 'ImIn', create_csv_path('ImIn'))
+
+
 	return
+
+
+def developer_Action_Load_PythonBackup(theory, set_name):
+	if set_name == 'KAS1':
+		theory.KAS1 = pack_set(sample_theory.sample['KAS1'])
+
+	elif set_name == 'KAS2':
+		theory.KAS2 = pack_set(sample_theory.sample['KAS2'])
+
+	elif set_name == 'KAS3':
+		theory.KAS3 = pack_set(sample_theory.sample['KAS3'])		
+
+
+	elif set_name == 'KAS4':
+		theory.KAS4 = pack_set(sample_theory.sample['KAS4'])
+
+
+	elif set_name == 'BigO':
+		theory.BigO = pack_set(sample_theory.sample['BigO'])
+
+
+	elif set_name == 'BOKA':
+		theory.BOKA = pack_set(sample_theory.sample['BOKA'])
+
+	elif set_name == 'ImPe':
+		theory.ImPe = pack_set(sample_theory.sample['ImPe'])
+
+	elif set_name == 'ImIn':
+		theory.ImIn = pack_set(sample_theory.sample['ImIn'])	
+
+
+	elif set_name == 'Hist':
+		theory.Hist = pack_set(sample_theory.sample['Hist'])
+	
+	theory.put()	
+	return
+
 
 
 
@@ -2744,11 +2824,11 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 				    'grouping_attribute':'local_tags',
 				    'grouping_list':None},
 
-			'ImIn':{'set_title':'Important Indicators', #xx
+			'ImIn':{'set_title':'Important Indicators',
 				    'set_name':'ImIn',
-				    'attributes':['id','description','subtype','units'],
-				    'fields':{'id':'ID','subtype':'Subtype','description':'Description','units':'Units'},
-				    'columns':{'id':1,'subtype':2,'description':4,'units':2},
+				    'attributes':['id','description','units','base_value', 'comparison_value'],
+				    'fields':{'id':'ID','description':'Description','units':'Units', 'base_value':'Target Period','comparison_value':'Prvious Period'},
+				    'columns':{'id':1,'description':4,'units':2, 'base_value':1, 'comparison_value':1},
 				    'grouping_attribute':'scope',
 				    'grouping_list':l_Scope}}
 
@@ -2792,6 +2872,6 @@ app = webapp2.WSGIApplication([
 							 
 							 ('/email',Email),
 							 ('/LoadCSV/' + PAGE_RE, LoadCSV),
-							 ('/csv-backup',CSVBackup),
+							 ('/LoadPythonBackup/' + PAGE_RE, LoadPythonBackup),
 							 ('/PythonBackup/' + PAGE_RE, PythonBackup)
 							 ], debug=True)
