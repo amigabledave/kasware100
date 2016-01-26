@@ -209,10 +209,14 @@ class TodaysMission(Handler):
 	def get(self):
 		if user_bouncer(self):
 			return
-		mission = todays_mission(self)
-		theory = self.theory
-		todays_effort = unpack_set(theory.MLog)[today]['SmartEffort']
 		
+		theory = self.theory
+		mission = todays_mission(theory)
+		questions = todays_questions(theory)
+		morning_questions = questions['Morning']
+		night_questions = questions['Night']
+			
+		todays_effort = unpack_set(theory.MLog)[today]['SmartEffort']		
 		if len(mission) > 0:
 			message = None
 		if len(mission) == 0:
@@ -221,7 +225,7 @@ class TodaysMission(Handler):
 			else:	
 				message = "Define your what would mean for you to be successful today and start working to acomplish it! :)"
 
-		self.print_html('todays-mission.html', mission=mission, message=message)
+		self.print_html('TodaysMission.html', mission=mission, morning_questions=morning_questions, night_questions=night_questions, message=message)
 
 	def post(self):
 		if user_bouncer(self):
@@ -240,9 +244,28 @@ class TodaysMission(Handler):
 			user_Action_Push(self)
 			self.redirect('/TodaysMission')
 
+		elif user_action == 'Question_Answered':
+			input_error = user_input_error(post_details) #xx
+			if input_error:
+				theory = self.theory
+				mission = todays_mission(theory)
+				questions = todays_questions(theory)
+				morning_questions = questions['Morning']
+				night_questions = questions['Night']
+				self.print_html('TodaysMission.html', mission=mission, morning_questions=morning_questions, night_questions=night_questions, answer_error=input_error)
 
-def todays_mission(self):
-	theory = self.theory
+			else:
+				user_Action_Record_Answer(self)
+				self.redirect('/TodaysMission')
+
+		elif user_action == 'Question_Skipped':
+			user_Action_Skip_Question(self) 
+			self.redirect('/TodaysMission')
+
+
+
+
+def todays_mission(theory):
 	KAS1 = unpack_set(theory.KAS1)
 	KAS2 = unpack_set(theory.KAS2)
 	BOKA = unpack_set(theory.BOKA)
@@ -262,6 +285,25 @@ def todays_mission(self):
 					if today >= int(ksu['next_event']):
 						result.append(ksu)
 	return result
+
+
+
+def todays_questions(theory):
+	ImIn = unpack_set(theory.ImIn)
+
+	morning_questions = []
+	night_questions = []
+
+	for (ksu_id, ksu) in list(ImIn.items()):
+		subtype = ksu['subtype']
+		if subtype in ['AcumulatedPerception', 'RealitySnapshot']:
+			if today >= int(ksu['next_measurement']):
+				if ksu['measurement_best_time'] == 'Morning':
+					morning_questions.append(ksu)
+				else:
+					night_questions.append(ksu)
+
+	return {'Morning':morning_questions, 'Night':night_questions}
 
 
 
@@ -611,7 +653,7 @@ def add_days_left(ksu_set):
 
 #--- Important Indicator Viewer Handler
 
-class ImInViewer(Handler): #xx
+class ImInViewer(Handler):
 	def get(self):
 		if user_bouncer(self):
 			return
@@ -1262,7 +1304,7 @@ def update_ksu_with_post_details(ksu, details):
 def update_ksu_next_event(theory, post_details):
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
-	valid_sets = ['KAS1', 'KAS2', 'BOKA']	
+	valid_sets = ['KAS1', 'KAS2', 'BOKA', 'ImIn']	
 	if set_name not in valid_sets:
 		return
 
@@ -1281,11 +1323,17 @@ def update_ksu_next_event(theory, post_details):
 
 		elif set_name == 'BOKA':
 			ksu['next_event'] = None
-
-
 			
 	elif user_action == 'Push':
 		ksu['next_event'] = tomorrow
+
+
+	elif user_action == 'Question_Answered':
+		ksu['last_measurement'] = today
+		ksu['next_measurement'] = today + int(ksu['measurement_frequency'])
+
+	elif user_action == 'Question_Skipped':
+		ksu['next_measurement'] = today + int(ksu['measurement_frequency'])
 
 	update_theory(theory, ksu_set)	
 	return
@@ -1522,6 +1570,7 @@ i_BOKA_KSU = {'in_upcoming':False, #To overwrite the proactiveness auto true
 i_Wish_KSU = {'value_type': None,
 			  'Achievement_Value':None, #How much Achievement Points do you believe that achieving this goal would add to your life. Fibbo Scale. Can actually be 0. Formely known as achievement points.			  
 			  'bucket_list':False,
+			  'origin':None, #Quien lo recomendo o como fue que surgio este deseo 
 			  'milestone_target_date':None} #This is seen as 'milestone Target Date' only if this dream is also consider a milestone.
 
 
@@ -1554,18 +1603,14 @@ i_ImIn_KSU = {'relevant':True, #users cannot create their own indicators, so her
 			  'viewer_hierarchy':None,
 
 			  'measurement_best_time':None,
-			  'measurement_frecuency':None,
+			  'measurement_frequency':None,
 			  'next_measurement':None,
+			  'last_measurement':None,
 
 			  'target_min':None,
 			  'target_max':None,
 			  'question':None,
 			  'reverse':False}
-
-
-i_ImIn_Event = {'type':'Measurement',
-				'value':None}
-
 
 
 
@@ -1575,6 +1620,7 @@ i_BASE_Event = {'id':None,
 				'type':None} # Created, Edited, Deleted, EndValue, SmartEffort or Stupidity
 
 
+
 i_Created_Event = {'type':'Created'}
 
 i_Edited_Event = {'type':'Edited',
@@ -1582,6 +1628,10 @@ i_Edited_Event = {'type':'Edited',
 
 i_Deleted_Event = {'type':'Deleted',
 				   'reason':None}
+
+
+i_Answered_Event = {'type':'Answered',
+				    'value':None}
 
 
 i_Score_Event = {'value':None, # Points Earned
@@ -1632,6 +1682,8 @@ template_recipies = {'KAS1_KSU':[i_BASE_KSU, i_KAS_KSU, i_Proactive_KAS_KSU, i_K
 					 'Created_Event':[i_BASE_Event, i_Created_Event],
 					 'Edited_Event':[i_BASE_Event, i_Edited_Event],
 					 'Deleted_Event':[i_BASE_Event, i_Deleted_Event],
+
+					 'Answered_Event':[i_BASE_Event, i_Answered_Event],
 
 					 'EndValue_Event':[i_BASE_Event, i_Score_Event, i_EndValue_Event],
 					 'SmartEffort_Event':[i_BASE_Event, i_Score_Event, i_SmartEffort_Event],
@@ -1774,6 +1826,24 @@ def add_Deleted_event(theory, ksu):
 	event['ksu_id'] = ksu_id
 	update_set(Hist, event)
 	update_MLog(theory, event)
+	theory.Hist = pack_set(Hist)
+	return event
+
+
+
+def add_Answered_event(theory, post_details):
+	Hist = unpack_set(theory.Hist)
+	ksu_id = post_details['ksu_id']
+	set_name = get_type_from_id(ksu_id)
+	event = new_event(Hist, 'Answered')
+	post_details_attributes = post_details.keys()
+
+	if 'numeric_answer' in post_details_attributes:
+		event['value'] = post_details['numeric_answer']
+	elif 'boolean_answer' in post_details_attributes:
+		event['value'] = post_details['boolean_answer']
+
+	update_set(Hist, event)
 	theory.Hist = pack_set(Hist)
 	return event
 
@@ -2118,6 +2188,22 @@ def user_Action_Add_To_Mission(self):
 
 
 
+def user_Action_Record_Answer(self):
+	theory = self.theory
+	post_details = get_post_details(self)
+	update_ksu_next_event(theory, post_details) 	
+	add_Answered_event(theory, post_details)	
+	theory.put()
+	return
+
+
+def user_Action_Skip_Question(self):
+	theory = self.theory
+	post_details = get_post_details(self)
+	update_ksu_next_event(theory, post_details) 		
+	theory.put()
+	return
+
 
 
 #--- Additional Actions Triggered by User Actions
@@ -2396,6 +2482,19 @@ def developer_Action_Load_PythonBackup(theory, set_name):
 
 	elif set_name == 'Hist':
 		theory.Hist = pack_set(sample_theory.sample['Hist'])
+
+	elif set_name == 'All':
+		theory.KAS1 = pack_set(sample_theory.sample['KAS1'])
+		theory.KAS2 = pack_set(sample_theory.sample['KAS2'])
+		theory.KAS3 = pack_set(sample_theory.sample['KAS3'])
+		theory.KAS4 = pack_set(sample_theory.sample['KAS4'])
+
+		theory.BigO = pack_set(sample_theory.sample['BigO'])
+		theory.BOKA = pack_set(sample_theory.sample['BOKA'])
+
+		theory.ImPe = pack_set(sample_theory.sample['ImPe'])
+		theory.ImIn = pack_set(sample_theory.sample['ImIn'])
+		theory.Hist = pack_set(sample_theory.sample['Hist'])
 	
 	theory.put()	
 	return
@@ -2629,7 +2728,8 @@ def input_error(target_attribute, user_input):
 							 'target_date', 
 							 'comments', 
 							 'period_end',
-							 'period_duration']
+							 'period_duration',
+							 'numeric_answer']
 	date_attributes = ['last_event', 'next_event', 'target_date', 'period_end']
 
 	if target_attribute not in validation_attributes:
@@ -2677,7 +2777,10 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 		'period_end_error':"Period's End format must be DD-MM-YYYY",
 
 		'comments': re.compile(r"^.{0,400}$"),
-		'comments_error': 'Comments cannot excede 400 characters'}
+		'comments_error': 'Comments cannot excede 400 characters',
+		
+		'numeric_answer':re.compile(r"[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?"),
+		'numeric_answer_error':'The answer shoud be a number'}
 
 
 
@@ -2696,7 +2799,7 @@ l_Fibonacci = ['1','2','3','5','8','13']
 
 d_Values = {'V000': '0. End Value',
 			'V100': '1. Inner Peace & Consciousness',
-			'V200': '2. Fun & Excitement', 
+			'V200': '2. Fun & Exciting Situations', 
 			'V300': '3. Meaning & Direction', 
 			'V400': '4. Health & Vitality', 
 			'V500': '5. Love & Friendship', 
@@ -2711,7 +2814,7 @@ l_Values = sorted(d_Values.items())
 d_Scope = {'Total': 'Overall Results',
 		   'V000': '0. End Value',
 		   'V100': '1. Inner Peace & Consciousness',
-		   'V200': '2. Fun & Excitement', 
+		   'V200': '2. Fun & Exciting Situations', 
 		   'V300': '3. Meaning & Direction', 
 		   'V400': '4. Health & Vitality', 
 		   'V500': '5. Love & Friendship', 

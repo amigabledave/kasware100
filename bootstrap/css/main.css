@@ -40,6 +40,7 @@
 }
 
 
+
 .section-group-title{
     display: block;
     color: #222;
@@ -50,6 +51,20 @@
     margin-top: 20px;
     text-decoration: none;
 }
+
+.mission-group-title{
+    display: block;
+    color: #222;
+    font-size: 23px;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 0px;
+    margin-top: 40px;
+    text-decoration: none;
+}
+
+
+
 
 
 .BigO-title{
