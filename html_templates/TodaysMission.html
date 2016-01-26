@@ -41,7 +41,7 @@
 
 		<div class="col-md-6"> {{indicator['question']}} </div>
 			
-		{% if indicator['subtype'] == 'AcumulatedPerception' %}
+		{% if indicator['units'] == 'binary' %}
 
 			<div class="col-md-1">
 				<form class="form-horizontal" method="post">
@@ -155,7 +155,7 @@
 		<div class="col-md-6"> {{indicator['question']}} </div>
 
 			
-		{% if indicator['subtype'] == 'AcumulatedPerception' %}
+		{% if indicator['units'] == 'binary' %}
 
 			<div class="col-md-1">
 				<form class="form-horizontal" method="post">
@@ -186,6 +186,9 @@
 				<div class="col-md-1">
 					<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Question_Answered">Record</button>
 				</div>	
+			
+				<div class="col-md-4 error"> {{answer_error}}</div>
+
 			</form>	
 
 		{% endif %}
