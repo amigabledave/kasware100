@@ -1586,7 +1586,6 @@ i_BASE_KSU = {'id': None,
 	    	  'is_visible': True,
 		      'is_private': False,
 	    	  'tags': None, #la idea es que el atributo sea una lista con varios elementos, ahora en esta primera version solo hay espeacio para uno (80/20)
-	    	  'global_tags': None, #la idea es que el atributo sea una lista con varios elementos, ahora en esta primera version solo hay espeacio para uno (80/20)
 	    	  'comments': None}
 
 
@@ -2136,7 +2135,6 @@ def prepare_details_for_saving(post_details):
 			   'in_upcoming':False,
 			   'any_any':False,
 			   'tags':None,
-	    	   'global_tags':None,
 	    	   'is_milestone':False,
 	    	   'comments':None}
 
