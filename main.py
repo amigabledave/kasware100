@@ -7,6 +7,7 @@ from google.appengine.api import memcache
 from google.appengine.api import mail
 from operator import itemgetter
 from python_files import sample_theory
+from python_files import base_theory
 
 
 template_dir = os.path.join(os.path.dirname(__file__), 'html_templates')
@@ -743,7 +744,6 @@ def add_indicators_values_to_to_ImIn(theory, period_end, period_duration):
 
 			if subtype in agregated_subtypes:				
 				scope = indicator['scope']				
-				# if units in holder_units: #xx segun yo no va a pasar nada si le quito este segundo if
 				indicator['base_value'] = "{:,}".format(base_values[scope][units]) 
 				indicator['comparison_value'] = "{:,}".format(comparison_values[scope][units])
 
@@ -869,7 +869,7 @@ def prepare_relevant_history(theory, period_end, period_duration):
 	Hist = unpack_set(theory.Hist)
 	mega_set = create_mega_set(theory)
 
-	relevant_event_types = ['EndValue', 'SmartEffort', 'Stupidity', 'Achievement', 'Answered'] #xx
+	relevant_event_types = ['EndValue', 'SmartEffort', 'Stupidity', 'Achievement', 'Answered']
 	score_subtypes = ['EndValue', 'SmartEffort', 'Stupidity', 'Achievement']
  
 	period_end = int(period_end)
@@ -1586,6 +1586,7 @@ i_BASE_KSU = {'id': None,
 	    	  'is_visible': True,
 		      'is_private': False,
 	    	  'tags': None, #la idea es que el atributo sea una lista con varios elementos, ahora en esta primera version solo hay espeacio para uno (80/20)
+	    	  'origin':None, #Quien lo recomendo o como fue que este KSU llego a mi teoria 
 	    	  'comments': None}
 
 
@@ -1658,7 +1659,6 @@ i_BOKA_KSU = {'in_upcoming':False, #To overwrite the proactiveness auto true
 i_Wish_KSU = {'value_type': None,
 			  'Achievement_Value':None, #How much Achievement Points do you believe that achieving this goal would add to your life. Fibbo Scale. Can actually be 0. Formely known as achievement points.			  
 			  'bucket_list':False,
-			  'origin':None, #Quien lo recomendo o como fue que surgio este deseo 
 			  'milestone_target_date':None} #This is seen as 'milestone Target Date' only if this dream is also consider a milestone.
 
 
@@ -1806,10 +1806,10 @@ def make_event_template(event_type):
 
 
 
-def new_set_KSU(set_name):
-	result = {}
+def new_set_KSU(set_name): #xx
+	result = base_theory.base[set_name]
 	ksu = make_ksu_template(set_name)
-	ksu['set_size'] = 0
+	ksu['set_size'] = 1000
 	ksu['id'] = set_name +'_0'
 	ksu['set_type'] = set_name
 	ksu['is_visible'] = False
@@ -2509,7 +2509,7 @@ def triggered_Action_Done_ImPe_Contact(self):
 #--- Developer Actions ---
 def developer_Action_Load_CSV(theory, set_name):
 	csv_path = create_csv_path(set_name)
-	standard_sets = ['KAS2','KAS3', 'KAS4', 'BigO', 'BOKA', 'ImIn'] 
+	standard_sets = ['KAS2','KAS3', 'KAS4', 'BigO', 'BOKA'] # for now im leaving out the ImIn set 
 
 	if set_name in standard_sets:
 		developer_Action_Load_Set_CSV(theory, set_name, csv_path)
@@ -2531,7 +2531,7 @@ def developer_Action_Load_CSV(theory, set_name):
 		developer_Action_Load_Set_CSV(theory, 'BOKA', create_csv_path('BOKA'))
 
 		developer_Action_Load_ImPe_CSV(theory, create_csv_path('ImPe'))
-		developer_Action_Load_Set_CSV(theory, 'ImIn', create_csv_path('ImIn'))
+		# developer_Action_Load_Set_CSV(theory, 'ImIn', create_csv_path('ImIn'))
 
 
 	return
@@ -2539,48 +2539,58 @@ def developer_Action_Load_CSV(theory, set_name):
 
 def developer_Action_Load_PythonBackup(theory, set_name):
 	if set_name == 'KAS1':
-		theory.KAS1 = pack_set(sample_theory.sample['KAS1'])
+		KAS1 = unpack_set(theory.KAS1)
+		KAS1.update(sample_theory.sample['KAS1'])
+		theory.KAS1 = pack_set(KAS1)
 
 	elif set_name == 'KAS2':
-		theory.KAS2 = pack_set(sample_theory.sample['KAS2'])
+		KAS2 = unpack_set(theory.KAS2)
+		KAS2.update(sample_theory.sample['KAS2'])
+		theory.KAS2 = pack_set(KAS2)
 
 	elif set_name == 'KAS3':
-		theory.KAS3 = pack_set(sample_theory.sample['KAS3'])		
+		KAS3 = unpack_set(theory.KAS3)
+		KAS3.update(sample_theory.sample['KAS3'])
+		theory.KAS3 = pack_set(KAS3)		
 
 
 	elif set_name == 'KAS4':
-		theory.KAS4 = pack_set(sample_theory.sample['KAS4'])
+		KAS4 = unpack_set(theory.KAS4)
+		KAS4.update(sample_theory.sample['KAS4'])
+		theory.KAS4 = pack_set(KAS4)
 
 
 	elif set_name == 'BigO':
-		theory.BigO = pack_set(sample_theory.sample['BigO'])
+		BigO = unpack_set(theory.BigO)
+		BigO.update(sample_theory.sample['BigO'])
+		theory.BigO = pack_set(BigO)
 
 
 	elif set_name == 'BOKA':
-		theory.BOKA = pack_set(sample_theory.sample['BOKA'])
+		BOKA = unpack_set(theory.BOKA)
+		BOKA.update(sample_theory.sample['BOKA'])
+		theory.BOKA = pack_set(BOKA)
 
 	elif set_name == 'ImPe':
-		theory.ImPe = pack_set(sample_theory.sample['ImPe'])
+		ImPe = unpack_set(theory.ImPe)
+		ImPe.update(sample_theory.sample['ImPe'])
+		theory.ImPe = pack_set(ImPe)
 
 	elif set_name == 'ImIn':
-		theory.ImIn = pack_set(sample_theory.sample['ImIn'])	
+		ImIn = unpack_set(theory.ImIn)
+		ImIn.update(sample_theory.sample['ImIn'])
+		theory.ImIn = pack_set(ImIn)	
 
 
 	elif set_name == 'Hist':
-		theory.Hist = pack_set(sample_theory.sample['Hist'])
+		Hist = unpack_set(theory.Hist)
+		Hist.update(sample_theory.sample['Hist'])
+		theory.Hist = pack_set(Hist)
 
 	elif set_name == 'All':
-		theory.KAS1 = pack_set(sample_theory.sample['KAS1'])
-		theory.KAS2 = pack_set(sample_theory.sample['KAS2'])
-		theory.KAS3 = pack_set(sample_theory.sample['KAS3'])
-		theory.KAS4 = pack_set(sample_theory.sample['KAS4'])
-
-		theory.BigO = pack_set(sample_theory.sample['BigO'])
-		theory.BOKA = pack_set(sample_theory.sample['BOKA'])
-
-		theory.ImPe = pack_set(sample_theory.sample['ImPe'])
-		theory.ImIn = pack_set(sample_theory.sample['ImIn'])
-		theory.Hist = pack_set(sample_theory.sample['Hist'])
+		all_sets = ['KAS1', 'KAS2', 'KAS3', 'KAS4', 'BigO', 'BOKA', 'ImPe', 'ImIn', 'Hist']
+		for ksu_set in all_sets:
+			developer_Action_Load_PythonBackup(theory, ksu_set)
 	
 	theory.put()	
 	return

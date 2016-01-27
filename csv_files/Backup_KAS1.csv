@@ -1,106 +1,105 @@
-value_type,tags,description,charging_time,last_event,comments,any_any,importance,time_cost,in_upcoming
-V000,A. Playing - Boardgames,Jugar otro juego de mesa divertido,13,,Better with Jorge,False,3,90,False
-V000,A. Playing - Boardgames,Jugar Magic The Gathering,34,735862,Better with Jorge,False,3,90,False
-V000,A. Playing - Boardgames,Jugar Yu-Gi-oh!,55,735874,Better with Luis Lara,False,3,90,False
-V000,A. Playing - Boardgames,Jugar X Wing Miniatures,55,735868,Better with Jorge,False,3,90,False
-V000,B. Playing - Videogames,Jugar otro videojuego divertido,13,,,False,3,90,False
-V000,B. Playing - Videogames,Jugar Smash,55,735852,Better with Jimmy,False,3,90,False
-V000,B. Playing - Videogames,Jugar Mario Kart,89,735861,,False,3,90,False
-V000,B. Playing - Videogames,Jugar Doctor Mario,89,,Better with Papa,False,3,90,False
-V000,B. Playing - Videogames,Jugar FIFA,34,735960,Better with Sergio Echeverria,False,3,90,False
-V000,B. Playing - Videogames,Hangear con la pandilla de CEMAC para ehcar el Smash y recordar viejos tiempos (Potro -  Memo -  Berni -  Fresky -  etc),233,,,False,3,90,False
-V000,C. Playing - Sports,Echar las canchitas 1 a 1,89,,Better with Luis Lara,False,3,90,False
-V000,C. Playing - Sports,Echar los pases de americano,144,,Better with Luis Lara,False,3,90,False
-V000,C. Playing - Sports,Echar los pases de freezbee,233,735882,,False,3,90,False
-V000,C. Playing - Sports,Jugar boliche,144,735744,Better with Papa,False,3,90,False
-V000,D. Watching,Ver una pelicula o serie entretenida en mi bebe de 55',13,,,False,3,90,False
-V000,D. Watching,Ir al cine a ver una pelicula entretenida y comer nachos,21,,Better with Dani,False,3,90,False
-V000,D. Watching,Ver un show chingon,55,,,False,3,90,False
-V000,E. Reading,Leer una novela entretenida en un lugar tranquilo mientras me tomo un cafecito,8,,,False,3,90,False
-V000,E. Reading,Escuchar una novela en audiolibro,21,,,False,3,90,False
-V000,F. Eating,Desayunar carnitas en el Enriques con quesadillas y agua de horchata,89,,Better with Papa,False,3,90,False
-V000,F. Eating,Desayunar Chilaquiles en Que Seria de Mi,34,735867,,False,3,90,False
-V000,F. Eating,Comer un Hot Dog y Chicken bake en La fuente de sodas de Costco,55,,,False,3,90,False
-V000,F. Eating,Cenar sopa pollo con Tallarines en Vips y Papas Gal acticas,89,735864,,False,3,90,False
-V000,F. Eating,Cenar sopa Marucha con sincronizadas en casa,34,,,False,3,90,False
-V000,F. Eating,Comer el Sufle de Jamon y Queso que prepara mi mami,89,,Better with Mama,False,3,90,False
-V000,F. Eating,Comer en Fridays,144,,,False,3,90,False
-V000,F. Eating,Comer en Chilis,144,,,False,3,90,False
-V000,F. Eating,Comer otra comida sabrosa,5,735865,,False,3,90,False
-V000,F. Eating,Comer comida Indu - Chicken Masala + Paneer Butter Masala + Steam Rice + Nam,89,,,False,3,90,False
-V000,F. Eating,Comer tacos al pastor y tomar agua de orchata,34,,,False,3,90,False
-V000,F. Eating,Comer Sushi: Rollos con salsa tampico y Kushiagues,34,,,False,3,90,False
-V000,F. Eating,Comer Pizza con la orilla rellena de queso,34,735961,,False,3,90,False
-V000,F. Eating,Comer en el Pescadito,34,735889,,False,3,90,False
-V000,F. Eating,Atascarme en un buffette en Las Vegas,377,,Better with Papa,False,3,90,False
-V000,F. Eating,Atascarme en un buffette en un Crucero,377,,Better with Mama,False,3,90,False
-V000,G. Hanging out,Hangout & Chill con otra gente Cool,8,,,False,3,90,False
-V000,G. Hanging out,Empedar en un lugar con: Gente interesante + Chupe barato + Buen Ambiente,34,,,False,3,90,False
-V000,G. Hanging out,Hangout & Chill in an Awesome Place,34,,,False,3,90,False
-V000,H. Learning & Thinking,Echar la platica intensa con una persona interesante,8,,,False,3,90,False
-V000,H. Learning & Thinking,Escribir sobre mi perspectiva del Dave -  la vida -  la sociedad y el universo,34,,To be deleted,False,3,90,False
-V000,H. Learning & Thinking,Descubir' -  'aprender' y 'entender' nuevos 'insights' del comportamiento humano en general -  del mio en particular y lo mismo para propiedades 'exoticas' del universo,34,,(como el hecho de que si acomodas  materia de cierta forma -  es posible crear seres conscientes),False,3,90,False
-V000,Z. Other,Visitar un parque de diversiones chingon,377,,,False,3,90,False
-V000,Z. Other,Tener sexo y orgasmos,2,,,False,3,90,False
-V000,Z. Other,Experience other type of End Value,1,,,False,3,90,False
-V100,,Tomar 5 minutos para pausar- poner las cosas en perspectiva y sentirme agradecido con la vida,1,735969,Puedo usar reasons to be gratefull como inspiracion - Esto queda como place holder hasta que se agregue automatio a la mission del dia los objetos de la reflexion de gratitud del dia,False,3,8,True
-V200,,Escribirle a 2 amigos que ya tenga al menos 2 semanes si ver para ver si hacemos algo el fin de semana,7,735927,,False,3,8,True
-V200,,Aprender a jugar un juego nuevo de mesa,90,735851,,False,3,89,True
-V200,,Game Night 1 of 2 - Enviar invitacion a 8 amigos para una noche de juegos de mesa,30,,,False,3,8,True
-V200,,Game Night 2 of 2 - Confirmar de forma individual quien va a poder venir a la noche de juegos de mesa,30,,,True,3,21,True
-V300,OS KSU,1. Reflexionar sobre los resultados del el dia antetior y entiende si es que existe algo que pudiste haber hecho mejor; 2. Decide y deja por escrito cuales son todas las acciones que van a ser parte de la Mision y Plan para el dia,1,735969,,False,5,13,True
-V300,OS KSU,Decidir cuales van a ser los siguientes Wishes of End Value que voy a hacer realidad y definir Big Os (Tomando en cuenta los MileStones actuales),90,735839,,False,5,34,True
-V300,OS KSU,Decidir cuales van a ser los siguientes Wishes of Resources que voy a hacer realidad y definir Big Os (Tomando en cuenta los MileStones actuales),90,735839,,False,5,34,True
-V300,OS KSU,Definir y programar las siguientes acciones necesarias para alcanzar mis Big Os,7,735926,,False,5,21,True
-V300,OS KSU,Reflexionar sobre 'el proposito y direccion de mi vida y si siento que la forma en la que vivo es la mejor segun dicho proposito'- y si es necesario- ajustar mis mi 'Mile Stones'- KAS y Big Os acorde a mis conclusiones,180,735860,,False,5,34,True
-V300,OS KSU,Repasar KAS6 - Acciones Recurrentes Reactivas con el objetivo de Evitar una accion particular - y marcar (si aplica) si fue que se ejecuto la accion en cuestion,1,735931,,False,3,2,True
-V300,OS KSU,Leer mi KAS7 - Acciones Recurrentes Reactivas con en objetivo de aprovechar una oportunidad - y marcar (si aplica) si fue que se ejecuto la accion en cuestion,1,735931,,True,3,2,True
-V300,OS KSU,Repasar mis 'Guiding Principles',7,735931,,True,3,5,True
-V400,,Irme a dormir a mas tardar a las 10:30 (ya en cama y con la luz apagada),1,735969,,False,8,8,True
-V400,,Hacer al menos 30 minutos de cardio,1,735969,,False,5,34,True
-V400,,Llegar por lo menos 5 veces al punto de falla de un grupo muscular,1,735969,,False,8,5,True
-V400,,Hacer estiramientos,1,735969,,True,8,3,True
-V400,,Tomar una capsula de vitamina E,1,735969,,False,3,1,True
-V400,,Cepillarme la cara,3,735969,,False,3,5,True
-V400,,Ir a cortarme el Cabello,30,735944,,False,2,30,True
-V400,,Totmar- junto con todas las personas que vivan conmigo- el desparatizante 'Zentel' 2 diarios por 3 dias.,365,735897,,False,3,10,True
-V400,,Asistir a una limpieza dental,365,735917,La doctora con la que normalmente me la hago se llama Guadalupe Telles,False,3,180,True
-V400,,Hacerme un check up medico (Que incluya examen de prostata),730,735872,,False,5,720,True
-V500,Great Partner,Hacer algo nice por mi pareja (e.g. comprarle flores- prepararle de cenar- invitarla de sorpresa a algun lado),14,735900,,False,5,30,True
-V500,Great Partner,Preguntarle a mi pareja si hay algo con lo que la podria apoyar durante la semana (y que haga sentido que lo haga yo en lugar de ella),7,735927,Revisar en Evernote: Helping Dani be Happier :),True,5,2,True
-V500,OS KSU,Leer mis 'Agreements & Promises',30,735905,,True,3,1,True
-V600,OS KSU - Suggestion,Ver- al menos- una conferencia en TED sobre un tema que suene interesante,7,735922,,False,3,20,True
-V600,,Leer alguna de las notas de los libros que he Leido para internalizar lo que decia el libro,7,735923,,True,3,8,True
-V600,,Escribir- en menos de 2 minutos y en maximo un parrafo- que fue lo mas importante del audiolibro que escuche por la manana,1,735969,,True,3,5,True
-V700,,Regar la planta,3,735931,,False,1,2,True
-V700,,Revisar- ordenar y vaciar la bandeja de entrada de mi correo personal Gmail,1,735931,,True,3,5,True
-V700,,Darle mantenimiento a mi Teoria (Eliminar elementos que ya no apliquen y sintetizar elementos similares) - Segun el plan de mantenimiento,7,735933,Plan de mantenimiento: Siguiente Set a Darle Mantenimiento:,True,3,8,True
-V700,,Ordenar todo lo que pueda mi ambiente fisico en menos de 10 minutos,1,735969,,False,3,13,True
-V700,,Depurar mi pertenecias fisicas y conservar unicamente aquello que conscientemente creo que vale la pena mantener,90,735923,,False,5,34,True
-V800,,Subir a Google Drive la ultima version de los documentos que haya estado trabajando durante la semana,7,735931,,False,3,1,True
-V800,,Drenar el agua del boiler,60,735901,,False,2,5,True
-V800,,Revisar los niveles de aceite- anticongelante- agua y aire en las llantas,90,735872,,False,3,8,True
-V800,,Hacer respaldo completo offline del disco duro de mi computadora y Evernote,60,735904,Deberia tambien procurar tener un respaldo Online que se haga de forma mas o menos automatica,False,3,8,True
-V800,,Mover photos del iPhone a mi archivo de fotos hacer respaldo offline,60,735904,,False,3,21,True
-V800,,Llevar el coche a la verificacion,180,735933,,False,2,89,True
-V800,,Mandar el coche al servicio,365,735905,,False,2,34,True
-V800,,Pagar el gas,30,735931,,False,3,5,True
-V800,,Ajustar Splitwise por cargos de la Aliada y Registrarlo en Money,30,735935,,False,3,5,True
-V800,,Ir al super a comprar lo que falta segun 'Shopping List',14,735960,,False,1,34,True
-V800,,Pagar la renta,30,735954,,False,3,5,True
-V800,,Revisar mi Saldo y contratar un PA200 de Telcel- si mi saldo es menor a 200- entonces comprar otros $500 pesos de tiempo aire,30,735952,,False,2,5,True
-V800,,Pagar la luz,60,735916,Numero de servicio: 972 840 600 159 - www.cfe.gob.mx - username: amigabledave,False,3,10,True
-V800,,Renovar seguro de gastos medicos,365,735933,,False,5,13,True
-V800,,Renovar seguro del coche,365,735933,,False,5,13,True
-V800,,Pagar internet,30,735961,,False,3,5,True
-V800,,Pagar el agua,60,735961,Numero de contrato '1941340615010154' - Link para realizar el pago: http://www.sacmex.df.gob.mx/sacmex/index.php/formas-de-pago/pago-con-tarjeta,False,3,20,True
-V900,OS KSU,Analizar y actualizar Money Requirements segun lo sucedido durante el ano,365,735598,,False,3,13,True
-V900,,Pagar mi tarjeta de credito IXE y analizar mis cuentas para detectar irregularidades,30,735939,,False,3,21,True
-V900,,Asegurarme que mi dinero esta invertido en algo que al menos pague la tasa de CETES,30,735961,,False,3,13,True
-V900,,Revisar si algunos de mis puntos de programas de lealtad estan por expirar y hacer algo al respecto,180,735901,,False,3,21,True
-V900,,Presentar mi declaracion anual de impuestos,365,735689,,False,5,89,True
-V200,,Crear el Big O de Tomar un Crucero,730,,,True,3,1,True
-V200,,Crear el Big O de Visitar un parque de diversiones 'nuevo',730,,,True,3,1,True
-V200,,Crear el Big O de Visitar un parque de diversiones 'clasico',730,,,True,3,1,True
-V200,,Crear el Big O de Visitar una ciudad 'nueva',730,,,True,3,1,True
-V200,,Crear el Big O de Visitar una ciudad 'clasica',730,,,True,3,1,True
+value_type,tags,description,charging_time,last_event,comments,any_any,importance,time_cost,in_upcoming,is_private
+V000,,Experience other type of End Value,1,,,False,3,1,False,False
+V000,Eating,Estar desayunando carnitas en el Enriques con quesadillas y agua de horchata,89,,Better with Papa,False,3,90,False,False
+V000,Eating,Estar desayunando Chilaquiles en Que Seria de Mi,34,735867,,False,3,90,False,False
+V000,Eating,Estar comiendo un Hot Dog y Chicken bake en La fuente de sodas de Costco,55,,,False,3,90,False,False
+V000,Eating,Estar cenando sopa pollo con Tallarines en Vips y Papas Gal acticas,89,735864,,False,3,90,False,False
+V000,Eating,Estar cenando sopa Marucha con sincronizadas en casa,34,,,False,3,90,False,False
+V000,Eating,Estar comiendo el Sufle de Jamon y Queso que prepara mi mami,89,,Better with Mama,False,3,90,False,False
+V000,Eating,Estar comiendo en Fridays,144,,,False,3,90,False,False
+V000,Eating,Estar comiendo en Chilis,144,,,False,3,90,False,False
+V000,Eating,Estar comiendo otra comida sabrosa,5,735865,,False,3,90,False,False
+V000,Eating,Estar comiendo comida Indu - Chicken Masala + Paneer Butter Masala + Steam Rice + Nam,89,,,False,3,90,False,False
+V000,Eating,Estar comiendo tacos al pastor y tomar agua de orchata,34,,,False,3,90,False,False
+V000,Eating,Estar comiendo Sushi: Rollos con salsa tampico y Kushiagues,34,,,False,3,90,False,False
+V000,Eating,Estar comiendo Pizza con la orilla rellena de queso,34,735961,,False,3,90,False,False
+V000,Eating,Estar comiendo en el Pescadito,34,735889,,False,3,90,False,False
+V000,Fucking,Estar teniendo sexo con una mujer,2,,,False,3,90,False,True
+V000,Fucking,Estar masturbandome,2,,,False,3,90,False,True
+V000,Hanging out,Estar hangeando con mis papas mientras disfrutamos de rica comida casera,13,,,False,3,90,False,False
+V000,Hanging out,Estar hangeando con la pandilla de CEMAC para ehchando el Smash y recordando viejos tiempos (Potro -  Memo -  Berni -  Fresky -  etc),180,,,False,3,90,False,False
+V000,Hanging out,Estar pedo en un lugar con: Gente interesante + Chupe barato + Buen Ambiente,34,,,False,3,90,False,False
+V000,Learning & Thinking,Estar echando la platica intensa con una persona interesante,8,,,False,3,90,False,False
+V000,Learning & Thinking,Estar descubriendo| aprendiendo y entendiendo nuevos 'insights' del comportamiento humano en general -  del mio en particular y lo mismo para propiedades 'exoticas' del universo,34,,(como el hecho de que si acomodas  materia de cierta forma -  es posible crear seres conscientes),False,3,90,False,False
+V000,Playing - Boardgames,Estar jugando otro juego de mesa divertido,13,,Better with Jorge,False,3,90,False,False
+V000,Playing - Boardgames,Estar jugando Magic The Gathering,34,735862,Better with Jorge,False,3,90,False,False
+V000,Playing - Boardgames,Estar jugando Yu-Gi-oh!,55,735874,Better with Luis Lara,False,3,90,False,False
+V000,Playing - Boardgames,Estar jugando X Wing Miniatures,55,735868,Better with Jorge,False,3,90,False,False
+V000,Playing - Sports,Estar echando las canchitas 1 a 1,89,,Better with Luis Lara,False,3,90,False,False
+V000,Playing - Sports,Estar echando los pases de americano,144,,Better with Luis Lara,False,3,90,False,False
+V000,Playing - Sports,Estar echando los pases de freezbee,233,735882,,False,3,90,False,False
+V000,Playing - Sports,Estar jugando boliche,144,735744,Better with Papa,False,3,90,False,False
+V000,Playing - Videogames,Estar jugando otro videojuego divertido,13,,,False,3,90,False,False
+V000,Playing - Videogames,Estar jugando Smash,55,735852,Better with Jimmy,False,3,90,False,False
+V000,Playing - Videogames,Estar jugando Mario Kart,89,735861,,False,3,90,False,False
+V000,Playing - Videogames,Estar jugando Doctor Mario,89,,Better with Papa,False,3,90,False,False
+V000,Playing - Videogames,Estar jugando FIFA,34,735960,Better with Sergio Echeverria,False,3,90,False,False
+V000,Reading,Estar leyendo una novela entretenida en un lugar tranquilo mientras me tomo un cafecito,8,,,False,3,90,False,False
+V000,Reading,Estar escuchando una novela en audiolibro,21,,,False,3,90,False,False
+V000,Traveling,Estar atascandome en un buffette en Las Vegas,377,,Better with Papa,False,3,90,False,False
+V000,Traveling,Estar atascandome en un buffette en un Crucero,377,,Better with Mama,False,3,90,False,False
+V000,Traveling,Estar en un parque de diversiones chingon subiendome a montanas rusas y hangeando con una persona a la que quiero,377,,,False,3,90,False,False
+V000,Watching,Estar viendo una pelicula o serie entretenida en mi bebe de 55',13,,,False,3,90,False,False
+V000,Watching,Estar en el cine a viendo una pelicula entretenida y comiendo nachos,21,,Better with Dani,False,3,90,False,False
+V000,Watching,Estar viendo un show chingon,55,,,False,3,90,False,False
+V100,,Tomar 5 minutos para pausar- poner las cosas en perspectiva y sentirme agradecido con la vida,1,735969,Puedo usar reasons to be gratefull como inspiracion - Esto queda como place holder hasta que se agregue automatio a la mission del dia los objetos de la reflexion de gratitud del dia,False,3,8,True,False
+V200,,Escribirle a 2 amigos que ya tenga al menos 2 semanes si ver para ver si hacemos algo el fin de semana,7,735927,,False,3,8,True,False
+V200,,Aprender a jugar un juego nuevo de mesa,90,735851,,False,3,89,True,False
+V200,,Game Night 1 of 2 - Enviar invitacion a 8 amigos para una noche de juegos de mesa,30,,,False,3,8,True,False
+V200,,Game Night 2 of 2 - Confirmar de forma individual quien va a poder venir a la noche de juegos de mesa,30,,,True,3,21,True,False
+V200,,Crear el Big O de Tomar un Crucero,730,,,True,3,1,True,False
+V200,,Crear el Big O de Visitar un parque de diversiones 'nuevo',730,,,True,3,1,True,False
+V200,,Crear el Big O de Visitar un parque de diversiones 'clasico',730,,,True,3,1,True,False
+V200,,Crear el Big O de Visitar una ciudad 'nueva',730,,,True,3,1,True,False
+V200,,Crear el Big O de Visitar una ciudad 'clasica',730,,,True,3,1,True,False
+V300,OS KSU,1. Reflexionar sobre los resultados del el dia antetior y entiende si es que existe algo que pudiste haber hecho mejor; 2. Decide y deja por escrito cuales son todas las acciones que van a ser parte de la Mision y Plan para el dia,1,735969,,False,5,13,True,False
+V300,OS KSU,Decidir cuales van a ser los siguientes Wishes of End Value que voy a hacer realidad y definir Big Os (Tomando en cuenta los MileStones actuales),90,735839,,False,5,34,True,False
+V300,OS KSU,Decidir cuales van a ser los siguientes Wishes of Resources que voy a hacer realidad y definir Big Os (Tomando en cuenta los MileStones actuales),90,735839,,False,5,34,True,False
+V300,OS KSU,Definir y programar las siguientes acciones necesarias para alcanzar mis Big Os,7,735926,,False,5,21,True,False
+V300,OS KSU,Reflexionar sobre 'el proposito y direccion de mi vida y si siento que la forma en la que vivo es la mejor segun dicho proposito'- y si es necesario- ajustar mis mi 'Mile Stones'- KAS y Big Os acorde a mis conclusiones,180,735860,,False,5,34,True,False
+V300,OS KSU,Repasar KAS6 - Acciones Recurrentes Reactivas con el objetivo de Evitar una accion particular - y marcar (si aplica) si fue que se ejecuto la accion en cuestion,1,735931,,False,3,2,True,False
+V300,OS KSU,Leer mi KAS7 - Acciones Recurrentes Reactivas con en objetivo de aprovechar una oportunidad - y marcar (si aplica) si fue que se ejecuto la accion en cuestion,1,735931,,True,3,2,True,False
+V300,OS KSU,Repasar mis 'Guiding Principles',7,735931,,True,3,5,True,False
+V400,,Irme a dormir a mas tardar a las 10:30 (ya en cama y con la luz apagada),1,735969,,False,8,8,True,False
+V400,,Hacer al menos 30 minutos de cardio,1,735969,,False,5,34,True,False
+V400,,Llegar por lo menos 5 veces al punto de falla de un grupo muscular,1,735969,,False,8,5,True,False
+V400,,Hacer estiramientos,1,735969,,True,8,3,True,False
+V400,,Tomar una capsula de vitamina E,1,735969,,False,3,1,True,False
+V400,,Cepillarme la cara,3,735969,,False,3,5,True,False
+V400,,Ir a cortarme el Cabello,30,735944,,False,2,30,True,False
+V400,,Totmar- junto con todas las personas que vivan conmigo- el desparatizante 'Zentel' 2 diarios por 3 dias.,365,735897,,False,3,10,True,False
+V400,,Asistir a una limpieza dental,365,735917,La doctora con la que normalmente me la hago se llama Guadalupe Telles,False,3,180,True,False
+V400,,Hacerme un check up medico (Que incluya examen de prostata),730,735872,,False,5,720,True,False
+V500,Great Partner,Hacer algo nice por mi pareja (e.g. comprarle flores- prepararle de cenar- invitarla de sorpresa a algun lado),14,735900,,False,5,30,True,False
+V500,Great Partner,Preguntarle a mi pareja si hay algo con lo que la podria apoyar durante la semana (y que haga sentido que lo haga yo en lugar de ella),7,735927,Revisar en Evernote: Helping Dani be Happier :),True,5,2,True,False
+V500,OS KSU,Leer mis 'Agreements & Promises',30,735905,,True,3,1,True,False
+V600,OS KSU - Suggestion,Ver- al menos- una conferencia en TED sobre un tema que suene interesante,7,735922,,False,3,20,True,False
+V600,,Leer alguna de las notas de los libros que he Leido para internalizar lo que decia el libro,7,735923,,True,3,8,True,False
+V600,,Escribir- en menos de 2 minutos y en maximo un parrafo- que fue lo mas importante del audiolibro que escuche por la manana,1,735969,,True,3,5,True,False
+V700,,Regar la planta,3,735931,,False,1,2,True,False
+V700,,Revisar- ordenar y vaciar la bandeja de entrada de mi correo personal Gmail,1,735931,,True,3,5,True,False
+V700,,Darle mantenimiento a mi Teoria (Eliminar elementos que ya no apliquen y sintetizar elementos similares) - Segun el plan de mantenimiento,7,735933,Plan de mantenimiento: Siguiente Set a Darle Mantenimiento:,True,3,8,True,False
+V700,,Ordenar todo lo que pueda mi ambiente fisico en menos de 10 minutos,1,735969,,False,3,13,True,False
+V700,,Depurar mi pertenecias fisicas y conservar unicamente aquello que conscientemente creo que vale la pena mantener,90,735923,,False,5,34,True,False
+V800,,Subir a Google Drive la ultima version de los documentos que haya estado trabajando durante la semana,7,735931,,False,3,1,True,False
+V800,,Drenar el agua del boiler,60,735901,,False,2,5,True,False
+V800,,Revisar los niveles de aceite- anticongelante- agua y aire en las llantas,90,735872,,False,3,8,True,False
+V800,,Hacer respaldo completo offline del disco duro de mi computadora y Evernote,60,735904,Deberia tambien procurar tener un respaldo Online que se haga de forma mas o menos automatica,False,3,8,True,False
+V800,,Mover photos del iPhone a mi archivo de fotos hacer respaldo offline,60,735904,,False,3,21,True,False
+V800,,Llevar el coche a la verificacion,180,735933,,False,2,89,True,False
+V800,,Mandar el coche al servicio,365,735905,,False,2,34,True,False
+V800,,Pagar el gas,30,735931,,False,3,5,True,False
+V800,,Ajustar Splitwise por cargos de la Aliada y Registrarlo en Money,30,735935,,False,3,5,True,False
+V800,,Ir al super a comprar lo que falta segun 'Shopping List',14,735960,,False,1,34,True,False
+V800,,Pagar la renta,30,735954,,False,3,5,True,False
+V800,,Revisar mi Saldo y contratar un PA200 de Telcel- si mi saldo es menor a 200- entonces comprar otros $500 pesos de tiempo aire,30,735952,,False,2,5,True,False
+V800,,Pagar la luz,60,735916,Numero de servicio: 972 840 600 159 - www.cfe.gob.mx - username: amigabledave,False,3,10,True,False
+V800,,Renovar seguro de gastos medicos,365,735933,,False,5,13,True,False
+V800,,Renovar seguro del coche,365,735933,,False,5,13,True,False
+V800,,Pagar internet,30,735961,,False,3,5,True,False
+V800,,Pagar el agua,60,735961,Numero de contrato '1941340615010154' - Link para realizar el pago: http://www.sacmex.df.gob.mx/sacmex/index.php/formas-de-pago/pago-con-tarjeta,False,3,20,True,False
+V900,OS KSU,Analizar y actualizar Money Requirements segun lo sucedido durante el ano,365,735598,,False,3,13,True,False
+V900,,Pagar mi tarjeta de credito IXE y analizar mis cuentas para detectar irregularidades,30,735939,,False,3,21,True,False
+V900,,Asegurarme que mi dinero esta invertido en algo que al menos pague la tasa de CETES,30,735961,,False,3,13,True,False
+V900,,Revisar si algunos de mis puntos de programas de lealtad estan por expirar y hacer algo al respecto,180,735901,,False,3,21,True,False
+V900,,Presentar mi declaracion anual de impuestos,365,735689,,False,5,89,True,False

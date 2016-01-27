@@ -592,15 +592,25 @@
 
 
 	<div class="form-group">
-		<div class="col-md-6">
-			<label> Comments </label>
-			<textarea class="form-control" name="comments">{% if ksu['comments']%}{{ksu['comments']}}{% endif %}</textarea> 
-		</div>
 
 		<div class="col-md-4">
 			<label> Tags (Please separete using pipes) </label>
 			<input type="text" class="form-control" name="local_tags" placeholder="Tag|Tag|Tag" value="{% if ksu['local_tags']%}{{ksu['local_tags']}}{% endif %}">
 		</div>
+
+		<div class="col-md-4">
+			<label> Comments </label>
+			<textarea class="form-control" name="comments">{% if ksu['comments']%}{{ksu['comments']}}{% endif %}</textarea> 
+		</div>
+
+		<div class="col-md-4">
+			<label> Origin (How did this ended un in your theory?)</label>
+			<textarea class="form-control" name="origin">{% if ksu['origin']%}{{ksu['origin']}}{% endif %}</textarea> 
+		</div>
+
+
+
+
 
 	</div>
 
