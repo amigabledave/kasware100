@@ -438,8 +438,8 @@ class SetViewer(Handler):
 		ksu_set = make_ordered_ksu_set_list_for_SetViewer(ksu_set)
 
 		viewer_details = d_Viewer[set_name]
-		if viewer_details['grouping_attribute'] == 'local_tags':
-			viewer_details['grouping_list'] = make_local_tags_grouping_list(ksu_set)
+		if viewer_details['grouping_attribute'] == 'tags':
+			viewer_details['grouping_list'] = make_tags_grouping_list(ksu_set)
 
 		self.print_html('set-viewer.html', viewer_details=viewer_details, ksu_set=ksu_set, set_name=set_name)
 
@@ -566,13 +566,13 @@ def make_not_ugly(date_ordinal):
 
 
 
-def make_local_tags_grouping_list(ksu_set):
+def make_tags_grouping_list(ksu_set):
 	result = []
-	local_tags = []
+	tags = []
 	for ksu in ksu_set:
-		tag = ksu['local_tags'] 
-		if tag not in local_tags and tag != None:
-			local_tags.append(tag)
+		tag = ksu['tags'] 
+		if tag not in tags and tag != None:
+			tags.append(tag)
 			result.append((tag,tag))
 	result = sorted(result)
 	result.append((None, 'Other'))
@@ -974,7 +974,7 @@ class NewKSU(Handler):
 
 
 def update_child_with_parent(child_ksu, parent_ksu):
-	inheritable_attributes = ['description','project','importance','time_cost','local_tags','in_mission','is_critical','comments','value_type']
+	inheritable_attributes = ['description','project','importance','time_cost','tags','in_mission','is_critical','comments','value_type']
 	child_attributes = list(child_ksu.keys())
 	parent_attributes = list(parent_ksu.keys())
 	for attribute in inheritable_attributes:
@@ -1585,7 +1585,7 @@ i_BASE_KSU = {'id': None,
 	    	  'description': None,	    	  
 	    	  'is_visible': True,
 		      'is_private': False,
-	    	  'local_tags': None, #la idea es que el atributo sea una lista con varios elementos, ahora en esta primera version solo hay espeacio para uno (80/20)
+	    	  'tags': None, #la idea es que el atributo sea una lista con varios elementos, ahora en esta primera version solo hay espeacio para uno (80/20)
 	    	  'global_tags': None, #la idea es que el atributo sea una lista con varios elementos, ahora en esta primera version solo hay espeacio para uno (80/20)
 	    	  'comments': None}
 
@@ -2135,7 +2135,7 @@ def prepare_details_for_saving(post_details):
 			   'is_private':False,
 			   'in_upcoming':False,
 			   'any_any':False,
-			   'local_tags':None,
+			   'tags':None,
 	    	   'global_tags':None,
 	    	   'is_milestone':False,
 	    	   'comments':None}
@@ -2990,7 +2990,7 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 				    'columns':{'description':5, 'pretty_target_date':2, 'id':1},
 				    'show_Button_Achieved':True,
 				    'show_Button_Add_Child_KSU':True,				    
-				    'grouping_attribute':'local_tags',
+				    'grouping_attribute':'tags',
 				    'grouping_list':None},
 
 
@@ -3001,7 +3001,7 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 				    'columns':{'parent_id':1, 'description':5, 'priority':1, 'pretty_target_date':2},
 				    'show_Button_Done':True,
 				    'show_Button_Add_To_Mission':True,			    
-				    'grouping_attribute':'local_tags',
+				    'grouping_attribute':'tags',
 				    'grouping_list':None},
 
 		   
@@ -3012,7 +3012,7 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 				    'columns':{'description':3, 'contact_frequency':1, 'pretty_last_contact':2, 'pretty_next_contact':2, 'comments':3},
 				    'show_Button_Done':False,
 				    'show_Button_Add_To_Mission':False,
-				    'grouping_attribute':'local_tags',
+				    'grouping_attribute':'tags',
 				    'grouping_list':None},
 
 			'ImIn':{'set_title':'Important Indicators',
