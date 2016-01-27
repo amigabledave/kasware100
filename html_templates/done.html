@@ -68,13 +68,14 @@
 				</select>
 			</div>
 
+			{% if ksu['id'] != 'KAS1_1' %}
 
-			<div class="col-md-2"> 		
-				<label> Number of Repetitions </label>
-				<input type="text" class="form-control" name="repetitions" required value="1">
-			</div>
+				<div class="col-md-2"> 		
+					<label> Number of Repetitions </label>
+					<input type="text" class="form-control" name="repetitions" required value="1">
+				</div>
 
-
+			{% endif %}
 
 			<div class="col-md-2">
 		 		<div class="checkbox">
