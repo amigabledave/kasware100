@@ -26,6 +26,8 @@ class Theory(db.Model):
 	password_hash = db.StringProperty(required=True)
 	email = db.StringProperty(required=True)
 
+	settings = db.BlobProperty(required=True)
+
 	KAS1 = db.BlobProperty(required=True)
 	KAS2 = db.BlobProperty(required=True)	
 	KAS3 = db.BlobProperty(required=True)
@@ -57,6 +59,8 @@ class Theory(db.Model):
 		return Theory(username=username, 
 					  password_hash=password_hash,
 					  email=email,
+
+					  settings=new_settings(),
 					 
 					  KAS1=new_set_KSU('KAS1'),
 					  KAS2=new_set_KSU('KAS2'),					  
@@ -202,6 +206,34 @@ class Logout(Handler):
 
 
 
+class Settings(Handler): #xx
+	
+	def get(self):
+		if user_bouncer(self):
+			return		
+		theory = self.theory
+		settings = unpack_set(theory.settings)
+
+		self.print_html('Settings.html', settings=settings)
+
+	def post(self):
+		if user_bouncer(self):
+			return
+		theory = self.theory			
+		post_details = get_post_details(self)	
+		return_to = '/'
+		user_action = post_details['action_description']
+
+		if user_action == 'Save':
+			user_Action_Edit_Settings(self) #xx
+			self.redirect(return_to)
+
+
+		elif user_action == 'Discard':
+			self.redirect(return_to)
+
+
+
 
 #---Todays Mission Handler --- 
 
@@ -316,9 +348,11 @@ def todays_questions(theory):
 class Upcoming(Handler):
 	def get(self):
 		if user_bouncer(self):
-			return 
+			return 		
+		theory = self.theory
 		upcoming = current_upcoming(self)
 		upcoming = pretty_dates(upcoming)
+		upcoming = hide_private_ksus(theory, upcoming)
 		upcoming = hide_invisible(upcoming)
 		upcoming = make_ordered_ksu_set_list_for_upcoming(upcoming)
 		view_groups = define_upcoming_view_groups(upcoming)
@@ -434,7 +468,8 @@ class EndValuePortfolio(Handler): #xx
 		ksu_set = unpack_set(theory.KAS1)
 		ksu_set = fileter_for_EndValue(ksu_set)
 		
-		ksu_set = pretty_dates(ksu_set)		
+		ksu_set = pretty_dates(ksu_set)
+		ksu_set = hide_private_ksus(theory, ksu_set)	
 		ksu_set = hide_invisible(ksu_set)
 		ksu_set = make_ordered_ksu_set_list_for_SetViewer(ksu_set)
 
@@ -496,6 +531,7 @@ class SetViewer(Handler):
 		set_details = ksu_set['set_details']
 		ksu_set = pretty_dates(ksu_set)
 		
+		ksu_set = hide_private_ksus(theory, ksu_set)
 		ksu_set = hide_invisible(ksu_set)
 		ksu_set = make_ordered_ksu_set_list_for_SetViewer(ksu_set)
 
@@ -542,6 +578,17 @@ def hide_invisible(ksu_set):
 		if ksu['is_visible']:
 			result[ksu['id']] = ksu
 	return result
+
+
+
+def hide_private_ksus(theory, ksu_set):
+	settings = unpack_set(theory.settings)
+	if settings['hide_private_ksus']:
+		for ksu in ksu_set:
+			ksu = ksu_set[ksu]
+			if ksu['is_private']:
+				ksu['is_visible'] = False
+	return ksu_set
 
 
 
@@ -651,13 +698,15 @@ class BigOViewer(Handler):
 			return
 		theory = self.theory
 		
-		BigO = unpack_set(theory.BigO)	
+		BigO = unpack_set(theory.BigO)
+		BigO = hide_private_ksus(theory, BigO)	
 		BigO = hide_invisible(BigO)
 		BigO = pretty_dates(BigO)
 		BigO = add_days_left(BigO)
 		BigO = make_ordered_ksu_set_list_for_SetViewer(BigO)
 
 		BOKA = unpack_set(theory.BOKA)
+		BOKA = hide_private_ksus(theory, BOKA)
 		BOKA = hide_invisible(BOKA)
 		BOKA = make_ordered_ksu_set_list_for_SetViewer(BOKA)
 	
@@ -1724,6 +1773,8 @@ i_Wish_KSU = {'value_type': None,
 
 
 i_RTBG_KSU = {'Awesomeness_Value':'3', #How much awesomeness Points is worth this reason to be gratefull
+			  'last_event':None, # The events refers to make an effort to experienced gratefulness associeted with this specific reason
+			  'next_event':today,
 			  'time_frame':'Present'} # Present, Past, Future
 
 
@@ -1865,6 +1916,10 @@ def make_event_template(event_type):
 
 #--- Create new Sets --- 
 
+
+def new_settings():
+	settings = {'hide_private_ksus':False}
+	return pack_set(settings)
 
 
 def new_set_KSU(set_name):
@@ -2218,6 +2273,23 @@ def prepare_details_for_saving(post_details):
 
 
 #---User Actions ---
+
+
+def user_Action_Edit_Settings(self): #xx
+	theory = self.theory
+	settings = unpack_set(theory.settings)
+	post_details = get_post_details(self)
+		
+	settings['hide_private_ksus'] = False	
+	
+	if 'hide_private_ksus' in post_details:
+		settings['hide_private_ksus'] = True
+
+	theory.settings = pack_set(settings)			
+	theory.put()	
+	return
+
+
 
 def user_Action_Create_ksu(self, set_name):
 	theory = self.theory
@@ -2796,10 +2868,11 @@ def csv_triggered_Action_create_ImPe_Contact(theory, person):
 
 def prepare_csv_details_for_saving(post_details):
 	details = {}
-	checkboxes = ['is_critical', 'is_private']
+	checkboxes = ['is_critical', 'is_private', 'any_any', 'in_upcoming']
 	for (attribute, value) in post_details.items():
 		if attribute in checkboxes:
-			details[attribute] = True
+			if value == 'True':
+				details[attribute] = True
 		elif attribute == 'last_event':
 			if valid_csv_date(value):
 				details[attribute] = value
@@ -3124,6 +3197,7 @@ app = webapp2.WSGIApplication([
 							 ('/signup', Signup),
 							 ('/login', Login),
                              ('/logout', Logout),
+                             ('/Settings', Settings),
                              
 
                              ('/SetViewer/' + PAGE_RE, SetViewer),

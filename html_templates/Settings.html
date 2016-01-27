@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div class="row">
+	<div class="col-md-12"> <h2> Settings </h2></div>
+</div>
+
+<br>
+
+
+<form class="form-horizontal" method="post">
+
+
+	<div class="form_group">
+		<div class="col-md-2">
+ 			<div class="checkbox"> 
+ 				<label> <input type="checkbox" name="hide_private_ksus"{% if settings['hide_private_ksus']%}checked{% endif %}> <b> Hide Private KSUs </b> </label> 
+ 			</div>
+		</div>	
+	</div>
+
+	<br>
+	<br>
+	<br>
+	<br>
+
+
+  	<div class="form-group">
+		<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Save">   Save Changes   </button> </div>	
+		<div class="col-md-2"> <button type="submit" class="btn btn-warning btn-lg  respect-space" name="action_description" value="Discard"> Discard Changes </button> </div>
+	</div>
+
+	
+</form>
+
+
+{% endblock %}
