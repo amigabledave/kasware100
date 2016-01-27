@@ -424,6 +424,67 @@ def define_upcoming_view_groups(ordered_upcoming_list):
 
 
 
+#--- End Value Portfolio Viewer Handler
+
+class EndValuePortfolio(Handler): #xx
+	def get(self):
+		if user_bouncer(self):
+			return
+		theory = self.theory
+		ksu_set = unpack_set(theory.KAS1)
+		ksu_set = fileter_for_EndValue(ksu_set)
+		
+		ksu_set = pretty_dates(ksu_set)		
+		ksu_set = hide_invisible(ksu_set)
+		ksu_set = make_ordered_ksu_set_list_for_SetViewer(ksu_set)
+
+		viewer_details = d_Viewer['EVPo']
+		if viewer_details['grouping_attribute'] == 'tags':
+			viewer_details['grouping_list'] = make_tags_grouping_list(ksu_set)
+
+		self.print_html('EndValuePortfolio.html', viewer_details=viewer_details, ksu_set=ksu_set, set_name='KAS1')
+
+	def post(self):
+		if user_bouncer(self):
+			return
+		post_details = get_post_details(self)
+		user_action = post_details['action_description']	
+		
+		if user_action == 'NewKSU':
+			self.redirect('/NewKSU/KAS1' + '?return_to=/EndValuePortfolio')
+
+		else:
+			ksu_id = post_details['ksu_id']
+			set_name = get_type_from_id(ksu_id)
+				
+			if user_action == 'EditKSU':			
+				self.redirect('/EditKSU?ksu_id=' + ksu_id + '&return_to=/EndValuePortfolio')
+
+			if user_action == 'Done':
+				self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/EndValuePortfolio')
+
+			if user_action == 'Fail':
+				self.redirect('/Failure?ksu_id=' + ksu_id + '&return_to=/EndValuePortfolio')
+
+			if user_action == 'Add_To_Mission':
+				user_Action_Add_To_Mission(self)
+				self.redirect('/EndValuePortfolio')	
+
+
+def fileter_for_EndValue(ksu_set):
+	result = {}
+	for (ksu_id, ksu) in list(ksu_set.items()):
+		value_type = ksu['value_type']
+		if value_type == 'V000':
+			result[ksu_id] = ksu
+	return result
+
+
+
+
+
+
+
 #---Set Viewer Handler ---
 
 class SetViewer(Handler):
@@ -1806,7 +1867,7 @@ def make_event_template(event_type):
 
 
 
-def new_set_KSU(set_name): #xx
+def new_set_KSU(set_name):
 	result = base_theory.base[set_name]
 	ksu = make_ksu_template(set_name)
 	ksu['set_size'] = 1000
@@ -3029,7 +3090,17 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 				    'fields':{'id':'ID','description':'Description','units':'Units', 'base_value':'Target Period','comparison_value':'Prvious Period'},
 				    'columns':{'id':1,'description':4,'units':2, 'base_value':1, 'comparison_value':1},
 				    'grouping_attribute':'scope',
-				    'grouping_list':l_Scope}}
+				    'grouping_list':l_Scope},
+
+			'EVPo':{'set_title':'End Value Portfolio',
+				    'set_name':'EVPo',				    
+				    'attributes':['description','pretty_last_event','charging_time'],
+				    'fields':{'description':'Description','charging_time':'C. Time', 'pretty_last_event':'Last Event'},
+				    'columns':{'description':5,'charging_time':1,'pretty_last_event':2},
+				    'show_Button_Done':True,
+				    'show_Button_Add_To_Mission':True,
+				    'grouping_attribute':'tags',
+				    'grouping_list':None}}
 
 
 secret = 'elzecreto'
@@ -3061,8 +3132,9 @@ app = webapp2.WSGIApplication([
 
                              ('/TodaysMission', TodaysMission),
                              ('/Upcoming', Upcoming),
-                             ('/effort-report',EffortReport),
-							 
+                             ('/EndValuePortfolio', EndValuePortfolio),
+                         
+							 ('/effort-report',EffortReport),
 							 ('/NewKSU/' + PAGE_RE, NewKSU),
 							 ('/EditKSU', EditKSU),
 							 

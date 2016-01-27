@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+	<div class="col-md-9"> <div class="section-title">{{viewer_details['set_title']}}</div></div>
+
+	<div class="col-md-1"> </div>
+	
+	<div class="col-md-2"> 
+		
+		<form method="Post"> 
+			<input type="text" class="form-control hidden" name="set_name" value="{{viewer_details['set_name']}}"> 
+
+			{% if set_name == 'KAS1' or set_name == 'KAS2' or set_name == 'KAS3' or set_name == 'KAS4' %}
+
+				<button type="submit" class="btn btn-lg btn-primary new-ksu-button respect-space" name="action_description" value="NewKSU">   Add Action   </button>
+
+			{% elif set_name == 'ImPe' %}
+
+				<button type="submit" class="btn btn-lg btn-primary new-ksu-button respect-space" name="action_description" value="NewKSU">   Add Person   </button>
+			
+			{% endif %}
+
+		</form> 
+
+	</div>
+
+</div>
+
+<br>
+
+
+<!-- Field Headers -->
+
+
+<div class="row">
+	<div class="col-md-1"></div>
+	{% for a in viewer_details['attributes'] %}
+		<div class="col-md-{{viewer_details['columns'][a]}}">  <div class="field-header">  {{viewer_details['fields'][a]}} </div> </div>
+	{% endfor %}
+</div>
+
+
+<hr class="thick-hr-1px">
+
+
+{% for group in viewer_details['grouping_list']  %}
+
+	<div class="row">
+		<div class="col-md-12"> <div class="section-group-title"> {{group[1]}} </div></div>
+	</div>
+
+<!-- Rows. One per KSU -->
+
+	{% for ksu in ksu_set %}
+
+		{% if ksu[viewer_details['grouping_attribute']] == group[0] %}
+
+			<div class="row">
+
+				<div class="col-md-1">
+					<form class="form-horizontal" method="post">
+						<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}"> 
+					  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="EditKSU"> Edit </button>
+					</form>	
+				</div>
+
+
+
+				{% for a in viewer_details['attributes'] %}
+					<div class="col-md-{{viewer_details['columns'][a]}}">  {% if ksu[a] %} {{ksu[a]}} {% endif %} </div>
+				{% endfor %}	
+
+
+				{% if viewer_details['show_Button_Add_To_Mission'] %}
+
+					<div class="col-md-1">
+							<form class="form-horizontal" method="post">
+							<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+						  	<button type="submit" class="btn btn-primary btn-md" name="action_description" value="Add_To_Mission"> To Mission </button>
+						</form>	
+					</div>
+
+				{% endif %}
+
+
+				{% if viewer_details['show_Button_Add_Child_KSU'] %}
+
+					<div class="col-md-1">
+							<form class="form-horizontal" method="post">
+							<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+						  	<button type="submit" class="btn btn-primary btn-md" name="action_description" value="Add_Child_KSU"> Add Action </button>
+						</form>	
+					</div>
+
+				{% endif %}
+
+
+				{% if viewer_details['show_Button_Done'] %}
+
+					<div class="col-md-1">
+						<form class="form-horizontal" method="post">
+							<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+						  	<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Done">  Done  </button>
+						</form>	
+					</div>
+
+				{% endif %}	
+
+
+
+				{% if viewer_details['show_Button_Achieved'] %}
+
+					<div class="col-md-1">
+						<form class="form-horizontal" method="post">
+							<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+						  	<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Done">  Achieved  </button>
+						</form>	
+					</div>
+
+				{% endif %}	
+
+
+
+				{% if viewer_details['show_Button_Avoided'] %}
+
+					<div class="col-md-1">
+						<form class="form-horizontal" method="post">
+							<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+						  	<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Done"> Avoided </button>
+						</form>	
+					</div>
+
+				{% endif %}
+
+
+				{% if viewer_details['show_Button_Fail'] %}
+
+					<div class="col-md-1">
+						<form class="form-horizontal" method="post">
+							<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+
+							{% if set_name == 'KAS3'%}
+
+						  		<button type="submit" class="btn btn-danger btn-md respect-space" name="action_description" value="Fail"> Didn't </button>
+					  		
+					  		{% elif set_name =='KAS4' %}
+
+								<button type="submit" class="btn btn-danger btn-md respect-space" name="action_description" value="Fail">Commited</button>
+
+					  		{% endif %}
+
+
+						</form>	
+					</div>
+
+				{% endif %}	
+
+			
+		
+			</div>
+			<hr>
+
+		{% endif %}
+
+	{% endfor %}
+
+{% endfor %}
+
+
+{% endblock %}
