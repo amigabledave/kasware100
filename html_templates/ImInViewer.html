@@ -17,7 +17,7 @@
 
 		<div class="col-md-2"> 		
 			<label> Period's Duration </label>
-			<input type="text" class="form-control" name="period_duration" required value="{{period_duration}}">
+			<input type="text" class="form-control" name="period_duration" required value="{% if period_duration %}{{period_duration}}{% endif %}">
 		</div>	
 
 
@@ -34,7 +34,7 @@
 <br>
 
 <div class="row">
-	<div class="col-md-1"></div>
+	<!-- <div class="col-md-1"></div> -->
 	{% for a in viewer_details['attributes'] %}
 		<div class="col-md-{{viewer_details['columns'][a]}}">  <div class="field-header">  {{viewer_details['fields'][a]}} </div> </div>
 	{% endfor %}
@@ -59,12 +59,12 @@
 
 			<div class="row">
 
-				<div class="col-md-1">
+<!-- 				<div class="col-md-1">
 					<form class="form-horizontal" method="post">
 						<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}"> 
 					  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="EditKSU"> Edit </button>
 					</form>	
-				</div>
+				</div> -->
 
 
 				{% for a in viewer_details['attributes'] %}

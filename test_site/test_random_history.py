@@ -263,6 +263,26 @@ def add_Achievement_event(Hist, post_details): # The original takes theory inste
 
 
 
+def add_Answered_event(Hist, post_details):
+	# Hist = unpack_set(theory.Hist)
+	ksu_id = post_details['ksu_id']
+	set_name = get_type_from_id(ksu_id)
+	event = new_event(Hist, 'Answered')
+	post_details_attributes = post_details.keys()
+
+	if 'numeric_answer' in post_details_attributes:
+		event['value'] = post_details['numeric_answer']
+	elif 'boolean_answer' in post_details_attributes:
+		event['value'] = post_details['boolean_answer']
+
+	update_set(Hist, event)
+	theory.Hist = pack_set(Hist)
+	return event
+
+
+
+
+
 
 def calculate_event_score(event):
 	result = {'EndValue':0,'SmartEffort':0, 'Stupidity':0, 'Achievement':0}
@@ -349,7 +369,9 @@ def generate_random_Hist_size_n(n):
 					  'duration':str(random.randrange(5, 120)),
 					  'repetitions':str(random.randrange(1, 5)),
 					  'importance':str(random.randrange(1, 13)),
-					  'Achievement_Value':str(random.randrange(1, 13)), 
+					  'Achievement_Value':str(random.randrange(1, 13)),
+					  'numeric_answer':str(random.randrange(5, 120))
+					  'boolean_answer'random.choice(['Yes', 'No'])
 					  'effort':random.choice([None, 'on']), # whe true is 'on'
 					  'joy':random.choice([None, 'on']),
 					  'disconfort':random.choice([None, 'on']),

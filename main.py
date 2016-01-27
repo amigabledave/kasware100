@@ -245,7 +245,7 @@ class TodaysMission(Handler):
 			self.redirect('/TodaysMission')
 
 		elif user_action == 'Question_Answered':
-			input_error = user_input_error(post_details) #xx
+			input_error = user_input_error(post_details)
 			if input_error:
 				theory = self.theory
 				mission = todays_mission(theory)
@@ -659,12 +659,12 @@ class ImInViewer(Handler):
 			return
 		theory = self.theory
 		
-		period_end = self.request.get('period_end')
+		period_end = self.request.get('end')
 		if not period_end:
 			period_end = make_not_ugly(str(today))
 		period_end = pack_date(period_end)
 		
-		period_duration = self.request.get('period_duration')
+		period_duration = self.request.get('duration')
 		if not period_duration:
 			period_duration = '21'		
 
@@ -690,14 +690,28 @@ class ImInViewer(Handler):
 			input_error = user_input_error(post_details)
 	
 			if input_error:
+				theory = self.theory
+				viewer_details = d_Viewer['ImIn']
+
+				period_end = today
+				period_duration = '21'
+
+				ksu_set = unpack_set(theory.ImIn)	
+				ksu_set = add_indicators_values_to_to_ImIn(theory, period_end, period_duration)
+				ksu_set = hide_invisible(ksu_set)
+				ksu_set = make_ordered_ksu_set_list_for_SetViewer(ksu_set)
+				
 				period_end = post_details['period_end']
-				period_duration = post_details['period_duration']				
+				period_duration = post_details['period_duration']
+
+
 				self.print_html('ImInViewer.html', viewer_details=viewer_details, ksu_set=ksu_set, set_name='ImIn', period_end=period_end, period_duration=period_duration, input_error=input_error)
 			
 			else:
+				# self.write(post_details)
 				period_duration = post_details['period_duration'] 
 				period_end = post_details['period_end']
-				self.redirect('/ImInViewer?period_end=' + period_end +'&period_duration=' + period_duration)
+				self.redirect('/ImInViewer?end=' + period_end +'&duration=' + period_duration)
 				
 
 		elif user_action == 'EditKSU':
@@ -710,6 +724,9 @@ def add_indicators_values_to_to_ImIn(theory, period_end, period_duration):
 	ImIn = unpack_set(theory.ImIn)
 	# period_end = pack_date(period_end)	
 	comparison_end = str(period_end - int(period_duration))
+	agregated_subtypes = ['Score', 'Awesomeness', 'Behaviour']
+	answer_subtypes = ['AcumulatedPerception', 'RealitySnapshot']
+
 	holder_units = ['EndValue', 'SmartEffort', 'Stupidity', 'Achievement', 'duration', 'Awesomeness']
 
 	base_values = ImIn_calculate_indicators_values(theory, period_end, period_duration)
@@ -721,12 +738,39 @@ def add_indicators_values_to_to_ImIn(theory, period_end, period_duration):
 		indicator['comparison_value'] = None
 
 		if indicator['is_visible']:
-			scope = indicator['scope']
+			subtype = indicator['subtype']
 			units = indicator['units']
 
-			if units in holder_units:
-				indicator['base_value'] = "{:,}".format(base_values[scope][units]) #xx
+			if subtype in agregated_subtypes:				
+				scope = indicator['scope']				
+				# if units in holder_units: #xx segun yo no va a pasar nada si le quito este segundo if
+				indicator['base_value'] = "{:,}".format(base_values[scope][units]) 
 				indicator['comparison_value'] = "{:,}".format(comparison_values[scope][units])
+
+			elif subtype in answer_subtypes:
+				indicator_id = indicator['id']
+				
+				if indicator_id in base_values['Answer_indicators']:
+					base_value = base_values['Answer_indicators'][indicator_id]
+					if units == 'binary':
+						indicator['base_value'] = "{:10.2f}".format(base_value)
+					if units == 'number':
+						if base_value < 1000:
+							indicator['base_value'] = "{:10.1f}".format(base_value)
+						else:
+							indicator['base_value'] = "{:,}".format(int(base_value))
+					 	
+				if indicator_id in comparison_values['Answer_indicators']:
+					comparison_value = comparison_values['Answer_indicators'][indicator_id]
+					if units == 'binary':
+						indicator['comparison_value'] = "{:10.2f}".format(comparison_value)
+					if units == 'number':
+						if comparison_value < 1000:
+							indicator['comparison_value'] = "{:10.1f}".format(comparison_value)
+						else:
+							indicator['comparison_value'] = "{:,}".format(int(comparison_value))
+
+					
 	
 	return ImIn
 
@@ -736,6 +780,7 @@ def add_indicators_values_to_to_ImIn(theory, period_end, period_duration):
 def ImIn_calculate_indicators_values(theory, period_end, period_duration):
 	results_holder = make_results_holder()
 	relevant_history = prepare_relevant_history(theory, period_end, period_duration)
+
 	score_history = relevant_history['Score_history']
 	score_units = ['EndValue','SmartEffort','Stupidity','Achievement']
 
@@ -766,7 +811,43 @@ def ImIn_calculate_indicators_values(theory, period_end, period_duration):
 			target_holder[unit] += score[unit]
 			target_holder['duration'] += score['duration']
 
+	answers_history = relevant_history['Answers_history']
+	results_holder['Answer_indicators'] = ImIn_calculate_Answer_indicator_value(theory, answers_history)
+
+
 	return results_holder
+
+
+
+def ImIn_calculate_Answer_indicator_value(theory, Answers_history):
+	ImIn = unpack_set(theory.ImIn)
+	history_by_indicator = {}
+	indicators_values = {}
+
+	for (event_id, event) in list(Answers_history.items()):
+		indicator_id = event['ksu_id']
+		if indicator_id in history_by_indicator:
+			history_by_indicator[indicator_id].append(event['value'])
+		else:
+			history_by_indicator[indicator_id] = [event['value']]
+
+
+	for (indicator_id, indicator_history) in list(history_by_indicator.items()):		
+		indicator = ImIn[indicator_id]
+		indicator_units = indicator['units']
+
+		if indicator_units =='binary':
+			value = (sum(1.0 if x == 'Yes' else 0 for x in indicator_history))/len(indicator_history)
+			indicators_values[indicator_id] = value
+
+		if indicator_units =='number':
+			value = (sum( float(x) for x in indicator_history))/len(indicator_history)
+			indicators_values[indicator_id] = value
+
+	return indicators_values
+
+
+
 
 
 
@@ -776,40 +857,48 @@ def make_results_holder():
 	for value_type in values:
 		result[value_type] = {'EndValue':0, 'SmartEffort':0, 'Stupidity':0, 'Achievement':0, 'duration':0, 'Awesomeness':0}
 	result['Total'] = {'EndValue':0, 'SmartEffort':0, 'Stupidity':0, 'Achievement':0, 'duration':0, 'Awesomeness':0}
+	result['Answer_indicators'] = {}
 	return result
 
 
 
 
 def prepare_relevant_history(theory, period_end, period_duration):
-	result = {'Score_history':{},'Awesomeness_history':{}, 'AcumulatedPerception_history':{},'RealitySnapshot_history':{}, 'Behaviour_history':{}}
+	result = {'Score_history':{},'Awesomeness_history':{}, 'Answers_history':{}, 'Behaviour_history':{}}
 	
 	Hist = unpack_set(theory.Hist)
 	mega_set = create_mega_set(theory)
 
-	relevant_event_types = ['EndValue', 'SmartEffort', 'Stupidity', 'Achievement']
+	relevant_event_types = ['EndValue', 'SmartEffort', 'Stupidity', 'Achievement', 'Answered'] #xx
 	score_subtypes = ['EndValue', 'SmartEffort', 'Stupidity', 'Achievement']
+ 
 	period_end = int(period_end)
 	period_start = period_end - int(period_duration)
 	
-	for (Event_id, Event) in list(Hist.items()):
-		Event_type = Event['type']
-		Event_date = int(Event['date'])
+	for (event_id, event) in list(Hist.items()):
+		event_type = event['type']
+		event_date = int(event['date'])
 
-		if Event_type in relevant_event_types and Event_date >= period_start and Event_date <= period_end:		
+		if event_type in relevant_event_types and event_date >= period_start and event_date <= period_end:		
 			
-			if Event_type in score_subtypes:
-				Event['score'] = calculate_event_score(Event)
-				ksu_id = Event['ksu_id']
+			if event_type in score_subtypes:
+				event['score'] = calculate_event_score(event)
+				ksu_id = event['ksu_id']
 				ksu = mega_set[ksu_id]
 
 				ksu_type = get_type_from_id(ksu_id)	
 				if ksu_type == 'BOKA':
 					ksu = mega_set[ksu['parent_id']]
 				
-				Event['target_value_type'] = ksu['value_type']
+				event['target_value_type'] = ksu['value_type']
 				Score_history = result['Score_history']
-				Score_history[Event_id] = Event
+				Score_history[event_id] = event
+
+			elif event_type == 'Answered':
+				Answers_history = result['Answers_history']
+				Answers_history[event_id] = event
+
+
 	return result
 
 
@@ -1593,9 +1682,6 @@ i_ImPe_KSU = {'contact_ksu_id':None,
 			  'related_ksus':[]}
 
 
-
-
-#xx
 # Possible indicators subtypes # Score, AcumulatedPerception, RealitySnapshot, TimeUse
 i_ImIn_KSU = {'relevant':True, #users cannot create their own indicators, so here they choose if this one in particular they find relevant
 			  'scope':None, #Indicator of the precense/absence of a certain value_type
@@ -1837,6 +1923,8 @@ def add_Answered_event(theory, post_details):
 	set_name = get_type_from_id(ksu_id)
 	event = new_event(Hist, 'Answered')
 	post_details_attributes = post_details.keys()
+
+	event['ksu_id'] = ksu_id
 
 	if 'numeric_answer' in post_details_attributes:
 		event['value'] = post_details['numeric_answer']
