@@ -536,12 +536,14 @@ class SetViewer(Handler):
 		ksu_set = pretty_dates(ksu_set)
 		
 		ksu_set = hide_private_ksus(theory, ksu_set)
-		ksu_set = hide_invisible(ksu_set)
+		ksu_set = hide_invisible(ksu_set) #xx
 		ksu_set = make_ordered_ksu_set_list_for_SetViewer(ksu_set)
 
 		viewer_details = d_Viewer[set_name]
 		if viewer_details['grouping_attribute'] == 'tags':
 			viewer_details['grouping_list'] = make_tags_grouping_list(ksu_set)
+
+		viewer_details['grouping_list'] = update_grouping_list(ksu_set, viewer_details['grouping_attribute'], viewer_details['grouping_list'])
 
 		self.print_html('set-viewer.html', viewer_details=viewer_details, ksu_set=ksu_set, set_name=set_name)
 
@@ -656,6 +658,21 @@ def make_ordered_ksu_set_list_for_SetViewer(ksu_set):
 		result.append(ksu_set[ksu_id])
 
 	return result
+
+
+def update_grouping_list(ksu_set_list, grouping_attribute, grouping_list): #xx
+	relevant_groups = []	
+	for ksu in ksu_set_list:
+		if ksu[grouping_attribute] not in relevant_groups:
+			relevant_groups.append(ksu[grouping_attribute])
+
+	new_grouping_list = []
+	for (attribute_id, attribute) in grouping_list:
+		if attribute_id in relevant_groups:
+			new_grouping_list.append((attribute_id, attribute))
+
+	return new_grouping_list
+
 
 
 
@@ -3138,8 +3155,6 @@ l_Days = sorted(d_Days.items())
 constants = {'l_Fibonacci':l_Fibonacci,
 			 'l_Values':l_Values,
 			 'l_Days':l_Days,}
-
-
 
 
 
