@@ -382,78 +382,6 @@
 
 
 
-{% if set_name == 'BigO' %}
- 
-	<div class="form-group">
-		<div class="col-md-12"> 
-			<label> Objective Description <span class="red">*</span> </label>
-			<input type="text" class="form-control tile-ksu-edit" name="description" placeholder="e.g. Find an awesome girlfrind" required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">
-		</div>
-	</div>
-
-
-	<div class="form-group">
-
-		<div class="col-md-2">
-			<label>Expected Value Type <span class="red">*</span> </label>
-				<select class="form-control" name="value_type">
-				{% for value in constants['l_Values'] %}
-					{% if value[0] == ksu['value_type'] %}
-						<option selected="selected" value="{{value[0]}}"> {{value[1]}} </option>
-					{% elif value[0] != 'V000' %}
-						<option value="{{value[0]}}"> {{value[1]}} </option>
-					{% endif %}
-				{% endfor %}
-			</select>
-		</div>	
-
-
-		<div class="col-md-2"> 
-			<label> Achievement Value <span class="red">*</span> </label> 
-			<select class="form-control" name="Achievement_Value"> 
-				{% for i in constants['l_Fibonacci'] %}
-					{% if i == ksu['Achievement_Value'] %}
-						<option selected="Achievement_Value">{{i}}</option>
-					{% else %}		
-						<option> {{i}} </option>
-					{% endif %}
-				{% endfor %}
-					
-			</select>
-		</div>
-
-		<div class="col-md-2">
-			<label> Target Date <span class="red">*</span></label>
-			<input type="text" class="form-control" name="target_date" placeholder="DD-MM-YYYY" value="{% if ksu['target_date']%}{{ksu['target_date']}}{% endif %}" required>
-		</div>
-
-	
-		<div class="col-md-2">
-	 		<div class="checkbox"> 
-	 			<label> <input type="checkbox" name="is_milestone"{% if ksu['is_milestone']%}checked{% endif %}> <b> Life Milestone </b> </label> 
-	 		</div>	
-		</div>
-
-	 	<div class="col-md-2">
-	 		<div class="checkbox"> 
-	 			<label> <input type="checkbox" name="is_critical" {% if ksu['is_critical']%}checked{% endif %}> <b> Is Critical </b> </label> 
-	 		</div>
-
-	 		<div class="checkbox"> 
-	 			<label> <input type="checkbox" name="is_private"{% if ksu['is_private']%}checked{% endif %}> <b> Is Private </b> </label> 
-	 		</div>
-		</div>
-
-
-	</div>
-
-	
-{% endif %}
-
-
-
-
-
 {% if set_name == 'BOKA' %}
  
 	<div class="form-group">
@@ -548,6 +476,147 @@
 		<div class="col-md-2">
 			<label> Preferred Time (24hrs.)</label>
 			<input type="text" class="form-control" name="best_time" placeholder="00:00">
+		</div>
+
+	</div>
+
+	
+{% endif %}
+
+
+
+
+{% if set_name == 'BigO' %}
+ 
+	<div class="form-group">
+		<div class="col-md-12"> 
+			<label> Objective Description <span class="red">*</span> </label>
+			<input type="text" class="form-control tile-ksu-edit" name="description" placeholder="e.g. Find an awesome girlfrind" required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">
+		</div>
+	</div>
+
+
+	<div class="form-group">
+
+		<div class="col-md-2">
+			<label>Expected Value Type <span class="red">*</span> </label>
+				<select class="form-control" name="value_type">
+				{% for value in constants['l_Values'] %}
+					{% if value[0] == ksu['value_type'] %}
+						<option selected="selected" value="{{value[0]}}"> {{value[1]}} </option>
+					{% elif value[0] != 'V000' %}
+						<option value="{{value[0]}}"> {{value[1]}} </option>
+					{% endif %}
+				{% endfor %}
+			</select>
+		</div>	
+
+
+		<div class="col-md-2"> 
+			<label> Achievement Value <span class="red">*</span> </label> 
+			<select class="form-control" name="achievement_value"> 
+				{% for i in constants['l_Fibonacci'] %}
+					{% if i == ksu['achievement_value'] %}
+						<option selected="achievement_value">{{i}}</option>
+					{% else %}		
+						<option> {{i}} </option>
+					{% endif %}
+				{% endfor %}
+					
+			</select>
+		</div>
+
+		<div class="col-md-2">
+			<label> Target Date <span class="red">*</span></label>
+			<input type="text" class="form-control" name="target_date" placeholder="DD-MM-YYYY" value="{% if ksu['target_date']%}{{ksu['target_date']}}{% endif %}" required>
+		</div>
+
+	
+		<div class="col-md-2">
+	 		<div class="checkbox"> 
+	 			<label> <input type="checkbox" name="is_milestone"{% if ksu['is_milestone']%}checked{% endif %}> <b> Life Milestone </b> </label> 
+	 		</div>	
+		</div>
+
+	 	<div class="col-md-2">
+	 		<div class="checkbox"> 
+	 			<label> <input type="checkbox" name="is_critical" {% if ksu['is_critical']%}checked{% endif %}> <b> Is Critical </b> </label> 
+	 		</div>
+
+	 		<div class="checkbox"> 
+	 			<label> <input type="checkbox" name="is_private"{% if ksu['is_private']%}checked{% endif %}> <b> Is Private </b> </label> 
+	 		</div>
+		</div>
+
+
+	</div>
+
+	
+{% endif %}
+
+
+{% if set_name == 'Wish' %}
+ 
+	<div class="form-group">
+		<div class="col-md-12"> 
+			<label> Wish Description <span class="red">*</span> </label>
+			<input type="text" class="form-control tile-ksu-edit" name="description" placeholder="e.g. Find an awesome girlfrind" required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">
+		</div>
+	</div>
+
+
+	<div class="form-group">
+
+		<div class="col-md-2">
+			<label>Expected Value Type <span class="red">*</span> </label>
+				<select class="form-control" name="value_type">
+				{% for value in constants['l_Values'] %}
+					{% if value[0] == ksu['value_type'] %}
+						<option selected="selected" value="{{value[0]}}"> {{value[1]}} </option>
+					{% elif value[0] != 'V000' %}
+						<option value="{{value[0]}}"> {{value[1]}} </option>
+					{% endif %}
+				{% endfor %}
+			</select>
+		</div>	
+
+
+		<div class="col-md-2"> 
+			<label> Achievement Value <span class="red">*</span> </label> 
+			<select class="form-control" name="achievement_value"> 
+				{% for i in constants['l_Fibonacci'] %}
+					{% if i == ksu['achievement_value'] %}
+						<option selected="achievement_value">{{i}}</option>
+					{% else %}		
+						<option> {{i}} </option>
+					{% endif %}
+				{% endfor %}
+					
+			</select>
+		</div>
+	
+
+	 	<div class="col-md-2">
+
+	 		<div class="checkbox"> 
+	 			<label> <input type="checkbox" name="in_bucket_list"{% if ksu['in_bucket_list']%}checked{% endif %}> <b> In Bucket List </b> </label> 
+	 		</div>
+
+	 		<div class="checkbox"> 
+	 			<label> <input type="checkbox" name="is_private"{% if ksu['is_private']%}checked{% endif %}> <b> Is Private </b> </label> 
+	 		</div>
+		</div>
+
+
+		<div class="col-md-2">
+			<label> Money Cost (Currency) </label>
+			<input type="text" class="form-control" name="money_cost" placeholder="e.g. 7" value="{% if ksu['money_cost']%}{{ksu['money_cost']}}{% endif %}">
+		</div>
+
+
+		<div class="col-md-2">
+			<label> Milestone Target Date  </label>
+			<input type="text" class="form-control" name="milestone_target_date" placeholder="DD-MM-YYYY" value="{% if ksu['milestone_target_date']%}{{ksu['milestone_target_date']}}{% endif %}">
 		</div>
 
 	</div>

@@ -16,6 +16,12 @@
 
 				<button type="submit" class="btn btn-lg btn-primary new-ksu-button respect-space" name="action_description" value="NewKSU">   Add Action   </button>
 
+
+			{% elif set_name == 'Wish' %}
+
+				<button type="submit" class="btn btn-lg btn-primary new-ksu-button respect-space" name="action_description" value="NewKSU">    Add Wish    </button>
+			
+
 			{% elif set_name == 'ImPe' %}
 
 				<button type="submit" class="btn btn-lg btn-primary new-ksu-button respect-space" name="action_description" value="NewKSU">   Add Person   </button>
@@ -87,12 +93,28 @@
 
 				{% if viewer_details['show_Button_Add_Child_KSU'] %}
 
-					<div class="col-md-1">
+					{% if set_name == 'Wish' %}
+
+						<div class="col-md-3">
 							<form class="form-horizontal" method="post">
-							<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
-						  	<button type="submit" class="btn btn-primary btn-md" name="action_description" value="Add_Child_KSU"> Add Action </button>
-						</form>	
-					</div>
+								<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+							  	<button type="submit" class="btn btn-primary btn-md" name="action_description" value="Add_Child_KSU"> Small Objective </button>
+								<button type="submit" class="btn btn-primary btn-md respect-space" name="action_description" value="Transform_KSU">  Big Objective  </button>
+							</form>	
+						</div>
+
+
+
+					{% else %}
+
+						<div class="col-md-1">
+							<form class="form-horizontal" method="post">
+								<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+							  	<button type="submit" class="btn btn-primary btn-md" name="action_description" value="Add_Child_KSU"> Add Action </button>
+							</form>	
+						</div>
+
+					{% endif %}
 
 				{% endif %}
 

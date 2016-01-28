@@ -33,8 +33,10 @@ class Theory(db.Model):
 	KAS3 = db.BlobProperty(required=True)
 	KAS4 = db.BlobProperty(required=True)
 
-	BigO = db.BlobProperty(required=True)
 	BOKA = db.BlobProperty(required=True)
+	BigO = db.BlobProperty(required=True)
+	Wish = db.BlobProperty(required=True)
+	
 	ImPe = db.BlobProperty(required=True)
 	ImIn = db.BlobProperty(required=True)
 
@@ -67,8 +69,10 @@ class Theory(db.Model):
 					  KAS3=new_set_KSU('KAS3'),
 					  KAS4=new_set_KSU('KAS4'),
 					 
-					  BigO=new_set_KSU('BigO'),
 					  BOKA=new_set_KSU('BOKA'),
+					  BigO=new_set_KSU('BigO'),
+					  Wish=new_set_KSU('Wish'),
+
 					  ImPe=new_set_KSU('ImPe'),
 					  ImIn=new_set_KSU('ImIn'),
 					 
@@ -206,7 +210,7 @@ class Logout(Handler):
 
 
 
-class Settings(Handler): #xx
+class Settings(Handler):
 	
 	def get(self):
 		if user_bouncer(self):
@@ -225,7 +229,7 @@ class Settings(Handler): #xx
 		user_action = post_details['action_description']
 
 		if user_action == 'Save':
-			user_Action_Edit_Settings(self) #xx
+			user_Action_Edit_Settings(self)
 			self.redirect(return_to)
 
 
@@ -460,7 +464,7 @@ def define_upcoming_view_groups(ordered_upcoming_list):
 
 #--- End Value Portfolio Viewer Handler
 
-class EndValuePortfolio(Handler): #xx
+class EndValuePortfolio(Handler):
 	def get(self):
 		if user_bouncer(self):
 			return
@@ -549,23 +553,31 @@ class SetViewer(Handler):
 		
 		if user_action == 'NewKSU':
 			self.redirect('/NewKSU/' + set_name + '?return_to=/SetViewer/' + set_name)
-
-		else:
+		
+		elif user_action == 'EditKSU':
 			ksu_id = post_details['ksu_id']
-			set_name = get_type_from_id(ksu_id)
-				
-			if user_action == 'EditKSU':			
-				self.redirect('/EditKSU?ksu_id=' + ksu_id + '&return_to=/SetViewer/' + set_name)
+			self.redirect('/EditKSU?ksu_id=' + ksu_id + '&return_to=/SetViewer/' + set_name)
 
-			if user_action == 'Done':
-				self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/SetViewer/' + set_name)
+		elif user_action == 'Done':
+			ksu_id = post_details['ksu_id']
+			self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/SetViewer/' + set_name)
 
-			if user_action == 'Fail':
-				self.redirect('/Failure?ksu_id=' + ksu_id + '&return_to=/SetViewer/' + set_name)
+		elif user_action == 'Fail':
+			ksu_id = post_details['ksu_id']
+			self.redirect('/Failure?ksu_id=' + ksu_id + '&return_to=/SetViewer/' + set_name)
 
-			if user_action == 'Add_To_Mission':
-				user_Action_Add_To_Mission(self)
-				self.redirect('/SetViewer/' + set_name)
+		elif user_action == 'Add_To_Mission':
+			ksu_id = post_details['ksu_id']
+			user_Action_Add_To_Mission(self)
+			self.redirect('/SetViewer/' + set_name)
+
+		elif user_action == 'Add_Child_KSU':
+			parent_id = post_details['ksu_id']
+			self.redirect('/NewKSU/KAS2?return_to=/SetViewer/KAS2&parent_id=' + parent_id)
+
+		elif user_action == 'Transform_KSU':
+			parent_id = post_details['ksu_id']
+			self.redirect('/NewKSU/BigO?return_to=/BigOViewer&parent_id=' + parent_id)
 
 
 
@@ -617,8 +629,9 @@ def make_ordered_ksu_set_list_for_SetViewer(ksu_set):
 							'KAS3':{'attribute':'importance', 'reverse':False},
 							'KAS4':{'attribute':'importance', 'reverse':False},
 
-							'BigO':{'attribute':'target_date', 'reverse':False},
 							'BOKA':{'attribute':'priority', 'reverse':False},
+							'BigO':{'attribute':'target_date', 'reverse':False},
+							'Wish':{'attribute':'achievement_value', 'reverse':True},
 
 							'ImPe':{'attribute':'contact_frequency', 'reverse':False},
 							'ImIn':{'attribute':'viewer_hierarchy', 'reverse':False}}
@@ -627,7 +640,7 @@ def make_ordered_ksu_set_list_for_SetViewer(ksu_set):
 	reverse = d_view_order_details[set_name]['reverse']
 
 	# number_attributes = ['contact_frequency']
-	number_attributes = ['last_event', 'next_event', 'contact_frequency', 'target_date', 'viewer_hierarchy']
+	number_attributes = ['last_event', 'next_event', 'contact_frequency', 'target_date', 'viewer_hierarchy', 'achievement_value']
 
 	if attribute in number_attributes:	
 		for (key, ksu) in ksu_set.items():
@@ -1022,10 +1035,12 @@ def create_mega_set(theory):
 	KAS2 = unpack_set(theory.KAS2)
 	KAS3 = unpack_set(theory.KAS3)
 	KAS4 = unpack_set(theory.KAS4)
-	BigO = unpack_set(theory.BigO)
+
 	BOKA = unpack_set(theory.BOKA)
+	BigO = unpack_set(theory.BigO)
+	Wish = unpack_set(theory.Wish)
 	
-	all_ksu_sets = [KAS1, KAS2, KAS3, KAS4, BigO, BOKA]
+	all_ksu_sets = [KAS1, KAS2, KAS3, KAS4, BigO, BOKA, Wish]
 	
 	for ksu_set in all_ksu_sets:
 		mega_set.update(ksu_set)
@@ -1054,7 +1069,9 @@ class NewKSU(Handler):
 			if set_name == 'BOKA':
 				ksu['parent_id'] = parent_id
 			else:
-				parent = ksu_set[parent_id]
+				parent_set_name = get_type_from_id(parent_id)
+				parent_set = unpack_set(eval('theory.' + parent_set_name))
+				parent = parent_set[parent_id]
 				update_child_with_parent(ksu, parent)
 		
 		self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name ,title='Create')
@@ -1084,13 +1101,29 @@ class NewKSU(Handler):
 
 
 def update_child_with_parent(child_ksu, parent_ksu):
-	inheritable_attributes = ['description','project','importance','time_cost','tags','in_mission','is_critical','comments','value_type']
+	inheritable_attributes = ['description',
+							  'project',
+							  'achievement_value',
+							  'importance',
+							  'time_cost',
+							  'tags',
+							  'in_mission',
+							  'is_critical',
+							  'comments',
+							  'value_type']
+
 	child_attributes = list(child_ksu.keys())
 	parent_attributes = list(parent_ksu.keys())
 	for attribute in inheritable_attributes:
 		if attribute in child_attributes and attribute in parent_attributes:
 			child_ksu[attribute] = parent_ksu[attribute]
 	child_ksu['parent_id'] = parent_ksu['id']
+
+	parent_type = get_type_from_id(parent_ksu['id']) 
+	child_type = get_type_from_id(child_ksu['id'])
+	if parent_type == 'Wish' and child_type == 'KAS2':
+		child_ksu['project'] = parent_ksu['description']
+
 	return child_ksu
 
 
@@ -1600,7 +1633,7 @@ def update_ksu_in_mission(theory, post_details):
 def update_ksu_status(theory, post_details):
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
-	valid_sets = ['KAS2', 'BigO', 'BOKA']	
+	valid_sets = ['KAS2', 'BigO', 'BOKA', 'Wish']	
 	if set_name not in valid_sets:
 		return
 
@@ -1668,10 +1701,13 @@ def update_theory(theory, ksu_set):
 	if set_name == 'KAS4':
 		theory.KAS4 = pack_set(ksu_set)
 
-	if set_name == 'BigO':
-		theory.BigO = pack_set(ksu_set)
 	if set_name == 'BOKA':
 		theory.BOKA = pack_set(ksu_set)
+	if set_name == 'BigO':
+		theory.BigO = pack_set(ksu_set)
+	if set_name == 'Wish':
+		theory.Wish = pack_set(ksu_set)
+
 
 	if set_name == 'ImPe':
 		theory.ImPe = pack_set(ksu_set)
@@ -1752,7 +1788,7 @@ i_KAS4_KSU = {'value_type':None}
 
 
 i_BigO_KSU = {'value_type':None,
-			  'Achievement_Value':None, #How much Achievement Points do you believe that achieving this goal would add to your life. Fibbo Scale. Can actually be 0. Formely known as achievement points.
+			  'achievement_value':None, #How much Achievement Points do you believe that achieving this goal would add to your life. Fibbo Scale. Can actually be 0. Formely known as achievement points.
 			  'is_milestone':False,
 			  'target_date':today+90} # if no target date is provided is automatically calculated based on days required			  
 			  
@@ -1767,8 +1803,9 @@ i_BOKA_KSU = {'in_upcoming':False, #To overwrite the proactiveness auto true
 
 
 i_Wish_KSU = {'value_type': None,
-			  'Achievement_Value':None, #How much Achievement Points do you believe that achieving this goal would add to your life. Fibbo Scale. Can actually be 0. Formely known as achievement points.			  
-			  'bucket_list':False,
+			  'achievement_value':None, #How much Achievement Points do you believe that achieving this goal would add to your life. Fibbo Scale. Can actually be 0. Formely known as achievement points.			  			  
+			  'in_bucket_list':False,
+			  'money_cost':'0',
 			  'milestone_target_date':None} #This is seen as 'milestone Target Date' only if this dream is also consider a milestone.
 
 
@@ -1869,9 +1906,10 @@ template_recipies = {'KAS1_KSU':[i_BASE_KSU, i_KAS_KSU, i_Proactive_KAS_KSU, i_K
 					 'KAS2_KSU':[i_BASE_KSU, i_KAS_KSU, i_Proactive_KAS_KSU, i_KAS2_KSU],
 					 'KAS3_KSU':[i_BASE_KSU, i_KAS_KSU, i_Reactive_KAS_KSU, i_KAS3_KSU],
 					 'KAS4_KSU':[i_BASE_KSU, i_KAS_KSU, i_Reactive_KAS_KSU, i_KAS4_KSU],
-
-					 'BigO_KSU':[i_BASE_KSU, i_BigO_KSU],
+					 
 					 'BOKA_KSU':[i_BASE_KSU, i_Proactive_KAS_KSU, i_BOKA_KSU],
+					 'BigO_KSU':[i_BASE_KSU, i_BigO_KSU],					 
+					 'Wish_KSU':[i_BASE_KSU, i_Wish_KSU],
 
 					 'ImPe_KSU':[i_BASE_KSU, i_ImPe_KSU],
 					 'ImIn_KSU':[i_BASE_KSU, i_ImIn_KSU],
@@ -2118,9 +2156,11 @@ def add_Achievement_event(theory, post_details):
 	ksu = ksu_set[ksu_id]
 
 	event['ksu_id'] = ksu_id
-	event['value'] = ksu['Achievement_Value']
-	event['target_date'] = ksu['target_date']
-	event['comments'] = post_details['comments']
+	event['value'] = ksu['achievement_value']
+	if set_name == 'BigO':
+		event['target_date'] = ksu['target_date']
+	if 'comments' in post_details:
+		event['comments'] = post_details['comments']
 
 	if 'met_expectations' in post_details:
 		event['met_expectations'] = True
@@ -2275,7 +2315,7 @@ def prepare_details_for_saving(post_details):
 #---User Actions ---
 
 
-def user_Action_Edit_Settings(self): #xx
+def user_Action_Edit_Settings(self):
 	theory = self.theory
 	settings = unpack_set(theory.settings)
 	post_details = get_post_details(self)
@@ -2463,7 +2503,7 @@ def trigger_additional_actions(self):
 	if action_type == 'Achieved_Confirm':
 
 		if ksu_type == 'BigO':
-			triggered_Action_delete_BOKA_remains(self)
+			triggered_Action_update_Wish_parent(self)
 
 
 	if action_type == 'Delete':
@@ -2559,6 +2599,28 @@ def triggered_Action_BOKA_update_value_type(self):
 
 
 
+def triggered_Action_update_Wish_parent(self):
+	theory = self.theory
+	post_details = get_post_details(self)
+	BigO = unpack_set(theory.BigO)
+	Wish = unpack_set(theory.Wish)
+	ksu_id = post_details['ksu_id']
+	bigo_ksu = BigO[ksu_id]
+	
+	parent_id = bigo_ksu['parent_id']
+	parent_type = get_type_from_id(parent_id)
+
+	if parent_type == 'Wish':
+		wish_ksu = Wish[parent_id]
+		wish_ksu['status'] = 'Achieved'
+		wish_ksu['is_visible'] = False
+
+	update_set(Wish, wish_ksu)
+	theory.Wish = pack_set(Wish)	
+	return
+
+
+
 
 def triggered_Action_update_ImPe_Contact(self):
 	theory = self.theory
@@ -2642,7 +2704,7 @@ def triggered_Action_Done_ImPe_Contact(self):
 #--- Developer Actions ---
 def developer_Action_Load_CSV(theory, set_name):
 	csv_path = create_csv_path(set_name)
-	standard_sets = ['KAS2','KAS3', 'KAS4', 'BigO', 'BOKA'] # for now im leaving out the ImIn set 
+	standard_sets = ['KAS2','KAS3', 'KAS4', 'BOKA', 'BigO', 'Wish'] # for now im leaving out the ImIn set 
 
 	if set_name in standard_sets:
 		developer_Action_Load_Set_CSV(theory, set_name, csv_path)
@@ -2656,16 +2718,10 @@ def developer_Action_Load_CSV(theory, set_name):
 
 	if set_name == 'All':
 		developer_Action_Load_KAS1_CSV(theory, create_csv_path('KAS1'))
-		developer_Action_Load_Set_CSV(theory, 'KAS2', create_csv_path('KAS2'))
-		developer_Action_Load_Set_CSV(theory, 'KAS3', create_csv_path('KAS3'))
-		developer_Action_Load_Set_CSV(theory, 'KAS4', create_csv_path('KAS4'))
-
-		developer_Action_Load_Set_CSV(theory, 'BigO', create_csv_path('BigO'))
-		developer_Action_Load_Set_CSV(theory, 'BOKA', create_csv_path('BOKA'))
-
 		developer_Action_Load_ImPe_CSV(theory, create_csv_path('ImPe'))
-		# developer_Action_Load_Set_CSV(theory, 'ImIn', create_csv_path('ImIn'))
 
+		for ksu_set in standard_sets:
+			developer_Action_Load_Set_CSV(theory, ksu_set, create_csv_path(ksu_set))	
 
 	return
 
@@ -2686,23 +2742,25 @@ def developer_Action_Load_PythonBackup(theory, set_name):
 		KAS3.update(sample_theory.sample['KAS3'])
 		theory.KAS3 = pack_set(KAS3)		
 
-
 	elif set_name == 'KAS4':
 		KAS4 = unpack_set(theory.KAS4)
 		KAS4.update(sample_theory.sample['KAS4'])
 		theory.KAS4 = pack_set(KAS4)
 
+	elif set_name == 'BOKA':
+		BOKA = unpack_set(theory.BOKA)
+		BOKA.update(sample_theory.sample['BOKA'])
+		theory.BOKA = pack_set(BOKA)
 
 	elif set_name == 'BigO':
 		BigO = unpack_set(theory.BigO)
 		BigO.update(sample_theory.sample['BigO'])
 		theory.BigO = pack_set(BigO)
 
-
-	elif set_name == 'BOKA':
-		BOKA = unpack_set(theory.BOKA)
-		BOKA.update(sample_theory.sample['BOKA'])
-		theory.BOKA = pack_set(BOKA)
+	elif set_name == 'Wish':
+		Wish = unpack_set(theory.Wish)
+		Wish.update(sample_theory.sample['Wish'])
+		theory.Wish = pack_set(Wish)
 
 	elif set_name == 'ImPe':
 		ImPe = unpack_set(theory.ImPe)
@@ -2714,14 +2772,13 @@ def developer_Action_Load_PythonBackup(theory, set_name):
 		ImIn.update(sample_theory.sample['ImIn'])
 		theory.ImIn = pack_set(ImIn)	
 
-
 	elif set_name == 'Hist':
 		Hist = unpack_set(theory.Hist)
 		Hist.update(sample_theory.sample['Hist'])
 		theory.Hist = pack_set(Hist)
 
 	elif set_name == 'All':
-		all_sets = ['KAS1', 'KAS2', 'KAS3', 'KAS4', 'BigO', 'BOKA', 'ImPe', 'ImIn', 'Hist']
+		all_sets = ['KAS1', 'KAS2', 'KAS3', 'KAS4', 'BOKA', 'BigO', 'Wish', 'ImPe', 'ImIn', 'Hist']
 		for ksu_set in all_sets:
 			developer_Action_Load_PythonBackup(theory, ksu_set)
 	
@@ -2959,8 +3016,9 @@ def input_error(target_attribute, user_input):
 							 'comments', 
 							 'period_end',
 							 'period_duration',
+							 'money_cost',
 							 'numeric_answer']
-	date_attributes = ['last_event', 'next_event', 'target_date', 'period_end']
+	date_attributes = ['last_event', 'next_event', 'target_date', 'period_end', 'milestone_target_date']
 
 	if target_attribute not in validation_attributes:
 		return None
@@ -2998,6 +3056,9 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 		'duration': re.compile(r"^[0-9]{1,3}$"),
 		'duration_error': 'Duration should be an integer with maximum 3 digits',
 
+		'money_cost': re.compile(r"^[0-9]{1,12}$"),
+		'money_cost_error': 'The money cost should be an integer',
+
 		'period_duration': re.compile(r"^[0-9]{1,3}$"),
 		'period_duration_error': "Period's duration should be an integer with maximum 3 digits",
 
@@ -3005,12 +3066,13 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 		'next_event_error':'Next event format must be DD-MM-YYYY',
 		'target_date_error':'Target date format must be DD-MM-YYYY',
 		'period_end_error':"Period's End format must be DD-MM-YYYY",
+		'milestone_target_date_error':"Period's End format must be DD-MM-YYYY",
 
 		'comments': re.compile(r"^.{0,400}$"),
 		'comments_error': 'Comments cannot excede 400 characters',
 		
 		'numeric_answer':re.compile(r"[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?"),
-		'numeric_answer_error':'The answer shoud be a number'}
+		'numeric_answer_error':'The answer should be a number'}
 
 
 
@@ -3125,6 +3187,19 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 				    'grouping_list':l_Values},
 
 
+
+			'BOKA':{'set_title':'Big Objectives Key Actions Set  (BOKA)', #ToBeDeleted once BigO have its custom SetViewer esto es nada mas pa que funcione por ahora
+				    'set_name':'BOKA',
+				    'attributes':['parent_id', 'description', 'priority', 'pretty_target_date'],
+				    'fields':{'parent_id':'BigO id','priority':'Priority','description':'Action description', 'pretty_target_date':'Target Date'},
+				    'columns':{'parent_id':1, 'description':5, 'priority':1, 'pretty_target_date':2},
+				    'show_Button_Done':True,
+				    'show_Button_Add_To_Mission':True,			    
+				    'grouping_attribute':'tags',
+				    'grouping_list':None},
+
+
+
 			'BigO':{'set_title':'Big Objectives Set  (BigO)', #ToBeDeleted once BigO have its custom SetViewer esto es nada mas pa que funcione por ahora
 				    'set_name':'BigO',
 				    'attributes':['id', 'description','pretty_target_date'],
@@ -3136,15 +3211,18 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 				    'grouping_list':None},
 
 
-			'BOKA':{'set_title':'Big Objectives Key Actions Set  (BOKA)', #ToBeDeleted once BigO have its custom SetViewer esto es nada mas pa que funcione por ahora
-				    'set_name':'BOKA',
-				    'attributes':['parent_id', 'description', 'priority', 'pretty_target_date'],
-				    'fields':{'parent_id':'BigO id','priority':'Priority','description':'Action description', 'pretty_target_date':'Target Date'},
-				    'columns':{'parent_id':1, 'description':5, 'priority':1, 'pretty_target_date':2},
-				    'show_Button_Done':True,
-				    'show_Button_Add_To_Mission':True,			    
-				    'grouping_attribute':'tags',
-				    'grouping_list':None},
+
+			'Wish':{'set_title':'My Wishes & Bucket List',#
+				    'set_name':'Wish',
+				    'attributes':['description','achievement_value'],
+				    'fields':{'description':'Wish description','achievement_value': 'A. Value'},
+				    'columns':{'description':5,'achievement_value':1},
+					'show_Button_Achieved':True,
+				    'show_Button_Add_Child_KSU':True,
+				    'grouping_attribute':'value_type',
+				    'grouping_list':l_Values},
+
+
 
 		   
 		   'ImPe': {'set_title':'My Important People',
