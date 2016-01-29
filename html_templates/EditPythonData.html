@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div class="row">
+	<div class="col-md-12"> <h2> {{ "Edit Python Data of: " +  set_name}} </h2></div>
+</div>
+
+<br>
+
+<form class="form-horizontal" method="post">
+
+	<input type="text" class="form-control hidden" name="set_name" value="{{set_name}}">
+
+	<div class="form-group">
+		<div class="col-md-12">
+			<label> Python Data </label>
+			<textarea class="form-control PythonData" name="ksu_set">{{ksu_set}}</textarea> 
+		</div>
+	</div>
+
+<br>
+
+  	<div class="form-group">
+		<div class="col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Save">   Save Changes   </button> </div>	
+		<div class="col-md-2"> <button type="submit" class="btn btn-warning btn-lg  respect-space" name="action_description" value="Discard"> Discard Changes </button> </div>
+	</div>
+
+</form>
+
+
+
+{% endblock %}

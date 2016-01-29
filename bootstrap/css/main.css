@@ -183,10 +183,16 @@
 }
 
 
+.PythonData {
+  width: 100%;
+  height: 800px;
+  /*font-size: 17px;*/
+  font-family: monospace;
+}
+
 
 
 /*Alignment*/
-
 .pull-left {
   float: left;
 }

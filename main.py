@@ -1,6 +1,6 @@
 #KASware v1.0.0 | Copyright 2016 AmigableDave & Co.
 
-import re, os, webapp2, jinja2, logging, hashlib, random, string, csv, pickle
+import re, os, webapp2, jinja2, logging, hashlib, random, string, csv, pickle, ast
 from datetime import datetime, timedelta
 from google.appengine.ext import db
 from google.appengine.api import memcache
@@ -1333,9 +1333,8 @@ class Failure(Handler):
 		ksu_id = self.request.get('ksu_id')
 		set_name = get_type_from_id(ksu_id)
 		ksu_set = unpack_set(eval('theory.' + set_name))
-		# ksu_set = not_ugly_dates(ksu_set) #no need right now, to be deleted latter if no use
 		ksu = ksu_set[ksu_id]	
-		dropdowns = make_dropdowns(theory) #no need right now, to be deleted latter if no use
+		dropdowns = make_dropdowns(theory)
 		self.print_html('failure.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name)
 
 	def post(self):
@@ -1351,26 +1350,6 @@ class Failure(Handler):
 				user_Action_Fail_Stupidity(self)
 				return_to = self.request.get('return_to')
 				self.redirect(return_to)
-
-			# input_error = user_input_error(post_details)  #To be deleted if there is no use for input validation
-			# if input_error:
-			# 	ksu_id = post_details['ksu_id']
-			# 	set_name = get_type_from_id(ksu_id)
-			# 	ksu_set = unpack_set(eval('theory.' + set_name))
-			# 	ksu_set = not_ugly_dates(ksu_set)
-			# 	ksu = ksu_set[ksu_id]
-			# 	ksu['time_cost'] = post_details['duration']
-			# 	dropdowns = make_dropdowns(theory)
-			# 	self.print_html('failure.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name, input_error=input_error)
-		
-			# else:
-			# 	if set_name in Stupidity_sets:
-			# 		user_Action_Fail_Stupidity(self)
-				
-			# 	return_to = self.request.get('return_to')
-			# 	self.redirect(return_to)
-
-
 
 
 
@@ -1447,6 +1426,38 @@ class LoadPythonBackup(Handler):
 		else:
 			self.redirect('/PythonBackup/' + set_name)
 
+
+
+
+
+
+#---
+
+class EditPythonData(Handler):
+	def get(self, set_name):	
+		if user_bouncer(self):
+			return
+
+		theory = self.theory
+		ksu_set = unpack_set(eval('theory.' + set_name))	
+		self.print_html('EditPythonData.html',  ksu_set=ksu_set, set_name=set_name)
+
+
+	def post(self, set_name):
+		if user_bouncer(self):
+			return
+		theory = self.theory			
+		post_details = get_post_details(self)
+		ksu_set = ast.literal_eval(post_details['ksu_set'])
+		user_action = post_details['action_description']
+
+		if user_action == 'Save': #xx
+			update_theory(theory, ksu_set)
+			theory.put()
+			self.redirect('/')
+
+		elif user_action == 'Discard':
+			self.redirect('/')
 
 
 
@@ -3311,5 +3322,6 @@ app = webapp2.WSGIApplication([
 							 ('/email',Email),
 							 ('/LoadCSV/' + PAGE_RE, LoadCSV),
 							 ('/LoadPythonBackup/' + PAGE_RE, LoadPythonBackup),
+							 ('/EditPythonData/'+ PAGE_RE, EditPythonData), #xx
 							 ('/PythonBackup/' + PAGE_RE, PythonBackup)
 							 ], debug=True)
