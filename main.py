@@ -1893,12 +1893,12 @@ i_Score_Event = {'value':None, # Points Earned
 
 
 i_EndValue_Event = {'type':'EndValue',
-					'duration':None, # To calculate Amount of SmartEffort Points Earned
+					'duration':'0', # To calculate Amount of SmartEffort Points Earned
 					'effort':False}
 
 
 i_SmartEffort_Event = {'type':'SmartEffort',
-					   'duration':None, # To calculate Amount of SmartEffort Points Earned
+					   'duration':'0', # To calculate Amount of SmartEffort Points Earned
 					   'repetitions':'1',
 			    	   'joy':False,
 			    	   'disconfort':False,
@@ -2144,7 +2144,13 @@ def add_SmartEffort_event(theory, post_details): #Duration & Importance to be up
 	reactive_sets = ['KAS3', 'KAS4']
 	
 	event['ksu_id'] = ksu_id
-	event['duration'] = post_details['duration']
+
+	if 'duration' in post_details:
+		event['duration'] = post_details['duration']
+
+	if 'repetitions' in post_details:
+			event['repetitions'] = post_details['repetitions']	
+
 
 	if set_name in poractive_sets:		
 		event['importance'] = post_details['importance']
@@ -2156,8 +2162,6 @@ def add_SmartEffort_event(theory, post_details): #Duration & Importance to be up
 	if set_name in reactive_sets:
 		event['importance'] = ksu['importance']
 		event['streak'] = ksu['streak']
-
-	event['repetitions'] = post_details['repetitions']	
 		
 	update_set(Hist, event)
 	update_MLog(theory, event)
@@ -2628,15 +2632,14 @@ def triggered_Action_update_Wish_parent(self):
 	bigo_ksu = BigO[ksu_id]
 	
 	parent_id = bigo_ksu['parent_id']
-	parent_type = get_type_from_id(parent_id)
-
-	if parent_type == 'Wish':
-		wish_ksu = Wish[parent_id]
-		wish_ksu['status'] = 'Achieved'
-		wish_ksu['is_visible'] = False
-
-	update_set(Wish, wish_ksu)
-	theory.Wish = pack_set(Wish)	
+	if parent_id:
+		parent_type = get_type_from_id(parent_id)
+		if parent_type == 'Wish':
+			wish_ksu = Wish[parent_id]
+			wish_ksu['status'] = 'Achieved'
+			wish_ksu['is_visible'] = False
+			update_set(Wish, wish_ksu)
+			theory.Wish = pack_set(Wish)	
 	return
 
 
@@ -3067,8 +3070,8 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 		'email': re.compile(r'^[\S]+@[\S]+\.[\S]+$'),
 		'email_error': 'Invalid Email Syntax',
 
-		'description': re.compile(r"^.{5,200}$"),
-		'description_error': 'Descriotion max lenght is 200 characters and min 5.',
+		'description': re.compile(r"^.{3,200}$"),
+		'description_error': 'Description max lenght is 200 characters and min 3.',
 
 		'charging_time': re.compile(r"^[0-9]{1,3}$"),
 		'charging_time_error': 'Charging Time should be an integer with maximum 3 digits',
@@ -3193,7 +3196,6 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 				    'grouping_attribute':'value_type',
 				    'grouping_list':l_Values},
 
-
 			'KAS4':{'set_title':'Value Destruction Actions Set -- To be avoided  (KAS4)',
 				    'set_name':'KAS4',
 				    'attributes':['description','circumstance','reaction','streak','record'],
@@ -3203,7 +3205,6 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 				    'show_Button_Fail':True,
 				    'grouping_attribute':'value_type',
 				    'grouping_list':l_Values},
-
 
 
 			'BOKA':{'set_title':'Big Objectives Key Actions Set  (BOKA)', #ToBeDeleted once BigO have its custom SetViewer esto es nada mas pa que funcione por ahora
@@ -3217,7 +3218,6 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 				    'grouping_list':None},
 
 
-
 			'BigO':{'set_title':'Big Objectives Set  (BigO)', #ToBeDeleted once BigO have its custom SetViewer esto es nada mas pa que funcione por ahora
 				    'set_name':'BigO',
 				    'attributes':['id', 'description','pretty_target_date'],
@@ -3229,7 +3229,6 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 				    'grouping_list':None},
 
 
-
 			'Wish':{'set_title':'My Wishes & Bucket List',#
 				    'set_name':'Wish',
 				    'attributes':['description','achievement_value'],
@@ -3239,8 +3238,6 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 				    'show_Button_Add_Child_KSU':True,
 				    'grouping_attribute':'value_type',
 				    'grouping_list':l_Values},
-
-
 
 		   
 		   'ImPe': {'set_title':'My Important People',
