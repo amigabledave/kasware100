@@ -1446,16 +1446,16 @@ class LoadCSV(Handler):
 
 #--- Load Python Backup
 
-class LoadPythonBackup(Handler):
+class LoadPythonData(Handler):
 	def get(self, set_name):	
 		if user_bouncer(self):
 			return
 		theory = self.theory
-		developer_Action_Load_PythonBackup(theory, set_name)
+		developer_Action_Load_PythonData(theory, set_name)
 		if set_name == 'All':
 			self.redirect('/TodaysMission')
 		else:
-			self.redirect('/PythonBackup/' + set_name)
+			self.redirect('/PythonData/' + set_name)
 
 
 
@@ -1483,7 +1483,7 @@ class EditPythonData(Handler):
 		user_action = post_details['action_description']
 
 		if user_action == 'Save':
-			update_theory(theory, ksu_set)
+			update_theory(theory, ksu_set) #xx
 			theory.put()
 			self.redirect('/')
 
@@ -1520,7 +1520,7 @@ def mission_email(ksu_set):
 #--- Raw Data Viewer ---
 
 
-class PythonBackup(Handler):
+class PythonData(Handler):
 
 	def get(self, set_name):
 		if user_bouncer(self):
@@ -1726,7 +1726,7 @@ def update_MLog(theory, event):
 	score_events = ['EndValue','SmartEffort','Stupidity', 'Achievement']
 
 	if event_type in score_events:
-		event_score = calculate_event_score(event)
+		event_score = calculate_event_score(event) #xx
 		log = MLog[date]
 		for (units, score) in list(event_score.items()):
 			log[units] = log[units] + score
@@ -1775,6 +1775,9 @@ def update_theory(theory, ksu_set):
 		theory.ImPe = pack_set(ksu_set)
 	if set_name == 'ImIn':
 		theory.ImIn = pack_set(ksu_set)
+
+	if set_name == 'Event':
+		theory.Hist = pack_set(ksu_set)
 		
 	return
 
@@ -1930,8 +1933,7 @@ i_Answered_Event = {'type':'Answered',
 				    'value':None}
 
 
-i_Score_Event = {'value':None, # Points Earned
-				 'importance':None} 
+i_Score_Event = {'importance':None} 
 
 
 i_EndValue_Event = {'type':'EndValue',
@@ -2174,7 +2176,7 @@ def add_EndValue_event(theory, post_details): #Duration & Importance to be updat
 	event['importance'] = post_details['importance']	
 	
 	update_set(Hist, event)
-	update_MLog(theory, event)
+	update_MLog(theory, event) #xx
 	theory.Hist = pack_set(Hist)
 	return event
 
@@ -2278,7 +2280,7 @@ def calculate_event_score(event):
 	event_type = event['type']
 
 	if event_type == 'EndValue':
-		result['EndValue'] = event['value'] = int(event['duration']) * int(event['importance'])
+		result['EndValue'] = int(event['duration']) * int(event['importance'])
 		result['SmartEffort'] = 20 * event['effort']
 
 	elif event_type == 'SmartEffort':
@@ -2792,7 +2794,7 @@ def developer_Action_Load_CSV(theory, set_name):
 	return
 
 
-def developer_Action_Load_PythonBackup(theory, set_name):
+def developer_Action_Load_PythonData(theory, set_name):
 	if set_name == 'KAS1':
 		KAS1 = unpack_set(theory.KAS1)
 		KAS1.update(sample_theory.sample['KAS1'])
@@ -2846,7 +2848,7 @@ def developer_Action_Load_PythonBackup(theory, set_name):
 	elif set_name == 'All':
 		all_sets = ['KAS1', 'KAS2', 'KAS3', 'KAS4', 'BOKA', 'BigO', 'Wish', 'ImPe', 'ImIn', 'Hist']
 		for ksu_set in all_sets:
-			developer_Action_Load_PythonBackup(theory, ksu_set)
+			developer_Action_Load_PythonData(theory, ksu_set)
 	
 	theory.put()	
 	return
@@ -3354,7 +3356,7 @@ app = webapp2.WSGIApplication([
 							 
 							 ('/email',Email),
 							 # ('/LoadCSV/' + PAGE_RE, LoadCSV), #There will be no need for this handler once it goes live
-							 ('/LoadPythonBackup/' + PAGE_RE, LoadPythonBackup),
+							 ('/LoadPythonData/' + PAGE_RE, LoadPythonData),
 							 ('/EditPythonData/'+ PAGE_RE, EditPythonData),
-							 ('/PythonBackup/' + PAGE_RE, PythonBackup)
+							 ('/PythonData/' + PAGE_RE, PythonData)
 							 ], debug=True)
