@@ -1235,7 +1235,11 @@ class Done(Handler):
 		
 
 		if set_name == 'BigO' or set_name == 'Wish':
-			event_type = 'Achievement' 
+			event_type = 'Achievement'
+
+		elif set_name == 'BOKA':
+			event_type = 'SmartEffort'
+
 		else:
 			if ksu['value_type'] == 'V000':
 				event_type = 'EndValue'
@@ -1259,10 +1263,19 @@ class Done(Handler):
 		ksu_set = unpack_set(eval('theory.' + set_name))
 		ksu = ksu_set[ksu_id]
 
-		if ksu['value_type'] == 'V000':
-			event_type = 'EndValue'
-		else:
+
+
+		if set_name == 'BigO' or set_name == 'Wish':
+			event_type = 'Achievement'
+
+		elif set_name == 'BOKA':
 			event_type = 'SmartEffort'
+
+		else:
+			if ksu['value_type'] == 'V000':
+				event_type = 'EndValue'
+			else:
+				event_type = 'SmartEffort'
 
 		
 		if user_action == 'Done_Confirm':
