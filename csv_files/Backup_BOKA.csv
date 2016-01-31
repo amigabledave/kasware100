@@ -1,19 +1,77 @@
-parent_id,description,priority
-BigO_1,Dummy description for: BigO_1 with a priority of: 4,4
-BigO_2,Dummy description for: BigO_2 with a priority of: 6,6
-BigO_3,Dummy description for: BigO_3 with a priority of: 7,7
-BigO_1,Dummy description for: BigO_1 with a priority of: 4,4
-BigO_2,Dummy description for: BigO_2 with a priority of: 2,2
-BigO_3,Dummy description for: BigO_3 with a priority of: 1,1
-BigO_1,Dummy description for: BigO_1 with a priority of: 7,7
-BigO_2,Dummy description for: BigO_2 with a priority of: 4,4
-BigO_3,Dummy description for: BigO_3 with a priority of: 2,2
-BigO_1,Dummy description for: BigO_1 with a priority of: 4,4
-BigO_2,Dummy description for: BigO_2 with a priority of: 3,3
-BigO_3,Dummy description for: BigO_3 with a priority of: 2,2
-BigO_1,Dummy description for: BigO_1 with a priority of: 4,4
-BigO_2,Dummy description for: BigO_2 with a priority of: 7,7
-BigO_3,Dummy description for: BigO_3 with a priority of: 4,4
-BigO_1,Dummy description for: BigO_1 with a priority of: 4,4
-BigO_2,Dummy description for: BigO_2 with a priority of: 3,3
-BigO_3,Dummy description for: BigO_3 with a priority of: 4,4
+parent_id,description,priority,tags
+BigO_1,Ocultar los indicadores de Awesomess de los ImIn. Y tambien escoger los IDs de los indicadores que va a llevar la version pre-cargada,1,ImIn
+BigO_1,Preparar el CSV de mi BOKA (osea esta hoja),1,
+BigO_1,Desarrollar el Handler y template que sea Mobile Mission,2,TodaysMission|Mobile
+BigO_1,Que en set viewer| todays mission y upcoming. Si un KSU es critico| que me lo muestre con letras rojitas.,2,TodaysMission|SetViewer|Upcoming
+BigO_1,Hasta Arriba defines duracion| intensidad| gente a quien agrader. Justo al lado tienes el button 'submit as generic EV' o si bajas puedes apretar el botton asociado a la situacion especifica. Esto es lo que fa a reemplazar el google form que ahorita uso,2,EVPo
+BigO_1,Agregar a Todays Mission el boton de New KAS2 KSU ,3,TodaysMission
+BigO_1,Segmentar Todays Miission Para que muestre agrupados y ensenado un titulo los To Dos de los distintos Sets. Podria hacer algo parecido con los local tags,3,TodaysMission
+BigO_1,Hacer una interfase especial para movil de la plataforna - la que urge va a ser la de la mission del dia| el resto puede esperar :),3,TodaysMission
+BigO_1,Atributo Gratefulness Reminder| por default es None| pero 'Why your life is awesome:  ' Ajustar Reasons To Be grateful pa que cuando lo migre funcione de forma similar a Important People| enviando recordatorios de hacer ejercicios de gratitud (Tratando de tener al menos uno pa todos los dias). Dependiendo del factor pueden tener una freccuencia distinta - E igual da puntos de esfuerzo| pero su naturaleza el mas de KAS3 es un suptype,3,RTBG
+BigO_1,Crear el handler y la estructura de datos  para Wish,3,Wish
+BigO_1,Los Suenos hechos realidad me permiten a la hora de marcarlos como cumplidos agregarlos a reasons to be greatfull,3,Wish
+BigO_1,All ver un sueno puede si quieres hacer una Accion KAS2 a partir de el o BigO si de plano esta choncho pa que se hagan realidad,3,Wish
+BigO_1,Agregar duration al done handler para cuando haces un smart sffort reactivo (que por default tenga una duracion de 1).,3,Structure|Done
+BigO_1,Agregar para poder tener metas de tiempo para actividades particulares. o mas bien se trata de abrir sub categorias de valor y ligar a estas ciertas actividades,3,KAS1
+BigO_1,Agregar a los eventos de smart effor| endvalue y stupidity el atributo de 'people' para registrar si alguine contribuyo a un momento de end value| hice un esfuerzo por alguien o le quede mal a alguien,3,Done|Structure
+BigO_1,Agregar Set Reasons To Be Gratefull AKA - Awesomeness In My Life,3,RTBG
+BigO_1,!!! Voy a necesitar todos los dias a las 12 disparar un evento que sea 'Awesomeness Snapshot' que tome una foto de todas las reasons to be gratefull (su status de present| past or future) y su current awesomeness value) y quede registrado en history,3,ImIn
+BigO_1,Agregar para indicadores de tiempo o repeticiion especificos del usuario,3,ImIn
+BigO_1,Ajustar el Set Precargado de indicadores - Escoger los IDs que les quiero poner y que en theory_base la fecha del siguiente evento venga formulada| y no como dato duro.,4,ImIn
+BigO_1,Adjust people to thank en Done Form para que me aparezca un dropdown con mi gene importante ordentados por frecuencia de contacto,4,Done|Structure
+BigO_1,Volver a cargar los CSVs para asegurarme que ahora los nuevos KSUs cargados ya tienen el atributo 'origin',4,Structure
+BigO_1,Para ImIn que tambien en el dashbord se muestren en TimeUse todas aquellas acitivdades para las que definio un target,4,ImIn
+BigO_1,Agregar Handler 'Are you sure' que te pregunte si en verdad quieres borrar el KSU y te pregunte cual es la razon| si le das razon queda guardada dentro del delete event. Si si| lo borras| si le dices que no te regresa al set viewer,4,AreYouSure
+BigO_1,Bug Fix - En set viewer|  si no hay elementos dentro de un grupo en cuestion que no te ensene el grupo.,4,SetViewer
+BigO_1,marcar en el template con estrellita roja todo lo que es importante que el usuario defina,4,NewKSU
+BigO_1,Agregar al set viewer de KAS3 y KAS4 Success since,4,SetViewer
+BigO_1,Crear el handler y la estructura de datos  para Principles (AKA my persona commandments),4,Principles
+BigO_1,Feature - Que en el menu de mision| cada dia hasta arriba aparezcan los indicadores importantes de control. Asi es un click menos| y lo puedes hacer en caliente,4,TodaysMission|ImIn
+BigO_1,Crear el handler y la estructura de datos  para Shopping List y migrar la informacion. Uno de los atributos tiene que ser que puedas agregarlo cualquier item a todays mission apretando un botton,4,ShoppingList
+BigO_1,En mission que hasta arriba queden los indicadores que hay que responder en la manana y hasta abajo los de la noche,4,TodaysMission
+BigO_1,Agregar attributo a ImPe de how gratefull are you that this person in in your life. Y que automaticamente se sume a tus reasons to be grateful The fact that X is in my life,4,RTBG
+BigO_1,Todays mission queda agrupado por sets (con los Big Os Hasta arriba). Lo que es critico queda en rojo. Lo que es any any queda indicado en una columna asi vomo lo que tiene hora de ejecucion ,4,TodaysMission
+BigO_1,- Allow Users to choose what are the indicators they want to follow and set and edit their goals (Ahorita a la de ahuevo le tienes que dar seguimiento a todo y no te permite definir metas),5,ImIn
+BigO_1,Allow users to set goals for a spefic KAS (KAS1| KAS3| KAS4) - KSU - Agregar a new/edit ksu para KAS1 los atributos de TimeUse_target_min| TimeUse_target_max| y repetitions_target_min y Repetitions_target_max.- Ajustar ImIn para que muestre las Acciones a las que los usuarios le quieren dar seguimiento y como van respecto a sus metas ,5,ImIn|KAS1|KAS3|KAS4
+BigO_1,> Ajustar ImIn functions to be able to calculate awesomenss related,5,ImIn|RTBG
+BigO_1,Hacer que exista una interface donde puedas meter muchas acciones para un Big O. O mas bien en lugar de solo darle save confirm que haya un botton que te permita agregar otra accion,5,BigO
+BigO_1,Bug Fix - Ajustar el breakdown de Todays Score a la nueva estructura (antes conociddo como reporte de esfuerzo),5,TodaysScore
+BigO_1,Adjust the calculation of the next event date so it takes into consideration the user preferred date for that speciffic event. -- Segun un numero que es un integer es facil saber a que dia corresponder porque las semanas siempre han tenido 7 dias. Lo que tengo que hacer primero es determinar el dia en el que me encuentro y luego sumar dias adicionales,5,Structure
+BigO_1,Add input validation for otrher type of oppen user input fields,5,Structure
+BigO_1,Modificar el landing page para que: Si estas sign-in| te muestre tu mission del dia. Si no| te permita hacer el log-in o sign-up (como la pagina de facebook). Tambien que en lugar de pedirte dos veces la contrasena te pida dos veces el correo,5,Welcome|LogIn|SignUp
+BigO_1,Incorporar Google Re-Capcha en el Log In para evitar spamers,5,SignUp
+BigO_1,Crear worker que agregue attributos a todos los KSUs de todas las teorias ya existentes. + Crear workier que agregue attributos a todas las 'history' ya existentes,5,Structure
+BigO_1,Si una pesona/ip intenta hacer mas de N logs ins| quiero que la cuenta del usuario se blockee y que se le mande un correo para desbloquearla,5,LogIn|SignUp
+BigO_1,Agregar feature para que cuando una persona se registre le envie un correo de confimacion,5,LogIn|SignUp
+BigO_1,Crear el handler y la estructura de datos  para Money Requirements ,5,Money
+BigO_1,Ajustar Todays Mission para que tome en consideracion la preferencia de hora de ejecucion del usuario,5,TodaysMission
+BigO_1,Add button in ImPe Set viewer just contacted que dispare done para el KSU de contacto asignado. Debe de ser vastante straigt forward,5,ImPe
+BigO_1,Permitirle al usuario que oculte todos los KSUs que marco como privados,5,UserPreferences
+BigO_1,Para todos los ksus que tengan un link en viewer que me permita ver todos los child ksus que deriban de ellos.,5,SetViewer
+BigO_1,Cuando mis usuarios hagan sign in les tengo que pedir mucha informacion para entender sus demographics y que en funcion a eso poderles hacer recomendaciones de KSUs y entender mejor al ser humano a nivel mundial!,5,SignUp
+BigO_1,Add Set - Desissions and Rationals,5,RandomSet
+BigO_1,Add Set - Life Reflexions,5,RandomSet
+BigO_1,Add Set - My Favorite Ideas/Quotes. Uno de los attributos es el nombre del autor,5,RandomSet
+BigO_1,Permitirle al usuario agregar data points directamente en el viewer de ImIn,5,ImIn
+BigO_1,Agregar otra vez el attributo de people to thank (si por un mismo evento le agradeces a varias personas se dividen los puntos que le tocan a esa persona),5,EVPo
+BigO_1,Que el usuario pueda habilitar ser castigado si hace push a ciertas acciones de su mission - Attributo 'do_or_fail' Push Fail (el boton push aparece en rojo - Si empujas una actividad de KAS1 (KAS1 tambien puede tener el attributo streak) o KAS2 te gastiga - Tienes la opcion de que te castigue escogiendo eso como attributo,5,Structure|UserSettings
+BigO_1,Agregar un cementerio de KSUs (el lugar a donde todos los KSUs que han sido borrados van a ir a dar en el futuro para hacer espacio) --- No estoy seguro si realmente va a ser necesario,5,Structure
+BigO_1,Add Feature: Para los articulos del End Value Portfolio| que pueda asociar a cada articulo algunas ImPe con las que puedo realizar la accion en cuestion,5,EVPo
+BigO_1,Shopping List automaticamente genera un articulo KAS 2. (si lo tienes con frecuencia repetitiva???) o mas bien es un Tag nadamas el shopping list? . Creo que mas bien es un tag y ya (Standard Tags? o igual que puedas turn on and off las cosas que necesitas. como yo le hacia manual en el excel),5,ShoppingList
+BigO_1,revisar en app engine si puedo definir mis propias propiedades de data estore para aumentar el tamano de los blobs donde almaceno informacion sin tener que modificar la estructura de mi codigo,5,Structure
+BigO_1,Integrar KASware con Google Calendar (que tan dificil sera integrar a google calendar para que automaticamente genere eventos tipo KAS2 y entradas en el Calendario). ,5,Integration
+BigO_1,Ajustar 'Today's Mission' con JS (ajax) para que no se tenga que re-loadear cada vez que le doy 'done' a un KSU. ,6,TodaysMission
+BigO_1,Tener sub categorias del value_type health and vitality tipo V540 Para todo lo que tiene que ver con fuerza y tipo que V541 Se refiera a Pecho| V542 a Biceps y asi para cada grupo muscular. Igual e ingreso una variable adicional que sea repetitions y otra aclaro que duration es total duration.,6,Structure
+BigO_1,Killer Feature! - Poder agregar fotos a tus KSUs (en particular a reasons to be grateful) y sobre todo a tus eventos de End Value. Feature - Poder agregar imagenes al KSU. Tanto al KSU en si| como a la historia :) - En particular al documentar ciertas actividades que me dieron happiness points quiero acompanarki con una imagen,6,Structure
+BigO_1,Add Feature:  Que el usuario pueda bajar y subir un archivo de texto con el backup de su teoria.. Igual y le pediria este archivo a los autores que quieren que aparezca la traduccion de sus libros a KSUs en la KASware,6,Structure
+BigO_1,Attrubuto - bucket list view a kasware- seguro tambien seria de los features mas populares - Quisas hago que hasta arriba aparezca el bucket list y luego ya este ordenado por elemento. O tal vez lo que es bucket list que el texto se ponga Azul o verde o algo que claramente se diferencie,6,Wish
+BigO_1,Add Feature:  Enviar junto con el correo de mision los resultados del dia anterior y un reporte con estadisticas que te comparan lo que hiciste vs. el dia anterior y el mismo dia de la semana pasada etc..,6,Email
+BigO_1,Add Feature: Perimitirle al usuario que su reporte tambien le llegue a su personal coach para que este tenga visivilidad de que fue todo lo que hizo durante el dia,6,Structure
+BigO_1,Ajustar para que le lleguen a las otras personas notificaciones (ya sea por email o a su cuenta de kasware) cada vez que les agradezcas puntos de end value. Tal vez se puede customizar segun el tipo de relacion| y tambien segun el tipo de relacion es el Elemento asociado al que se crea el ksu de contacto. (no estoy seguro de lo ultimo),6,Structure
+BigO_1,Agregar charts para que el usuario pueda ver de forma mas sencilla la informacion de sus indicadores,7,ImIn
+BigO_1,Cuando ya tenga Java en el codigo. Que cuando aprietes el botton de  Add To Mission que aparezca un mensaje de confirmacion. Tambien que aparezcan modals donde ves mas informacion de un KSU cuando te paras sobre ellos,7,TodaysMission
+BigO_1,Agregar a la form de new/Edit otra vez el attributo de parent KSU para que un usuario pueda manualmente establecer relaciones de parentesco. Esto hasta que tenga ya JS y mientras escribes se comiencen a acotar las opciones porque ahuevo el campo necesita validatio.,7,Structure
+BigO_1,Si registras en KASware tus preferencias respecto a shows| peliculas| juegos| etc. Te muestra una lista personalizada de la probabilidad de que te gusten otras cosas en funcion a las experiencias reportadas de otros usuarios. Tambien en funcion a tus demographics y otras cosas KASware the puede hacer recomendaciones de acciones que han agregado valor a la vida de otras personas.,7,Structure
+BigO_1,Set de userpreferences donde pueda configurar si quiere cuales son las palancas de valor de su mundo. Por default vienen las 10 que yo defini. Permite tener una diferenciacion entre tu set personal y el de tu trabajo,7,Structure|UserSettings
+BigO_1,Kasware corporate - necesito hacerlo de tal forma que luego lo pueda vender a corporaciones. Cambiar elementos/value types por palancas de valor de cada posicion.,7,Corporate
+BigO_1,Poder Tener Tags Compartidos con otro usuario y asi se ve cuanto le pone de esfuerzo cada quien .Igual y mas que target person| puedo tener tags compartidos. Tipo que dani y yo los dos tengamos un tag de nuestra relacion y que cada vez que hagamos un esfuerzo le pongamos ese tag al KSU. Luego puedo contar todo lo que tiene ese tag. Es mas| creo que se podria llamar 'great partner',7,SocialStructure

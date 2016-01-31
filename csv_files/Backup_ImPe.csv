@@ -1,4 +1,4 @@
-value_type,last_contact,tags,description
+contact_frequency,last_contact,tags,description
 7,735963,Familia,Mama
 7,735963,Familia,Papa
 7,735963,None,Zuzana Prokesova (Condesa)
@@ -9,7 +9,7 @@ value_type,last_contact,tags,description
 7,735963,McKinsey,Sergio Echeverria
 60,735927,CEMAC,Alonso Baranda
 30,735955,Linio,Elisabetta Pique
-7,735963,None,Jimmy Sotelo
+7,735963,ITAM,Jimmy Sotelo
 120,735862,McKinsey,Sofia Vargas
 30,735955,ITAM,Ana Raquel Alonso
 60,735916,ITAM,Juan Pablo Magic

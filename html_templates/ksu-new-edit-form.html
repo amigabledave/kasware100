@@ -63,7 +63,7 @@
 		<div class="col-md-2"> 
 			<label> Expected Duration </label>
 			<select class="form-control" name="time_cost">
-				{% for t in constants['l_Fibonacci'] %}
+				{% for t in constants['l_long_Fibonacci'] %}
 					{% if t == ksu['time_cost']  %}
 						<option selected="selected">{{t}}</option>
 					{% else %}
@@ -223,7 +223,7 @@
 		<div class="col-md-2"> 
 			<label> Expected Duration <span class="red">*</span> </label>
 			<select class="form-control" name="time_cost">
-				{% for t in constants['l_Fibonacci'] %}
+				{% for t in constants['l_long_Fibonacci'] %}
 					{% if t == ksu['time_cost']  %}
 						<option selected="selected">{{t}}</option>
 					{% else %}
@@ -429,7 +429,7 @@
 		<div class="col-md-2"> 
 			<label> Expected Duration <span class="red">*</span> </label>
 			<select class="form-control" name="time_cost">
-				{% for t in constants['l_Fibonacci'] %}
+				{% for t in constants['l_long_Fibonacci'] %}
 					{% if t == ksu['time_cost']  %}
 						<option selected="selected">{{t}}</option>
 					{% else %}

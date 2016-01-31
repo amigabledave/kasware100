@@ -25,6 +25,8 @@ class Theory(db.Model):
 	username = db.StringProperty(required=True)
 	password_hash = db.StringProperty(required=True)
 	email = db.StringProperty(required=True)
+	created = db.DateTimeProperty(auto_now_add=True)
+	last_modified = db.DateTimeProperty(auto_now=True)
 
 	settings = db.BlobProperty(required=True)
 
@@ -35,18 +37,20 @@ class Theory(db.Model):
 
 	BOKA = db.BlobProperty(required=True)
 	BigO = db.BlobProperty(required=True)
-	Wish = db.BlobProperty(required=True)
-	
+	Wish = db.BlobProperty(required=True)	
 	ImPe = db.BlobProperty(required=True)
+
+	RTBG = db.BlobProperty(required=True)
+	Prin = db.BlobProperty(required=True)
+	NoAR = db.BlobProperty(required=True)
+	Idea = db.BlobProperty(required=True) 
+	MoRe = db.BlobProperty(required=True)
+
 	ImIn = db.BlobProperty(required=True)
-
-	Hist = db.BlobProperty(required=True)	
+	Hist = db.BlobProperty(required=True)
 	MLog = db.BlobProperty(required=True)
-
-	created = db.DateTimeProperty(auto_now_add=True)
-	last_modified = db.DateTimeProperty(auto_now=True)
 	
-
+	
 	@classmethod # This means you can call a method directly on the Class (no on a Class Instance)
 	def get_by_theory_id(cls, theory_id):
 		return Theory.get_by_id(theory_id)
@@ -72,10 +76,15 @@ class Theory(db.Model):
 					  BOKA=new_set_KSU('BOKA'),
 					  BigO=new_set_KSU('BigO'),
 					  Wish=new_set_KSU('Wish'),
-
 					  ImPe=new_set_KSU('ImPe'),
+
+					  RTBG=new_set_KSU('RTBG'),
+					  Prin=new_set_KSU('Prin'),
+					  NoAR=new_set_KSU('NoAR'),
+					  Idea=new_set_KSU('Idea'),
+					  MoRe=new_set_KSU('MoRe'), 					  
+
 					  ImIn=new_set_KSU('ImIn'),
-					 
 					  Hist=new_set_Hist(),
 					  MLog=new_set_MLog())
 
@@ -1941,8 +1950,14 @@ template_recipies = {'KAS1_KSU':[i_BASE_KSU, i_KAS_KSU, i_Proactive_KAS_KSU, i_K
 					 'BOKA_KSU':[i_BASE_KSU, i_Proactive_KAS_KSU, i_BOKA_KSU],
 					 'BigO_KSU':[i_BASE_KSU, i_BigO_KSU],					 
 					 'Wish_KSU':[i_BASE_KSU, i_Wish_KSU],
-
 					 'ImPe_KSU':[i_BASE_KSU, i_ImPe_KSU],
+
+					 'RTBG_KSU':[i_BASE_KSU],
+					 'Prin_KSU':[i_BASE_KSU],
+					 'NoAR_KSU':[i_BASE_KSU],
+					 'Idea_KSU':[i_BASE_KSU],
+					 'MoRe_KSU':[i_BASE_KSU], 
+
 					 'ImIn_KSU':[i_BASE_KSU, i_ImIn_KSU],
 					 
 					 'Created_Event':[i_BASE_Event, i_Created_Event],
@@ -2246,11 +2261,11 @@ def calculate_event_score(event):
 
 	elif event_type == 'SmartEffort':
 
-		if set_name in poractive_sets:		
+		if set_name in ['KAS1', 'KAS2', 'KAS3', 'BOKA']:		
 			result['SmartEffort'] = int(event['duration'])*(int(event['importance']) + event['disconfort']) 
 			result['EndValue'] = int(event['duration'])*event['joy']
 			
-		if set_name in reactive_sets: 
+		if set_name == 'KAS4': 
 			if int(event['importance']) < int(event['streak']):
 				result['SmartEffort'] = int(event['importance']) * 2
 			else:
@@ -2750,6 +2765,10 @@ def developer_Action_Load_CSV(theory, set_name):
 		developer_Action_Load_ImPe_CSV(theory, csv_path)
 
 
+	if set_name == 'ImIn':
+		developer_Action_Load_Set_CSV(theory, 'ImIn', create_csv_path('ImIn'))
+
+
 	if set_name == 'All':
 		developer_Action_Load_KAS1_CSV(theory, create_csv_path('KAS1'))
 		developer_Action_Load_ImPe_CSV(theory, create_csv_path('ImPe'))
@@ -2959,11 +2978,11 @@ def csv_triggered_Action_create_ImPe_Contact(theory, person):
 
 def prepare_csv_details_for_saving(post_details):
 	details = {}
-	checkboxes = ['is_critical', 'is_private', 'any_any', 'in_upcoming']
 	for (attribute, value) in post_details.items():
-		if attribute in checkboxes:
-			if value == 'True':
-				details[attribute] = True
+		if value == 'True':
+			details[attribute] = True
+		elif value == 'False':
+			details[attribute] = False
 		elif attribute == 'last_event':
 			if valid_csv_date(value):
 				details[attribute] = value
@@ -3120,7 +3139,7 @@ date_attributes = ['last_event', 'next_event', 'last_contact', 'next_contact', '
 
 l_Fibonacci = ['1','2','3','5','8','13']
 
-# l_long_Fibonacci = ['1','2','3','5','8','13','21','34','55','89','144','233','377','610','987']
+l_long_Fibonacci = ['1','2','3','5','8','13','21','34','55','89','144','233','377','610','987']
 
 
 d_Values = {'V000': '0. End Value',
@@ -3170,6 +3189,7 @@ l_Days = sorted(d_Days.items())
 
 
 constants = {'l_Fibonacci':l_Fibonacci,
+			 'l_long_Fibonacci': l_long_Fibonacci,
 			 'l_Values':l_Values,
 			 'l_Days':l_Days,}
 
@@ -3320,7 +3340,7 @@ app = webapp2.WSGIApplication([
 							 ('/Failure', Failure),
 							 
 							 ('/email',Email),
-							 ('/LoadCSV/' + PAGE_RE, LoadCSV),
+							 # ('/LoadCSV/' + PAGE_RE, LoadCSV), #There will be no need for this handler once it goes live
 							 ('/LoadPythonBackup/' + PAGE_RE, LoadPythonBackup),
 							 ('/EditPythonData/'+ PAGE_RE, EditPythonData), #xx
 							 ('/PythonBackup/' + PAGE_RE, PythonBackup)
