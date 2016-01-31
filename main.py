@@ -2634,7 +2634,7 @@ def triggered_Action_create_ImPe_Contact(self):
 	else:
 		ksu['next_event'] = today
 	person['next_contact'] = ksu['next_event']	
-	ksu['time_cost'] = 3
+	ksu['time_cost'] = '2'
 	ksu['parent_id'] = person['id']
 	ksu['subtype'] = 'ImPe_Contact'
 	person['contact_ksu_id'] = ksu['id']
