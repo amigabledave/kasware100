@@ -15,12 +15,13 @@
 			
 			{% if theory %}
 
-				<div class="col-xs-6"> 
+				<div class=" hidden-xs hidden-sm col-md-6"> 
 					<div class="score-title"> Today's Score [ {{TodaysScore}} ] = <a href=""> End Value [ {{EndValue}} ] </a> + <a href="/effort-report"> Smart Effort [ {{SmartEffort}} ] </a> - <a href=""> Stupidity [ {{Stupidity}} ] </a></div>
 				</div>
 
-				<div class="col-xs-1">  </div>
-				<div class="col-xs-1"> <a href="/Settings" class="corner-link">{{theory.username}} </a> </div>			
+				<div class="col-xs-3 col-md-1">  </div>
+				<div class="col-xs-1"> <a href="/Settings" class="corner-link">{{theory.username}} </a> </div>
+				<div class="col-xs-1">  </div>		
 				<div class="col-xs-1"> <a href="/logout" class="corner-link"> (Logout) </a> </div>
 				</div>
 
