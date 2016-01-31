@@ -285,13 +285,17 @@ class TodaysMission(Handler):
 		if user_bouncer(self):
 			return
 		post_details = get_post_details(self)
-		ksu_id = post_details['ksu_id']
 		user_action = post_details['action_description']
 
 		if user_action == 'Done':
+			ksu_id = post_details['ksu_id']
 			self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/TodaysMission')
 		
-		elif user_action == 'EditKSU':			
+		elif user_action == 'NewKSU':
+			self.redirect('/NewKSU/KAS2?return_to=/TodaysMission')
+
+		elif user_action == 'EditKSU':
+			ksu_id = post_details['ksu_id']			
 			self.redirect('/EditKSU?ksu_id=' + ksu_id + '&return_to=/TodaysMission')
 
 		elif user_action == 'Push':
@@ -319,7 +323,7 @@ class TodaysMission(Handler):
 
 
 
-def todays_mission(theory): #xx 
+def todays_mission(theory):
 	KAS1 = hide_invisible(unpack_set(theory.KAS1))
 	KAS2 = hide_invisible(unpack_set(theory.KAS2))
 	BOKA = hide_invisible(unpack_set(theory.BOKA))
@@ -384,17 +388,20 @@ class Upcoming(Handler):
 			return			
 		post_details = get_post_details(self)
 		user_action = post_details['action_description']
-		ksu_id = post_details['ksu_id']
+		
+		if user_action == 'NewKSU':
+			self.redirect('/NewKSU/KAS2?return_to=/Upcoming')
 
-		if user_action == 'Add_To_Mission':
+		elif user_action == 'Add_To_Mission':
 			user_Action_Add_To_Mission(self)
 			self.redirect('/Upcoming')
 
-		if user_action == 'EditKSU':
+		elif user_action == 'EditKSU':
 			ksu_id = post_details['ksu_id']
 			self.redirect('/EditKSU?ksu_id=' + ksu_id + '&return_to=/Upcoming')
 
-		if user_action == 'Done':
+		elif user_action == 'Done':
+			ksu_id = post_details['ksu_id']
 			self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/Upcoming')
 
 
@@ -1483,7 +1490,7 @@ class EditPythonData(Handler):
 		user_action = post_details['action_description']
 
 		if user_action == 'Save':
-			update_theory(theory, ksu_set) #xx
+			update_theory(theory, ksu_set)
 			theory.put()
 			self.redirect('/')
 
@@ -1726,7 +1733,7 @@ def update_MLog(theory, event):
 	score_events = ['EndValue','SmartEffort','Stupidity', 'Achievement']
 
 	if event_type in score_events:
-		event_score = calculate_event_score(event) #xx
+		event_score = calculate_event_score(event)
 		log = MLog[date]
 		for (units, score) in list(event_score.items()):
 			log[units] = log[units] + score
@@ -2176,7 +2183,7 @@ def add_EndValue_event(theory, post_details): #Duration & Importance to be updat
 	event['importance'] = post_details['importance']	
 	
 	update_set(Hist, event)
-	update_MLog(theory, event) #xx
+	update_MLog(theory, event)
 	theory.Hist = pack_set(Hist)
 	return event
 
