@@ -13,7 +13,7 @@ from python_files import base_theory
 template_dir = os.path.join(os.path.dirname(__file__), 'html_templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
-today = datetime.today().toordinal()
+today = (datetime.today() - timedelta(hours=6)).toordinal()
 tomorrow = today + 1
 not_ugly_today = datetime.today().strftime('%d-%m-%Y')
 

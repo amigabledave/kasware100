@@ -1,12 +1,20 @@
+# import datetime
+
 from datetime import datetime
+from datetime import timedelta
 
 # --- Formulas basicas de datetime:
 today = datetime.today()
 # tomorrow = today + 1
 print today
 
-today_number = today.toordinal()
-print today_number
+print today - timedelta(hours=6)
+
+
+
+
+# today_number = today.toordinal()
+# print today_number
 
 # today_from_number = datetime.fromordinal(today_number)
 # print today_from_number
