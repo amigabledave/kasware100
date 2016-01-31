@@ -18,188 +18,212 @@
 {% endif %}
 
 
-<div class="row">
-	<div class="col-xs-12"> 
-		<div class="mission-group-title"> Questions to answer as early as possible </div>
-	</div>
-</div>	
-
-
-{% for indicator in morning_questions %}
-
-	<hr>
+{% if morning_questions %}
 
 	<div class="row">
-	
-		<div class="col-xs-1">
-			<form class="form-horizontal" method="post">
-				<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
-			  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="Question_Skipped"> Skip </button>
-			</form>	
+		<div class="col-xs-12"> 
+			<div class="mission-group-title"> Questions to answer as early as possible </div>
 		</div>
-
-
-		<div class="col-xs-6"> {{indicator['question']}} </div>
-			
-		{% if indicator['units'] == 'binary' %}
-
-			<div class="col-xs-1">
-				<form class="form-horizontal" method="post">
-					<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
-					<input type="text" class="form-control hidden" name="boolean_answer" value="Yes"> 
-				  	<button type="submit" class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered">  Yes  </button>
-				</form>	
-			</div>
-
-
-			<div class="col-xs-1">
-				<form class="form-horizontal" method="post">
-					<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
-					<input type="text" class="form-control hidden" name="boolean_answer" value="No"> 
-				  	<button type="submit" class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered">  No  </button>
-				</form>	
-			</div>
-
-		{% else %}
-
-			<form class="form-horizontal" method="post">
-				<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
-					
-				<div class="col-xs-1">
-					<input type="text" class="form-control" name="numeric_answer" placeholder="e.g. 7" required>
-				</div>
-
-				<div class="col-xs-1">
-					<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Question_Answered">Record</button>
-				</div>	
-			
-				<div class="col-xs-4 error"> {{answer_error}}</div>
-
-			</form>	
-
-		{% endif %}
-
-
 	</div>	
-	
-
-{% endfor %}
 
 
-<div class="row">
-	<div class="col-xs-12"> 
-		<div class="mission-group-title"> Actions to Excecute </div>
-	</div>
-</div>	
+	{% for indicator in morning_questions %}
 
+		<hr>
 
-{% for ksu in mission %}
-
-	<hr>
-
-	<div class="row">
-
-
-		<div class="col-xs-1">
-			<form class="form-horizontal" method="post">
-				<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}"> 
-			  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="EditKSU"> Edit </button>
-			</form>	
-		</div>
-
+		<div class="row">
 		
-		<form class="form-horizontal" method="post">
-
-			<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
-
-			<div class="col-xs-6"> {% if ksu['project'] %} <b> {{ksu['project']}} </b> -- {% endif %} {{ksu['description']}} {% if ksu['comments'] %} -- <em> {{ksu['comments']}} </em> {% endif %}</div>
-
-			<div class="col-xs-1">
-				<input type="submit" class="btn btn-md btn-success" name="action_description" value="Done">
-			</div>
-			  		
-			<div class="col-xs-1">
-				<input type="submit" class="btn btn-primary btn-md" name="action_description" value="Push">
-			</div>	
-
-
-		</form>	
-	</div>	
-	
-
-{% endfor %}
-
-
-
-<div class="row">
-	<div class="col-xs-12"> 
-		<div class="mission-group-title"> Questions to answer as late as possible </div>
-	</div>
-</div>	
-
-
-{% for indicator in night_questions %}
-
-	<hr>
-
-	<div class="row">
-	
-		<div class="col-xs-1">
-			<form class="form-horizontal" method="post">
-				<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
-			  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="Question_Skipped"> Skip </button>
-			</form>	
-		</div>
-
-
-		<div class="col-xs-6"> {{indicator['question']}} </div>
-
-			
-		{% if indicator['units'] == 'binary' %}
-
 			<div class="col-xs-1">
 				<form class="form-horizontal" method="post">
 					<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
-					<input type="text" class="form-control hidden" name="boolean_answer" value="Yes"> 
-				  	<button type="submit" class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered">  Yes  </button>
+				  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="Question_Skipped"> Skip </button>
 				</form>	
 			</div>
 
 
-			<div class="col-xs-1">
-				<form class="form-horizontal" method="post">
-					<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
-					<input type="text" class="form-control hidden" name="boolean_answer" value="No"> 
-				  	<button type="submit" class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered">  No  </button>
-				</form>	
-			</div>
+			<div class="col-xs-6"> {{indicator['question']}} </div>
+				
+			{% if indicator['units'] == 'binary' %}
 
-		{% else %}
-
-			<form class="form-horizontal" method="post">
-				<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
-					
 				<div class="col-xs-1">
-					<input type="text" class="form-control" name="numeric_answer" placeholder="e.g. 7" required>
+					<form class="form-horizontal" method="post">
+						<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
+						<input type="text" class="form-control hidden" name="boolean_answer" value="Yes"> 
+					  	<button type="submit" class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered">  Yes  </button>
+					</form>	
+				</div>
+				
+				<div class="col-xs-1"> </div>
+
+				<div class="col-xs-1">
+					<form class="form-horizontal" method="post">
+						<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
+						<input type="text" class="form-control hidden" name="boolean_answer" value="No"> 
+					  	<button type="submit" class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered">  No  </button>
+					</form>	
 				</div>
 
-				<div class="col-xs-1">
-					<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Question_Answered">Record</button>
-				</div>	
+			{% else %}
+
+				<form class="form-horizontal" method="post">
+					<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
+						
+					<div class="col-xs-1">
+						<input type="text" class="form-control" name="numeric_answer" placeholder="e.g. 7" required>
+					</div>
+
+					<div class="col-xs-1"> </div>
+					
+					<div class="col-xs-1">
+						<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Question_Answered">Record</button>
+					</div>	
+				
+					<div class="col-xs-4 error"> {{answer_error}}</div>
+
+				</form>	
+
+			{% endif %}
+
+
+		</div>	
+		
+
+	{% endfor %}
+
+
+{% endif %}
+
+
+
+
+{% if mission %}	
+
+	<div class="row">
+		<div class="col-xs-12"> 
+			<div class="mission-group-title"> Actions to Excecute </div>
+		</div>
+	</div>	
+
+
+	{% for ksu in mission %}
+
+		<hr>
+
+		<div class="row">
+
+
+			<div class="col-xs-1">
+				<form class="form-horizontal" method="post">
+					<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}"> 
+				  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="EditKSU"> Edit </button>
+				</form>	
+			</div>
+
 			
-				<div class="col-xs-4 error"> {{answer_error}}</div>
+			<form class="form-horizontal" method="post">
+
+				<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+
+				<div class="col-xs-6"> {% if ksu['project'] %} <b> {{ksu['project']}} </b> -- {% endif %} {{ksu['description']}} {% if ksu['comments'] %} -- <em> {{ksu['comments']}} </em> {% endif %}</div>
+
+				<div class="col-xs-1">
+					<input type="submit" class="btn btn-md btn-success" name="action_description" value="Done">
+				</div>
+				
+				<div class="col-xs-1"> </div>
+
+				<div class="col-xs-1">
+					<input type="submit" class="btn btn-primary btn-md" name="action_description" value="Push">
+				</div>	
+
 
 			</form>	
+		</div>	
+		
 
-		{% endif %}
+	{% endfor %}
 
 
+{% endif %}
+
+
+
+
+{% if night_questions%}
+
+	<div class="row">
+		<div class="col-xs-12"> 
+			<div class="mission-group-title"> Questions to answer as late as possible </div>
+		</div>
 	</div>	
-	
-
-{% endfor %}
 
 
+
+	{% for indicator in night_questions %}
+
+		<hr>
+
+		<div class="row">
+		
+			<div class="col-xs-1">
+				<form class="form-horizontal" method="post">
+					<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
+				  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="Question_Skipped"> Skip </button>
+				</form>	
+			</div>
+
+
+			<div class="col-xs-6"> {{indicator['question']}} </div>
+
+				
+			{% if indicator['units'] == 'binary' %}
+
+				<div class="col-xs-1">
+					<form class="form-horizontal" method="post">
+						<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
+						<input type="text" class="form-control hidden" name="boolean_answer" value="Yes"> 
+					  	<button type="submit" class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered">  Yes  </button>
+					</form>	
+				</div>
+
+				<div class="col-xs-1"> </div>
+
+				<div class="col-xs-1">
+					<form class="form-horizontal" method="post">
+						<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
+						<input type="text" class="form-control hidden" name="boolean_answer" value="No"> 
+					  	<button type="submit" class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered">  No  </button>
+					</form>	
+				</div>
+
+			{% else %}
+
+				<form class="form-horizontal" method="post">
+					<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
+						
+					<div class="col-xs-1">
+						<input type="text" class="form-control" name="numeric_answer" placeholder="e.g. 7" required>
+					</div>
+
+					<div class="col-xs-1"> </div>
+
+					<div class="col-xs-1">
+						<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Question_Answered">Record</button>
+					</div>	
+				
+					<div class="col-xs-4 error"> {{answer_error}}</div>
+
+				</form>	
+
+			{% endif %}
+
+
+		</div>	
+		
+
+	{% endfor %}
+
+{% endif %}
 
 
 

@@ -261,11 +261,19 @@ class TodaysMission(Handler):
 		questions = todays_questions(theory)
 		morning_questions = questions['Morning']
 		night_questions = questions['Night']
-			
+		
+
+		if len(morning_questions) == 0:
+			morning_questions = None
+
+		if len(night_questions) == 0:
+			night_questions = None		
+
 		todays_effort = unpack_set(theory.MLog)[today]['SmartEffort']		
 		if len(mission) > 0:
 			message = None
 		if len(mission) == 0:
+			mission = None
 			if int(todays_effort) > 0:
 				message = "Mission acomplished!!! Enjoy the rest of your day :)"
 			else:	
@@ -376,6 +384,7 @@ class Upcoming(Handler):
 			return			
 		post_details = get_post_details(self)
 		user_action = post_details['action_description']
+		ksu_id = post_details['ksu_id']
 
 		if user_action == 'Add_To_Mission':
 			user_Action_Add_To_Mission(self)
@@ -384,6 +393,9 @@ class Upcoming(Handler):
 		if user_action == 'EditKSU':
 			ksu_id = post_details['ksu_id']
 			self.redirect('/EditKSU?ksu_id=' + ksu_id + '&return_to=/Upcoming')
+
+		if user_action == 'Done':
+			self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/Upcoming')
 
 
 
@@ -2747,15 +2759,6 @@ def triggered_Action_Done_ImPe_Contact(self):
 	person['last_contact'] = ksu['last_event']
 	person['next_contact'] = ksu['next_event']
 	theory.ImPe = pack_set(ImPe)
-
-	MLog = unpack_set(theory.MLog)
-	ksu_history = MLog[ksu_id]
-	last_event = ksu_history.pop()
-	ksu_history = ksu_history.append(last_event)
-	person_history = MLog[person_id]
-	person_history.append(last_event)
-	MLog[person_id] = person_history
-	theory.MLog = pack_set(MLog)
 	return
 
 
@@ -3301,9 +3304,9 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 
 			'EVPo':{'set_title':'End Value Portfolio',
 				    'set_name':'EVPo',				    
-				    'attributes':['description','pretty_last_event','charging_time'],
-				    'fields':{'description':'Description','charging_time':'C. Time', 'pretty_last_event':'Last Event'},
-				    'columns':{'description':5,'charging_time':1,'pretty_last_event':2},
+				    'attributes':['description','pretty_last_event'],
+				    'fields':{'description':'Description', 'pretty_last_event':'Last Event'},
+				    'columns':{'description':5,'pretty_last_event':2},
 				    'show_Button_Done':True,
 				    'show_Button_Add_To_Mission':True,
 				    'grouping_attribute':'tags',

@@ -64,30 +64,25 @@
 				{% endfor %}	
 
 
-				{% if viewer_details['show_Button_Add_To_Mission'] %}
-
-					<div class="col-xs-1">
-							<form class="form-horizontal" method="post">
-							<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
-						  	<button type="submit" class="btn btn-primary btn-md" name="action_description" value="Add_To_Mission"> To Mission </button>
-						</form>	
-					</div>
-
-				{% endif %}
-
-
-				{% if viewer_details['show_Button_Done'] %}
-
-					<div class="col-xs-1">
-						<form class="form-horizontal" method="post">
-							<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
-						  	<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Done">Experienced</button>
-						</form>	
-					</div>
-
-				{% endif %}	
 			
-		
+
+				<div class="col-xs-1">
+					<form class="form-horizontal" method="post">	
+						<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">					  	
+					  	<button type="submit" class="btn btn-primary btn-md" name="action_description" value="Add_To_Mission"> To Mission </button>										
+					</form>	
+				</div>
+				
+				<div class="col-xs-1"> </div>
+
+				<div class="col-xs-1">
+					<form class="form-horizontal" method="post">	
+						<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">					  	
+						<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Done">Experienced</button>					
+					</form>	
+				</div>
+
+
 			</div>
 			<hr>
 
