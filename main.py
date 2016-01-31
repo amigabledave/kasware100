@@ -941,10 +941,7 @@ def ImIn_calculate_indicators_values(theory, period_end, period_duration):
 		score = event['score']
 
 		event_type = event['type']
-		if event_type == 'Stupidity' or event_type == 'Achievement':
-			duration = 0
-		else:
-			duration = event['duration']
+		duration = event['duration']
 		
 		target_value_type = event['target_value_type']
 		target_holder =	results_holder[target_value_type]
@@ -961,7 +958,7 @@ def ImIn_calculate_indicators_values(theory, period_end, period_duration):
 		score = results_holder[value_type]
 		for unit in score_units:
 			target_holder[unit] += score[unit]
-			target_holder['duration'] += score['duration']
+		target_holder['duration'] += score['duration']
 
 	answers_history = relevant_history['Answers_history']
 	results_holder['Answer_indicators'] = ImIn_calculate_Answer_indicator_value(theory, answers_history)
