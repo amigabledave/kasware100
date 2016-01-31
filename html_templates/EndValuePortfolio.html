@@ -3,12 +3,12 @@
 {% block content %}
 
 <div class="row">
-	<div class="col-md-7"> <div class="section-title">{{viewer_details['set_title']}}</div></div>
+	<div class="col-xs-7"> <div class="section-title">{{viewer_details['set_title']}}</div></div>
 
-	<div class="col-md-1"> </div>
+	<div class="col-xs-1"> </div>
 	
 		
-	<div class="col-md-4">
+	<div class="col-xs-4">
 		<form class="form-horizontal" method="post">
 			<input type="text" class="form-control hidden" name="ksu_id" value="KAS1_1">
 		  	<button type="submit" class="btn btn-success btn-lg respect-space new-ksu-button" name="action_description" value="Done">Add nonspecific End Value event</button>
@@ -26,9 +26,9 @@
 
 
 <div class="row">
-	<div class="col-md-1"></div>
+	<div class="col-xs-1"></div>
 	{% for a in viewer_details['attributes'] %}
-		<div class="col-md-{{viewer_details['columns'][a]}}">  <div class="field-header">  {{viewer_details['fields'][a]}} </div> </div>
+		<div class="col-xs-{{viewer_details['columns'][a]}}">  <div class="field-header">  {{viewer_details['fields'][a]}} </div> </div>
 	{% endfor %}
 </div>
 
@@ -39,7 +39,7 @@
 {% for group in viewer_details['grouping_list']  %}
 
 	<div class="row">
-		<div class="col-md-12"> <div class="section-group-title"> {{group[1]}} </div></div>
+		<div class="col-xs-12"> <div class="section-group-title"> {{group[1]}} </div></div>
 	</div>
 
 <!-- Rows. One per KSU -->
@@ -50,7 +50,7 @@
 
 			<div class="row">
 
-				<div class="col-md-1">
+				<div class="col-xs-1">
 					<form class="form-horizontal" method="post">
 						<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}"> 
 					  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="EditKSU"> Edit </button>
@@ -60,13 +60,13 @@
 
 
 				{% for a in viewer_details['attributes'] %}
-					<div class="col-md-{{viewer_details['columns'][a]}}">  {% if ksu[a] %} {{ksu[a]}} {% endif %} </div>
+					<div class="col-xs-{{viewer_details['columns'][a]}}">  {% if ksu[a] %} {{ksu[a]}} {% endif %} </div>
 				{% endfor %}	
 
 
 				{% if viewer_details['show_Button_Add_To_Mission'] %}
 
-					<div class="col-md-1">
+					<div class="col-xs-1">
 							<form class="form-horizontal" method="post">
 							<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
 						  	<button type="submit" class="btn btn-primary btn-md" name="action_description" value="Add_To_Mission"> To Mission </button>
@@ -78,7 +78,7 @@
 
 				{% if viewer_details['show_Button_Done'] %}
 
-					<div class="col-md-1">
+					<div class="col-xs-1">
 						<form class="form-horizontal" method="post">
 							<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
 						  	<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Done">Experienced</button>

@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="row">
-	<div class="col-md-12"> <div class="section-title"> Upcoming Actions To Be Included In Today's Mission </div></div>
+	<div class="col-xs-12"> <div class="section-title"> Upcoming Actions To Be Included In Today's Mission </div></div>
 </div>
 <br>
 
@@ -12,9 +12,9 @@
 
 
 <div class="row">
-	<div class="col-md-1"></div>
-		<div class="col-md-5">  <div class="field-header"> Action Description </div> </div>
-		<div class="col-md-2">  <div class="field-header"> Scheduled Date </div> </div>
+	<div class="col-xs-1"></div>
+		<div class="col-xs-5">  <div class="field-header"> Action Description </div> </div>
+		<div class="col-xs-2">  <div class="field-header"> Scheduled Date </div> </div>
 
 </div>
 
@@ -26,7 +26,7 @@
 
 
 	<div class="row">
-		<div class="col-md-12"> <div class="section-group-title"> {{group}} </div></div>
+		<div class="col-xs-12"> <div class="section-group-title"> {{group}} </div></div>
 	</div>
 
 
@@ -38,7 +38,7 @@
 
 			<div class="row">
 
-				<div class="col-md-1">
+				<div class="col-xs-1">
 					<form class="form-horizontal" method="post">
 						<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}"> 
 					  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="EditKSU"> Edit </button>
@@ -46,17 +46,23 @@
 				</div>
 
 
-				<div class="col-md-5">  <div> {{ksu['description']}} </div> </div>
-				<div class="col-md-2">  <div> {{ksu['pretty_next_event']}} </div> </div>
+				<div class="col-xs-5">  <div> {{ksu['description']}} </div> </div>
+				<div class="col-xs-2">  <div> {{ksu['pretty_next_event']}} </div> </div>
 
 
-				<div class="col-md-1">
-						<form class="form-horizontal" method="post">
+				<div class="col-xs-1">
+					<form class="form-horizontal" method="post">
 						<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
 					  	<button type="submit" class="btn btn-primary btn-md" name="action_description" value="Add_To_Mission"> To Mission </button>
 					</form>	
 				</div>
 
+				<div class="col-xs-1">
+					<form class="form-horizontal" method="post">
+						<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+					  	<input type="submit" class="btn btn-md btn-success" name="action_description" value="Done">
+					</form>	
+				</div>
 			
 			</div>
 			<hr>
