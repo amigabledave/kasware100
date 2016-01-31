@@ -319,10 +319,10 @@ class TodaysMission(Handler):
 
 
 
-def todays_mission(theory):
-	KAS1 = unpack_set(theory.KAS1)
-	KAS2 = unpack_set(theory.KAS2)
-	BOKA = unpack_set(theory.BOKA)
+def todays_mission(theory): #xx 
+	KAS1 = hide_invisible(unpack_set(theory.KAS1))
+	KAS2 = hide_invisible(unpack_set(theory.KAS2))
+	BOKA = hide_invisible(unpack_set(theory.BOKA))
 
 	ksu_sets = [KAS1, KAS2, BOKA]
 	result = []
@@ -1482,7 +1482,7 @@ class EditPythonData(Handler):
 		ksu_set = ast.literal_eval(post_details['ksu_set'])
 		user_action = post_details['action_description']
 
-		if user_action == 'Save': #xx
+		if user_action == 'Save':
 			update_theory(theory, ksu_set)
 			theory.put()
 			self.redirect('/')
@@ -3355,6 +3355,6 @@ app = webapp2.WSGIApplication([
 							 ('/email',Email),
 							 # ('/LoadCSV/' + PAGE_RE, LoadCSV), #There will be no need for this handler once it goes live
 							 ('/LoadPythonBackup/' + PAGE_RE, LoadPythonBackup),
-							 ('/EditPythonData/'+ PAGE_RE, EditPythonData), #xx
+							 ('/EditPythonData/'+ PAGE_RE, EditPythonData),
 							 ('/PythonBackup/' + PAGE_RE, PythonBackup)
 							 ], debug=True)
