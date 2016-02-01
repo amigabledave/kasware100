@@ -25,16 +25,15 @@
 		<div class="form-group">
 
 			<div class="col-xs-2"> 
-				<label> Stupidity Level </label> 
-				<select class="form-control" name="importance"> 
-					{% for i in constants['l_Fibonacci'] %}
-						{% if i == ksu['importance'] %}
-							<option selected="selected">{{i}}</option>
-						{% else %}		
-							<option> {{i}} </option>
+				<label> Punishment </label>
+				<select class="form-control" name="punishment">
+					{% for t in constants['l_long_Fibonacci'] %}
+						{% if t == ksu['punishment']  %}
+							<option selected="selected">{{t}}</option>
+						{% else %}
+							<option> {{t}} </option>
 						{% endif %}
 					{% endfor %}
-						
 				</select>
 			</div>
 
@@ -76,16 +75,15 @@
 		<div class="form-group">
 
 			<div class="col-xs-2"> 
-				<label> Stupidity Level </label> 
-				<select class="form-control" name="importance"> 
-					{% for i in constants['l_Fibonacci'] %}
-						{% if i == ksu['importance'] %}
-							<option selected="selected">{{i}}</option>
-						{% else %}		
-							<option> {{i}} </option>
+				<label> Punishment </label>
+				<select class="form-control" name="punishment">
+					{% for t in constants['l_long_Fibonacci'] %}
+						{% if t == ksu['punishment']  %}
+							<option selected="selected">{{t}}</option>
+						{% else %}
+							<option> {{t}} </option>
 						{% endif %}
 					{% endfor %}
-						
 				</select>
 			</div>
 

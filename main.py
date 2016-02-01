@@ -1,13 +1,17 @@
 #KASware v1.0.0 | Copyright 2016 AmigableDave & Co.
 
 import re, os, webapp2, jinja2, logging, hashlib, random, string, csv, pickle, ast
+
 from datetime import datetime, timedelta
+from operator import itemgetter
+
 from google.appengine.ext import db
 from google.appengine.api import memcache
 from google.appengine.api import mail
-from operator import itemgetter
+
 from python_files import sample_theory
 from python_files import base_theory
+from python_files import backup_theory
 
 
 template_dir = os.path.join(os.path.dirname(__file__), 'html_templates')
@@ -960,8 +964,11 @@ def ImIn_calculate_indicators_values(theory, period_end, period_duration):
 		score = event['score']
 
 		event_type = event['type']
-		duration = event['duration']
-		
+
+		duration = '0'
+		if 'duration' in event:
+			duration = event['duration']
+
 		target_value_type = event['target_value_type']
 		target_holder =	results_holder[target_value_type]
 		
@@ -1382,12 +1389,16 @@ class Failure(Handler):
 		post_details = get_post_details(self)
 		set_name = get_type_from_id(post_details['ksu_id'])
 		Stupidity_sets = ['KAS3', 'KAS4']
+		return_to = self.request.get('return_to')
+		user_action = post_details['action_description']
 		
-		if post_details['action_description'] == 'Fail_Confirm':
+		if user_action == 'Fail_Confirm':
 			if set_name in Stupidity_sets:
 				user_Action_Fail_Stupidity(self)
-				return_to = self.request.get('return_to')
 				self.redirect(return_to)
+
+		elif user_action == 'Discard':
+			self.redirect(return_to)
 
 
 
@@ -1451,7 +1462,7 @@ class LoadCSV(Handler):
 
 
 
-#--- Load Python Backup
+#--- Load Python Data
 
 class LoadPythonData(Handler):
 	def get(self, set_name):	
@@ -1459,6 +1470,20 @@ class LoadPythonData(Handler):
 			return
 		theory = self.theory
 		developer_Action_Load_PythonData(theory, set_name)
+		if set_name == 'All':
+			self.redirect('/TodaysMission')
+		else:
+			self.redirect('/PythonData/' + set_name)
+
+
+
+#--- Replace Python Data
+class ReplacePythonData(Handler):
+	def get(self, set_name):
+		if user_bouncer(self):
+			return
+		theory = self.theory
+		developer_Action_Replace_PythonData(theory, set_name)
 		if set_name == 'All':
 			self.redirect('/TodaysMission')
 		else:
@@ -1824,6 +1849,8 @@ i_Proactive_KAS_KSU = {'time_cost': "1", # Reasonable Time Requirements in Minut
 i_Reactive_KAS_KSU = {'circumstance':None,
 					  'exceptions':None,
 					  'success_since':None,
+					  'reward':'1',
+					  'punishment':'34',
 			  		  'streak':"0",
 			  		  'record':"0"}
 
@@ -1841,21 +1868,19 @@ i_KAS1_KSU = {'charging_time': "7",
 
 
 
-i_KAS2_KSU = {'value_type':None,
-			  'project':None,
-			  'importance':"3", # the higher the better. Used to calculate FRP (Future Rewards Points). All KSUs start with a relative importance of 3
+i_KAS2_KSU = {'project':None,			  
 	    	  'time_cost': "13", # Reasonable Time Requirements in Minutes
 	    	  'next_event':today}
 
 
 
-
 #KAS3 Specifics - Acciones Reactivas Recurrentes con el objetivo de ejecutar una accion
-i_KAS3_KSU = {'value_type':None} 
+i_KAS3_KSU = {} 
 
 
-#KAS3 Specifics - Acciones Reactivas Recurrentes
-i_KAS4_KSU = {'value_type':None}
+
+#KAS4 Specifics - Acciones Reactivas Recurrentes
+i_KAS4_KSU = {}
 			  
 
 
@@ -2217,8 +2242,8 @@ def add_SmartEffort_event(theory, post_details): #Duration & Importance to be up
 			event['disconfort'] = True
 
 	if set_name in reactive_sets:
-		event['importance'] = ksu['importance']
 		event['streak'] = ksu['streak']
+		event['reward'] = post_details['reward']
 		
 	update_set(Hist, event)
 	update_MLog(theory, event)
@@ -2267,6 +2292,7 @@ def add_Stupidity_event(theory, post_details):
 	event['ksu_id'] = ksu_id
 	event['importance'] = ksu['importance']
 	event['streak'] = ksu['streak']
+	event['punishment'] = post_details['punishment']
 	event['repetitions'] = post_details['repetitions']
 	
 	update_set(Hist, event)
@@ -2292,22 +2318,17 @@ def calculate_event_score(event):
 
 	elif event_type == 'SmartEffort':
 
-		if set_name in ['KAS1', 'KAS2', 'KAS3', 'BOKA']:		
+		if set_name in poractive_sets:		
 			result['SmartEffort'] = int(event['duration'])*(int(event['importance']) + event['disconfort']) 
 			result['EndValue'] = int(event['duration'])*event['joy']
 			
-		if set_name == 'KAS4': 
-			if int(event['importance']) < int(event['streak']):
-				result['SmartEffort'] = int(event['importance']) * 2
-			else:
-				result['SmartEffort'] = int(event['importance']) + int(event['streak'])
+		if set_name in reactive_sets:
+			result['SmartEffort'] = int(event['reward'])
+
 
 	elif event_type == 'Stupidity':
+		result['Stupidity'] = int(event['punishment'])*int(event['repetitions']) + int(event['streak'])
 
-		if int(event['importance']) < int(event['streak']):
-			result['Stupidity'] = int(event['importance']) * int(event['repetitions']) + int(event['importance'])
-		else:
-			result['Stupidity'] = int(event['importance']) * int(event['repetitions']) + int(event['streak'])
 
 	elif event_type == 'Achievement':
 		result['Achievement'] = int(event['value'])
@@ -2773,34 +2794,6 @@ def triggered_Action_Done_ImPe_Contact(self):
 
 
 #--- Developer Actions ---
-def developer_Action_Load_CSV(theory, set_name):
-	csv_path = create_csv_path(set_name)
-	standard_sets = ['KAS2','KAS3', 'KAS4', 'BOKA', 'BigO', 'Wish'] # for now im leaving out the ImIn set 
-
-	if set_name in standard_sets:
-		developer_Action_Load_Set_CSV(theory, set_name, csv_path)
-
-	if set_name == 'KAS1':
-		developer_Action_Load_KAS1_CSV(theory, csv_path)
-
-	if set_name == 'ImPe':
-		developer_Action_Load_ImPe_CSV(theory, csv_path)
-
-
-	if set_name == 'ImIn':
-		developer_Action_Load_Set_CSV(theory, 'ImIn', create_csv_path('ImIn'))
-
-
-	if set_name == 'All':
-		developer_Action_Load_KAS1_CSV(theory, create_csv_path('KAS1'))
-		developer_Action_Load_ImPe_CSV(theory, create_csv_path('ImPe'))
-
-		for ksu_set in standard_sets:
-			developer_Action_Load_Set_CSV(theory, ksu_set, create_csv_path(ksu_set))	
-
-	return
-
-
 def developer_Action_Load_PythonData(theory, set_name):
 	if set_name == 'KAS1':
 		KAS1 = unpack_set(theory.KAS1)
@@ -2859,6 +2852,95 @@ def developer_Action_Load_PythonData(theory, set_name):
 	
 	theory.put()	
 	return
+
+
+
+def developer_Action_Replace_PythonData(theory, set_name):
+	if set_name == 'KAS1':
+		KAS1 = backup_theory.backup['KAS1'] 		
+		theory.KAS1 = pack_set(KAS1)
+
+	elif set_name == 'KAS2':
+		KAS2 = backup_theory.backup['KAS2'] 		
+		theory.KAS2 = pack_set(KAS2)
+
+	elif set_name == 'KAS3':
+		KAS3 = backup_theory.backup['KAS3']
+		theory.KAS3 = pack_set(KAS3)		
+
+	elif set_name == 'KAS4':
+		KAS4 = backup_theory.backup['KAS4']
+		theory.KAS4 = pack_set(KAS4)
+
+	elif set_name == 'BOKA':
+		BOKA = backup_theory.backup['BOKA']
+		theory.BOKA = pack_set(BOKA)
+
+	elif set_name == 'BigO':
+		BigO = backup_theory.backup['BigO']
+		theory.BigO = pack_set(BigO)
+
+	elif set_name == 'Wish':
+		Wish = backup_theory.backup['Wish']
+		theory.Wish = pack_set(Wish)
+
+	elif set_name == 'ImPe':
+		ImPe = backup_theory.backup['ImPe']
+		theory.ImPe = pack_set(ImPe)
+
+	elif set_name == 'ImIn':
+		ImIn = backup_theory.backup['ImIn']	
+		theory.ImIn = pack_set(ImIn)	
+
+	elif set_name == 'Hist':
+		Hist = backup_theory.backup['Hist']
+		theory.Hist = pack_set(Hist)
+	# elif set_name == 'All':
+	# 	all_sets = ['KAS1', 'KAS2', 'KAS3', 'KAS4', 'BOKA', 'BigO', 'Wish', 'ImPe', 'ImIn', 'Hist']
+	# 	for ksu_set in all_sets:
+	# 		developer_Action_Replace_PythonData(theory, ksu_set)	
+	theory.put()	
+	return
+
+
+
+
+
+
+
+
+#--- CSV Related
+
+def developer_Action_Load_CSV(theory, set_name):
+	csv_path = create_csv_path(set_name)
+	standard_sets = ['KAS2','KAS3', 'KAS4', 'BOKA', 'BigO', 'Wish'] # for now im leaving out the ImIn set 
+
+	if set_name in standard_sets:
+		developer_Action_Load_Set_CSV(theory, set_name, csv_path)
+
+	if set_name == 'KAS1':
+		developer_Action_Load_KAS1_CSV(theory, csv_path)
+
+	if set_name == 'ImPe':
+		developer_Action_Load_ImPe_CSV(theory, csv_path)
+
+
+	if set_name == 'ImIn':
+		developer_Action_Load_Set_CSV(theory, 'ImIn', create_csv_path('ImIn'))
+
+
+	if set_name == 'All':
+		developer_Action_Load_KAS1_CSV(theory, create_csv_path('KAS1'))
+		developer_Action_Load_ImPe_CSV(theory, create_csv_path('ImPe'))
+
+		for ksu_set in standard_sets:
+			developer_Action_Load_Set_CSV(theory, ksu_set, create_csv_path(ksu_set))	
+
+	return
+
+
+
+
 
 
 
@@ -3364,6 +3446,7 @@ app = webapp2.WSGIApplication([
 							 ('/email',Email),
 							 # ('/LoadCSV/' + PAGE_RE, LoadCSV), #There will be no need for this handler once it goes live
 							 ('/LoadPythonData/' + PAGE_RE, LoadPythonData),
+							 # ('/ReplacePythonData/' + PAGE_RE, ReplacePythonData), #There will be no need for this handler once it goes live
 							 ('/EditPythonData/'+ PAGE_RE, EditPythonData),
 							 ('/PythonData/' + PAGE_RE, PythonData)
 							 ], debug=True)

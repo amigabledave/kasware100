@@ -284,12 +284,12 @@
 	<div class="form-group">
 		
 		<div class="col-md-2">
-			<label>Value Type</label>
+			<label>Value Type<span class="red">*</span></label>
 				<select class="form-control" name="value_type">
 				{% for value in constants['l_Values'] %}
 					{% if value[0] == ksu['value_type'] %}
 						<option selected="selected" value="{{value[0]}}"> {{value[1]}} </option>
-					{% else %}
+					{% elif value[0] != 'V000'  %}
 						<option value="{{value[0]}}"> {{value[1]}} </option>
 					{% endif %}
 				{% endfor %}
@@ -298,16 +298,29 @@
 
 
 		<div class="col-md-2"> 
-			<label> Expected Impact </label> 
-			<select class="form-control" name="importance"> 
-				{% for i in constants['l_Fibonacci'] %}
-					{% if i == ksu['importance'] %}
-						<option selected="selected">{{i}}</option>
-					{% else %}		
-						<option> {{i}} </option>
+			<label> Reward if success <span class="red">*</span> </label>
+			<select class="form-control" name="reward">
+				{% for t in constants['l_long_Fibonacci'] %}
+					{% if t == ksu['reward']  %}
+						<option selected="selected">{{t}}</option>
+					{% else %}
+						<option> {{t}} </option>
 					{% endif %}
 				{% endfor %}
-					
+			</select>
+		</div>
+
+
+		<div class="col-md-2"> 
+			<label> Punishment if failure <span class="red">*</span> </label>
+			<select class="form-control" name="punishment">
+				{% for t in constants['l_long_Fibonacci'] %}
+					{% if t == ksu['punishment']  %}
+						<option selected="selected">{{t}}</option>
+					{% else %}
+						<option> {{t}} </option>
+					{% endif %}
+				{% endfor %}
 			</select>
 		</div>
 
@@ -355,7 +368,7 @@
 				{% for value in constants['l_Values'] %}
 					{% if value[0] == ksu['value_type'] %}
 						<option selected="selected" value="{{value[0]}}"> {{value[1]}} </option>
-					{% else %}
+					{% elif value[0] != 'V000' %}
 						<option value="{{value[0]}}"> {{value[1]}} </option>
 					{% endif %}
 				{% endfor %}
@@ -363,19 +376,35 @@
 		</div>
 
 
+
 		<div class="col-md-2"> 
-			<label> Expected Impact </label> 
-			<select class="form-control" name="importance"> 
-				{% for i in constants['l_Fibonacci'] %}
-					{% if i == ksu['importance'] %}
-						<option selected="selected">{{i}}</option>
-					{% else %}		
-						<option> {{i}} </option>
+			<label> Reward if avoided <span class="red">*</span> </label>
+			<select class="form-control" name="reward">
+				{% for t in constants['l_long_Fibonacci'] %}
+					{% if t == ksu['reward']  %}
+						<option selected="selected">{{t}}</option>
+					{% else %}
+						<option> {{t}} </option>
 					{% endif %}
 				{% endfor %}
-					
 			</select>
 		</div>
+
+
+		<div class="col-md-2"> 
+			<label> Punishment if commit. <span class="red">*</span> </label>
+			<select class="form-control" name="punishment">
+				{% for t in constants['l_long_Fibonacci'] %}
+					{% if t == ksu['punishment']  %}
+						<option selected="selected">{{t}}</option>
+					{% else %}
+						<option> {{t}} </option>
+					{% endif %}
+				{% endfor %}
+			</select>
+		</div>
+
+
 	</div>
 
 {% endif %}
