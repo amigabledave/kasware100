@@ -1667,7 +1667,7 @@ def update_ksu_next_event(theory, post_details):
 
 
 
-def update_ksu_streak_and_record(theory, post_details):
+def update_ksu_streak_and_record(theory, post_details): #xx
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
 	valid_sets = ['KAS3', 'KAS4']	
@@ -1680,7 +1680,7 @@ def update_ksu_streak_and_record(theory, post_details):
 
 	if user_action == 'Done_Confirm':
 
-		ksu['streak'] = int(ksu['streak']) + 1
+		ksu['streak'] = int(ksu['streak']) + int(post_details['repetitions'])
 		if int(ksu['streak']) > int(ksu['record']):
 			ksu['record'] = ksu['streak']
 
@@ -1849,8 +1849,6 @@ i_Proactive_KAS_KSU = {'time_cost': "1", # Reasonable Time Requirements in Minut
 i_Reactive_KAS_KSU = {'circumstance':None,
 					  'exceptions':None,
 					  'success_since':None,
-					  'reward':'1',
-					  'punishment':'34',
 			  		  'streak':"0",
 			  		  'record':"0"}
 
@@ -1875,12 +1873,14 @@ i_KAS2_KSU = {'project':None,
 
 
 #KAS3 Specifics - Acciones Reactivas Recurrentes con el objetivo de ejecutar una accion
-i_KAS3_KSU = {} 
+i_KAS3_KSU = {'reward':'34',
+			  'punishment':'3'} 
 
 
 
 #KAS4 Specifics - Acciones Reactivas Recurrentes
-i_KAS4_KSU = {}
+i_KAS4_KSU = {'reward':'3',
+			  'punishment':'34'} 
 			  
 
 
@@ -2323,7 +2323,7 @@ def calculate_event_score(event):
 			result['EndValue'] = int(event['duration'])*event['joy']
 			
 		if set_name in reactive_sets:
-			result['SmartEffort'] = int(event['reward'])
+			result['SmartEffort'] = int(event['reward'])*int(event['repetitions'])
 
 
 	elif event_type == 'Stupidity':
