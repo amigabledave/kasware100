@@ -519,8 +519,15 @@
  
 	<div class="form-group">
 		<div class="col-md-12"> 
-			<label> Objective Description <span class="red">*</span> </label>
-			<input type="text" class="form-control tile-ksu-edit" name="description" placeholder="e.g. Find an awesome girlfrind" required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">
+			<label> Short Description <span class="red">*</span> </label>
+			<input type="text" class="form-control tile-ksu-edit" name="short_description" placeholder="Find an awesome girlfrind" required value="{% if ksu['short_description']%}{{ksu['short_description']}}{% endif %}">
+		</div>
+	</div>
+
+	<div class="form-group">
+		<div class="col-md-12"> 
+			<label> Success Definition <span class="red">*</span> </label>
+			<input type="text" class="form-control tile-ksu-edit" name="description" placeholder="Find a girl with a 200 IQ that could also be a Victoria Secret model and convince her Im the perfect guy for her" required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">
 		</div>
 	</div>
 

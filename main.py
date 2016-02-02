@@ -1524,6 +1524,45 @@ class EditPythonData(Handler):
 
 
 
+
+
+
+#--- Mobile Related --
+
+class MobileNewKSU(Handler):
+	def get(self):
+		if user_bouncer(self):
+			return
+		theory = self.theory
+		BigO = unpack_set(theory.BigO)
+		BigO = hide_private_ksus(theory, BigO)	
+		BigO = hide_invisible(BigO)
+		BigO = make_ordered_ksu_set_list_for_SetViewer(BigO)
+
+
+		self.print_html('MobileNewKSU.html', BigO=BigO)
+
+	def post(self):
+		if user_bouncer(self):
+			return			
+		post_details = get_post_details(self)
+		target_set = post_details['target_set']
+		return_to = '/MobileNewKSU'
+
+		if target_set == 'KAS2':
+			self.redirect('/NewKSU/KAS2?return_to=/MobileNewKSU')
+
+		elif target_set == 'Wish':
+			self.redirect('/NewKSU/Wish?return_to=/MobileNewKSU')
+
+		elif target_set == 'BOKA':
+			parent_id = post_details['ksu_id']
+			self.redirect('/NewKSU/BOKA?return_to=/MobileNewKSU&parent_id=' + parent_id)
+		
+
+
+
+
 #--- Send Email ---
 
 
@@ -1667,7 +1706,7 @@ def update_ksu_next_event(theory, post_details):
 
 
 
-def update_ksu_streak_and_record(theory, post_details): #xx
+def update_ksu_streak_and_record(theory, post_details):
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
 	valid_sets = ['KAS3', 'KAS4']	
@@ -1885,6 +1924,7 @@ i_KAS4_KSU = {'reward':'3',
 
 
 i_BigO_KSU = {'value_type':None,
+			  'short_description':None,
 			  'achievement_value':None, #How much Achievement Points do you believe that achieving this goal would add to your life. Fibbo Scale. Can actually be 0. Formely known as achievement points.
 			  'is_milestone':False,
 			  'target_date':today+90} # if no target date is provided is automatically calculated based on days required			  
@@ -1894,7 +1934,7 @@ i_BigO_KSU = {'value_type':None,
 # Big Objective Key Actions Set Specifics
 i_BOKA_KSU = {'in_upcoming':False, #To overwrite the proactiveness auto true
 			  'importance':"3",
-			  'priority':"5",
+			  'priority':"1",
 			  'next_event':today}
 
 
@@ -3165,6 +3205,7 @@ def input_error(target_attribute, user_input):
 	validation_attributes = ['username', 
 							 'password',
 							 'description',
+							 'short_description',
 							 'charging_time',
 							 'duration', 
 							 'last_event', 
@@ -3206,6 +3247,9 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 
 		'description': re.compile(r"^.{3,200}$"),
 		'description_error': 'Description max lenght is 200 characters and min 3.',
+
+		'short_description': re.compile(r"^.{3,30}$"),
+		'short_description_error': 'Short description max lenght is 30 characters and min 3.',
 
 		'charging_time': re.compile(r"^[0-9]{1,3}$"),
 		'charging_time_error': 'Charging Time should be an integer with maximum 3 digits',
@@ -3442,6 +3486,8 @@ app = webapp2.WSGIApplication([
 							 
 							 ('/Done', Done),
 							 ('/Failure', Failure),
+
+							 ('/MobileNewKSU', MobileNewKSU),
 							 
 							 ('/email',Email),
 							 # ('/LoadCSV/' + PAGE_RE, LoadCSV), #There will be no need for this handler once it goes live
