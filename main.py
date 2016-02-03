@@ -1929,32 +1929,32 @@ i_BASE_KSU = {'id': None,
 
 
 i_KAS_KSU = {'value_type':'V500',
-			 'importance':"3", # the higher the better.
+			 'importance':'3', # the higher the better.
 	    	 'is_critical': False}
 
 
-i_Proactive_KAS_KSU = {'time_cost': "1", # Reasonable Time Requirements in Minutes
+i_Proactive_KAS_KSU = {'time_cost': '1', # Reasonable Time Requirements in Minutes
 					   'in_mission':False,
 			 		   'any_any':False, # This particular action can be executed at anytime and in anyplace
 			           'in_upcoming':True,
 			           'next_event':None,
-			           'best_time': None,}
+			           'best_time': 'None'}
 
 
 i_Reactive_KAS_KSU = {'circumstance':None,
 					  'exceptions':None,
 					  'success_since':None,
 					  'question_frequency':'1',
-			  		  'streak':"0",
-			  		  'record':"0"}
+			  		  'streak':'0',
+			  		  'record':'0'}
 
 
 
 #KAS1 Specifics	- Resource Generation Core Set - Acciones Recurrentes Proactivas con el objetivo de generar recursos	
-i_KAS1_KSU = {'charging_time': "7",
+i_KAS1_KSU = {'charging_time': '7',
 			  'last_event': None,
 			  'project':None,
-			  'best_day': "None",
+			  'best_day': 'None',
 			  'TimeUse_target_min':None,
 			  'TimeUse_target_max':None,
 			  'Repetition_target_min':None,
@@ -1963,7 +1963,7 @@ i_KAS1_KSU = {'charging_time': "7",
 
 
 i_KAS2_KSU = {'project':None,			  
-	    	  'time_cost': "13", # Reasonable Time Requirements in Minutes
+	    	  'time_cost': '13', # Reasonable Time Requirements in Minutes
 	    	  'next_event':today}
 
 
@@ -1990,9 +1990,9 @@ i_BigO_KSU = {'value_type':'V500',
 
 # Big Objective Key Actions Set Specifics
 i_BOKA_KSU = {'in_upcoming':False, #To overwrite the proactiveness auto true
-			  'importance':"3",
-			  'priority':"1",
-			  'next_event':today}
+			  'importance':'3',
+			  'priority':'1',
+			  'next_event':None}
 
 
 
@@ -2483,10 +2483,12 @@ def add_deleted_ksu_to_set(self):
 
 
 
-def prepare_details_for_saving(post_details):
+def prepare_details_for_saving(post_details): #xx
 	checkboxes = ['is_critical', 'is_private', 'in_upcoming', 'any_any', 'is_milestone']
+	
 	details = {'is_critical':False,
 			   'is_private':False,
+			   'next_event':None,
 			   'in_upcoming':False,
 			   'any_any':False,
 			   'tags':None,
@@ -3261,6 +3263,8 @@ def input_error(target_attribute, user_input):
 	
 	validation_attributes = ['username', 
 							 'password',
+							 'email',
+							 'birthday',
 							 'description',
 							 'short_description',
 							 'charging_time',
@@ -3276,7 +3280,7 @@ def input_error(target_attribute, user_input):
 							 'money_cost',
 							 'numeric_answer']
 
-	date_attributes = ['last_event', 'next_event', 'target_date', 'period_end', 'milestone_target_date']
+	date_attributes = ['last_event', 'next_event', 'target_date', 'period_end', 'milestone_target_date', 'birthday']
 
 	if target_attribute not in validation_attributes:
 		return None
@@ -3329,6 +3333,7 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 		'period_duration': re.compile(r"^[0-9]{1,3}$"),
 		'period_duration_error': "Period's duration should be an integer with maximum 3 digits",
 
+		'birthday_error':'Birthday format must be DD-MM-YYYY',
 		'last_event_error':'Last event format must be DD-MM-YYYY',
 		'next_event_error':'Next event format must be DD-MM-YYYY',
 		'target_date_error':'Target date format must be DD-MM-YYYY',
@@ -3398,6 +3403,57 @@ l_Scope = sorted(d_Scope.items())
 
 
 
+d_Times = {'None':'None',
+		   '0600':'06:00',
+		   '0700':'07:00',
+		   '0800':'08:00',
+		   '0900':'09:00',
+		   '1000':'10:00',
+		   '1100':'11:00',
+		   '1200':'12:00',
+		   '1300':'13:00',
+		   '1400':'14:00',
+		   '1500':'15:00',
+		   '1600':'16:00',
+		   '1700':'17:00',
+		   '1800':'18:00',
+		   '1900':'19:00',
+		   '2000':'20:00',
+		   '2100':'21:00',
+		   '2200':'22:00',
+		   '2300':'23:00',
+		   '0100':'01:00',
+		   '0200':'02:00',
+		   '0300':'03:00',
+		   '0400':'04:00',
+		   '0500':'05:00',
+
+		   '0630':'06:30',
+		   '0730':'07:30',
+		   '0830':'08:30',
+		   '0930':'09:30',
+		   '1300':'10:30',
+		   '1130':'11:30',
+		   '1230':'12:30',
+		   '1330':'13:30',
+		   '1430':'14:30',
+		   '1530':'15:30',
+		   '1630':'16:30',
+		   '1730':'17:30',
+		   '1830':'18:30',
+		   '1930':'19:30',
+		   '2300':'20:30',
+		   '2130':'21:30',
+		   '2230':'22:30',
+		   '2330':'23:30',
+		   '0130':'01:30',
+		   '0230':'02:30',
+		   '0330':'03:30',
+		   '0430':'04:30',
+		   '0530':'05:30'}
+l_Times = sorted(d_Times.items())
+
+
 d_Days = {'None':'None',
 		  '1':'1. Sunday',
 		  '2':'2. Monday',
@@ -3410,13 +3466,12 @@ l_Days = sorted(d_Days.items())
 
 
 
-
-
 constants = {'l_Fibonacci':l_Fibonacci,
 			 'l_long_Fibonacci': l_long_Fibonacci,
 			 'l_Values':l_Values,
 			 'l_Mean_Values':l_Mean_Values,
-			 'l_Days':l_Days,}
+			 'l_Days':l_Days,
+			 'l_Times':l_Times}
 
 
 
