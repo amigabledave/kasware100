@@ -210,11 +210,11 @@
 
 	<div class="form-group">
 
-		{% if set_name == 'KAS2' %} 
+		{% if set_name == 'KAS2' or set_name == 'BOKA'%} 
 
 			<div class="col-xs-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Done_Confirm">   Confirm   </button> </div>
 	
-			<div class="col-xs-4"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Done_Confirm_Continue"> Confirm and add Follow Up Action </button> </div>
+			<div class="col-xs-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Done_Confirm_Plus"> Confirm + </button> </div>
 
 		{% elif set_name == 'BigO' or set_name == 'Wish' %}
 

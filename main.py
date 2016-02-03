@@ -112,9 +112,13 @@ class Handler(webapp2.RequestHandler):
 	def render_html(self, template, **kw):
 		t = jinja_env.get_template(template)
 		if self.theory:
-			theory = self.theory
+			theory = self.theory			
 			MLog = unpack_set(theory.MLog)
+			
+			if today not in MLog:
+				MLog[today] = {'EndValue':0, 'SmartEffort':0, 'Stupidity':0, 'Achievement':0}
 			todays_log = MLog[today]
+
 			EndValue = "{:,}".format(todays_log['EndValue'])
 			SmartEffort = "{:,}".format(todays_log['SmartEffort'])
 			Stupidity = "{:,}".format(todays_log['Stupidity'])
@@ -273,7 +277,12 @@ class TodaysMission(Handler):
 		if len(night_questions) == 0:
 			night_questions = None		
 
-		todays_effort = unpack_set(theory.MLog)[today]['SmartEffort']		
+		MLog = unpack_set(theory.MLog)
+		if today in MLog:
+			todays_effort = MLog[today]['SmartEffort']
+		else:
+			todays_effort = 0
+
 		if len(mission) > 0:
 			message = None
 		if len(mission) == 0:
@@ -764,6 +773,13 @@ class BigOViewer(Handler):
 		theory = self.theory
 		
 		BigO = unpack_set(theory.BigO)
+		
+		ksu_id = self.request.get('ksu_id')
+		if ksu_id:			
+			objective = BigO[ksu_id]
+			BigO = {ksu_id:objective}
+			
+
 		BigO = hide_private_ksus(theory, BigO)	
 		BigO = hide_invisible(BigO)
 		BigO = pretty_dates(BigO)
@@ -774,7 +790,7 @@ class BigOViewer(Handler):
 		BOKA = hide_private_ksus(theory, BOKA)
 		BOKA = hide_invisible(BOKA)
 		BOKA = make_ordered_ksu_set_list_for_SetViewer(BOKA)
-	
+		
 		self.print_html('BigOViewer.html', BigO=BigO, BOKA=BOKA, today=today ) #viewer_details=viewer_details
 
 
@@ -1126,7 +1142,7 @@ class NewKSU(Handler):
 				parent = parent_set[parent_id]
 				update_child_with_parent(ksu, parent)
 		
-		self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name ,title='Create')
+		self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name ,title='Define')
 
 	def post(self, set_name):
 		if user_bouncer(self):
@@ -1136,7 +1152,7 @@ class NewKSU(Handler):
 		return_to = self.request.get('return_to')
 		user_action = post_details['action_description']
 
-		if user_action == 'Create':
+		if user_action == 'Create' or user_action == 'Create_Plus':
 			input_error = user_input_error(post_details)
 			if input_error:
 				ksu_set = unpack_set(eval('theory.' + set_name))
@@ -1144,11 +1160,20 @@ class NewKSU(Handler):
 				ksu = update_ksu_with_post_details(ksu, post_details)
 				show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
 				self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name, title='Create', input_error=input_error)
-			else:
+			elif user_action == 'Create':
 				user_Action_Create_ksu(self, set_name)
 				self.redirect(return_to)
+			elif user_action == 'Create_Plus':
+				user_Action_Create_ksu(self, set_name)
+				
+				parent_id = self.request.get('parent_id')
+				if parent_id:
+					self.redirect('/NewKSU/'+set_name+'?return_to='+return_to+'&parent_id='+parent_id)
+				else:
+					self.redirect('/NewKSU/'+set_name+'?return_to='+return_to)
 
-		if user_action == 'Discard':
+
+		elif user_action == 'Discard':
 			self.redirect(return_to)
 
 
@@ -1319,9 +1344,13 @@ class Done(Handler):
 				user_Action_Done_SmartEffort(self)
 				self.redirect(return_to)
 
-		elif user_action =='Done_Confirm_Continue':
+		elif user_action =='Done_Confirm_Plus':
 			input_error = user_input_error(post_details)
-			parent_id = ksu['id']
+			
+			if set_name == 'BOKA':
+				parent_id = ksu['parent_id']
+			else:
+				parent_id = ksu['id']
 
 			if input_error:
 				ksu['time_cost'] = post_details['duration']
@@ -1797,8 +1826,8 @@ def update_MLog(theory, event):
 	score_events = ['EndValue','SmartEffort','Stupidity', 'Achievement']
 
 	if event_type in score_events:
-		event_score = calculate_event_score(event)
 		log = MLog[date]
+		event_score = calculate_event_score(event)		
 		for (units, score) in list(event_score.items()):
 			log[units] = log[units] + score
 
@@ -1810,6 +1839,36 @@ def update_MLog(theory, event):
 	else:
 		ksu_history = [event_id]
 	MLog[ksu_id] = ksu_history
+
+	theory.MLog = pack_set(MLog)
+	return
+
+
+
+def recalculate_MLog(theory):
+	Hist = unpack_set(theory.Hist)
+	start_date = Hist['set_details']['date']
+	MLog = unpack_set(new_set_MLog(start_date=start_date, end_date=start_date+365))
+	for event in Hist:
+		event = Hist[event]
+		date = event['date']
+		event_type = event['type']
+		score_events = ['EndValue','SmartEffort','Stupidity', 'Achievement']
+
+		if event_type in score_events:
+			log = MLog[date]
+			event_score = calculate_event_score(event)		
+			for (units, score) in list(event_score.items()):
+				log[units] = log[units] + score
+
+		ksu_id = event['ksu_id']
+		event_id = event['id']
+		if ksu_id in MLog:
+			ksu_history = MLog[ksu_id]
+			ksu_history.append(event_id)
+		else:
+			ksu_history = [event_id]
+		MLog[ksu_id] = ksu_history
 
 	theory.MLog = pack_set(MLog)
 	return
@@ -1841,7 +1900,6 @@ def update_theory(theory, ksu_set):
 	if set_name == 'Wish':
 		theory.Wish = pack_set(ksu_set)
 
-
 	if set_name == 'ImPe':
 		theory.ImPe = pack_set(ksu_set)
 	if set_name == 'ImIn':
@@ -1849,10 +1907,8 @@ def update_theory(theory, ksu_set):
 
 	if set_name == 'Event':
 		theory.Hist = pack_set(ksu_set)
-		
+		recalculate_MLog(theory)
 	return
-
-
 
 
 
@@ -1872,7 +1928,7 @@ i_BASE_KSU = {'id': None,
 	    	  'comments': None}
 
 
-i_KAS_KSU = {'value_type':None,
+i_KAS_KSU = {'value_type':'V500',
 			 'importance':"3", # the higher the better.
 	    	 'is_critical': False}
 
@@ -1888,6 +1944,7 @@ i_Proactive_KAS_KSU = {'time_cost': "1", # Reasonable Time Requirements in Minut
 i_Reactive_KAS_KSU = {'circumstance':None,
 					  'exceptions':None,
 					  'success_since':None,
+					  'question_frequency':'1',
 			  		  'streak':"0",
 			  		  'record':"0"}
 
@@ -1923,7 +1980,7 @@ i_KAS4_KSU = {'reward':'3',
 			  
 
 
-i_BigO_KSU = {'value_type':None,
+i_BigO_KSU = {'value_type':'V500',
 			  'short_description':None,
 			  'achievement_value':None, #How much Achievement Points do you believe that achieving this goal would add to your life. Fibbo Scale. Can actually be 0. Formely known as achievement points.
 			  'is_milestone':False,
@@ -1939,7 +1996,7 @@ i_BOKA_KSU = {'in_upcoming':False, #To overwrite the proactiveness auto true
 
 
 
-i_Wish_KSU = {'value_type': None,
+i_Wish_KSU = {'value_type':'V500',
 			  'achievement_value':None, #How much Achievement Points do you believe that achieving this goal would add to your life. Fibbo Scale. Can actually be 0. Formely known as achievement points.			  			  
 			  'in_bucket_list':False,
 			  'money_cost':'0',
@@ -2130,14 +2187,13 @@ def new_set_Hist():
 
 
 
-def new_set_MLog(start_date=(735964), end_date=(735964+366)): #start_date = Jan 1, 2016 |  end_date = Dec 31, 2016  
+def new_set_MLog(start_date=today, end_date=today+365):
 	result = {}
 	for date in range(start_date, end_date):
 		entry = {'EndValue':0, 'SmartEffort':0, 'Stupidity':0, 'Achievement':0}
 		entry['date'] = datetime.fromordinal(date).strftime('%d-%m-%Y')
 		result[date] = entry
 	return pack_set(result)
-
 
 
 
@@ -2245,7 +2301,8 @@ def add_EndValue_event(theory, post_details): #Duration & Importance to be updat
 
 	event['ksu_id'] = ksu_id
 	event['duration'] = post_details['duration']
-	event['importance'] = post_details['importance']	
+	event['importance'] = post_details['importance']
+	event['repetitions'] = post_details['repetitions']	
 	
 	update_set(Hist, event)
 	update_MLog(theory, event)
@@ -2353,7 +2410,7 @@ def calculate_event_score(event):
 	event_type = event['type']
 
 	if event_type == 'EndValue':
-		result['EndValue'] = int(event['duration']) * int(event['importance'])
+		result['EndValue'] = int(event['duration']) * int(event['importance']) - 20 * event['effort']
 		result['SmartEffort'] = 20 * event['effort']
 
 	elif event_type == 'SmartEffort':
@@ -3207,6 +3264,8 @@ def input_error(target_attribute, user_input):
 							 'description',
 							 'short_description',
 							 'charging_time',
+							 'contact_frequency',
+							 'question_frequency',
 							 'duration', 
 							 'last_event', 
 							 'next_event', 
@@ -3216,6 +3275,7 @@ def input_error(target_attribute, user_input):
 							 'period_duration',
 							 'money_cost',
 							 'numeric_answer']
+
 	date_attributes = ['last_event', 'next_event', 'target_date', 'period_end', 'milestone_target_date']
 
 	if target_attribute not in validation_attributes:
@@ -3257,6 +3317,12 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 		'duration': re.compile(r"^[0-9]{1,3}$"),
 		'duration_error': 'Duration should be an integer with maximum 3 digits',
 
+		'question_frequency': re.compile(r"^[0-9]{1,3}$"),
+		'question_frequency_error': 'question_frequency should be an integer with maximum 3 digits',
+
+		'contact_frequency': re.compile(r"^[0-9]{1,3}$"),
+		'contact_error': 'contact_frequency should be an integer with maximum 3 digits',		
+
 		'money_cost': re.compile(r"^[0-9]{1,12}$"),
 		'money_cost_error': 'The money cost should be an integer',
 
@@ -3269,8 +3335,8 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 		'period_end_error':"Period's End format must be DD-MM-YYYY",
 		'milestone_target_date_error':"Period's End format must be DD-MM-YYYY",
 
-		'comments': re.compile(r"^.{0,400}$"),
-		'comments_error': 'Comments cannot excede 400 characters',
+		'comments': re.compile(r"^.{0,1000}$"),
+		'comments_error': 'Comments cannot excede 1,000 characters',
 		
 		'numeric_answer':re.compile(r"[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?"),
 		'numeric_answer_error':'The answer should be a number'}
@@ -3284,6 +3350,8 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 
 
 date_attributes = ['last_event', 'next_event', 'last_contact', 'next_contact', 'target_date']
+
+l_default_grouping = [(True,'Showing All')]
 
 l_Fibonacci = ['1','2','3','5','8','13']
 
@@ -3300,8 +3368,19 @@ d_Values = {'V000': '0. End Value',
 			'V700': '7. Outer Order & Peace', 
 			'V800': '8. Stuff',
 		 	'V900': '9. Money & Power'}
-
 l_Values = sorted(d_Values.items())
+
+
+d_Mean_Values = {'V100': '1. Inner Peace & Consciousness',
+				 'V200': '2. Fun & Exciting Situations', 
+				 'V300': '3. Meaning & Direction', 
+				 'V400': '4. Health & Vitality', 
+				 'V500': '5. Love & Friendship', 
+				 'V600': '6. Knowledge & Skills', 
+				 'V700': '7. Outer Order & Peace', 
+				 'V800': '8. Stuff',
+			 	 'V900': '9. Money & Power'}
+l_Mean_Values = sorted(d_Mean_Values.items())
 
 
 d_Scope = {'Total': 'Overall Results',
@@ -3315,7 +3394,6 @@ d_Scope = {'Total': 'Overall Results',
 	       'V700': '7. Outer Order & Peace', 
 	       'V800': '8. Stuff',
 		   'V900': '9. Money & Power'}
-
 l_Scope = sorted(d_Scope.items())
 
 
@@ -3328,22 +3406,21 @@ d_Days = {'None':'None',
 		  '5':'5. Thursday',
 		  '6':'6. Friday',
 		  '7':'7. Saturday'}
-
-
-l_default_grouping = [(True,'Showing All')]
-
-
 l_Days = sorted(d_Days.items())
+
+
+
 
 
 constants = {'l_Fibonacci':l_Fibonacci,
 			 'l_long_Fibonacci': l_long_Fibonacci,
 			 'l_Values':l_Values,
+			 'l_Mean_Values':l_Mean_Values,
 			 'l_Days':l_Days,}
 
 
 
-d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1)',
+d_Viewer ={'KAS1':{'set_title':'Key Actions Core Set  (KAS1)',
 				    'set_name':'KAS1',
 				    'attributes':['description','charging_time','importance','pretty_next_event'],
 				    'fields':{'description':'Description','charging_time':'C. Time','importance':'Exp. Imp.', 'pretty_next_event':'Next Event'},
@@ -3351,10 +3428,10 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 				    'show_Button_Done':True,
 				    'show_Button_Add_To_Mission':True,
 				    'grouping_attribute':'value_type',
-				    'grouping_list':l_Values},
+				    'grouping_list':l_Mean_Values},
 
 
-			'KAS2':{'set_title':'Proactive Value Creation Actions Expantion Set  (KAS2)',
+			'KAS2':{'set_title':'Key Actions Expantion Set  (KAS2)',
 				    'set_name':'KAS2',
 				    'attributes':['description','pretty_next_event','project'],
 				    'fields':{'description':'Action description', 'pretty_next_event':'Event Date', 'project':'Project (if any)'},
@@ -3365,7 +3442,7 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 				    'grouping_list':l_Values},
 
 
-			'KAS3':{'set_title':'Reactive Value Creation Actions Set (KAS3)',
+			'KAS3':{'set_title':'Key Re-Actions Set (KAS3)',
 				    'set_name':'KAS3',
 				    'attributes':['circumstance','description','streak','record'],
 				    'fields':{'circumstance': 'Circumstance','description':'Target Reaction','streak':'Streak','record':'Record'},
@@ -3375,7 +3452,7 @@ d_Viewer ={'KAS1':{'set_title':'Proactive Value Creation Actions Core Set  (KAS1
 				    'grouping_attribute':'value_type',
 				    'grouping_list':l_Values},
 
-			'KAS4':{'set_title':'Value Destruction Actions Set -- To be avoided  (KAS4)',
+			'KAS4':{'set_title':'Key Negative-Actions Set -- To be avoided  (KAS4)',
 				    'set_name':'KAS4',
 				    'attributes':['description','circumstance','reaction','streak','record'],
 				    'fields':{'description':'Action to Avoid','circumstance':'Dangerous Circumstances & Potential Reactions', 'streak':'Streak','record':'Record'},

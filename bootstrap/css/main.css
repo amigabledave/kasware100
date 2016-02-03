@@ -3,16 +3,20 @@
 /*--- Base Formats----------------------------*/
 
 
-.main-title {
+.KASwareTitleBlock {
     display: block;
-    color: #222;
-    font-size: 30px;
-    font-weight: bold;
+    color: #222;        
     text-align: left;
-    margin-bottom: 5px;
     margin-top: 25px;
     text-decoration: none;
 }
+
+.KASwareTitleText {
+    font-size: 30px;
+    font-weight: bold;
+    vertical-align: bottom;
+}
+
 
 
 .section-title{
@@ -25,6 +29,29 @@
     margin-top: 15px;
     text-decoration: none;
 }
+
+
+.NewEditKSU-title{
+    color: #222;
+    font-size: 28px;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 5px;
+    margin-top: 15px;
+    text-decoration: none;
+}
+
+.MiniTopTitle{
+    color: #222;
+    font-size: 14px;
+    /*font-weight: bold;*/
+    text-align: left;
+/*    margin-bottom: 5px;
+    margin-top: 15px;*/
+    vertical-align: top;
+    /*text-decoration: none;*/
+}
+
 
 
 
