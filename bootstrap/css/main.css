@@ -126,6 +126,20 @@
 }
 
 
+.small-score-title {
+    display: block;
+    color: #6600CC;
+    font-size: 15px;
+    /*font-weight: bold;*/
+    text-align: center;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    text-decoration: none;
+    white-space:pre;
+}
+
+
+
 .corner-link{
     display: inline-block;
     margin-top: 25px;

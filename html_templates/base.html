@@ -2,38 +2,66 @@
 <html>
 <head>
 	<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
-	<link type="text/css" rel="stylesheet" href="/bootstrap/css/main.css" />
+	<link type="text/css" rel="stylesheet" href="/bootstrap/css/main.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<title> KASware </title>
 </head>
 
 <body>
-	<div class="container">
-		
-		<div class="row">
-			<!-- <br>	 -->
-			
-			<div class="col-xs-3"> 
-				<div class="KASwareTitleBlock">
-					<span class="KASwareTitleText"> KASware</span><span class="MiniTopTitle">αlpha</span>
-				</div>
-			</div>
+	<div class="container">		
 			
 			{% if theory %}
 
-				<div class="col-xs-6"> 
-					<div class="score-title"> Today's Score [ {{TodaysScore}} ] = <a href=""> End Value [ {{EndValue}} ] </a> + <a href="/effort-report"> Smart Effort [ {{SmartEffort}} ] </a> - <a href=""> Stupidity [ {{Stupidity}} ] </a></div>
+				<div class="row">			
+					<div class="col-xs-7 col-sm-9 col-md-3 col-lg-3"> 
+						<div class="KASwareTitleBlock">
+							<span class="KASwareTitleText"> KASware</span><span class="MiniTopTitle">αlpha</span>
+						</div>
+					</div>
+				
+					<div class="col-xs-5 col-sm-3 hidden-md hidden-lg respect-space text-right"><a href="/logout" class="corner-link"> (Logout) </a>  <a href="/Settings" class="corner-link">{{theory.username}} </a> 
+					</div>		
+						
+					<div class="hidden-xs hidden-sm col-md-6"> 
+						<div class="score-title"> Today's Score [ {{TodaysScore}} ] = <a href=""> End Value [ {{EndValue}} ] </a> + <a href="/effort-report"> Smart Effort [ {{SmartEffort}} ] </a> - <a href=""> Stupidity [ {{Stupidity}} ] </a></div>
+					</div>
+
+					<div class="hidden-xs hidden-sm col-md-3 col-lg-3 respect-space text-right"><a href="/Settings" class="corner-link">{{theory.username}} </a>   <a href="/logout" class="corner-link"> (Logout) </a></div>					
 				</div>
 
-				<div class="col-xs-3 col-md-1">  </div>
-				<div class="hidden-xs hidden-sm hidden-md col-lg-1"> <a href="/Settings" class="corner-link">{{theory.username}} </a> </div>
-				<div class="col-xs-1">  </div>		
-				<div class="hidden-xs hidden-sm hidden-md col-lg-1"> <a href="/logout" class="corner-link"> (Logout) </a> </div>
+
+				<div class="row">
+					<div class="hidden-xs col-sm-12 hidden-md hidden-lg"> 
+						<div class="small-score-title"> Today's Score [ {{TodaysScore}} ] = <a href=""> End Value [ {{EndValue}} ] </a> + <a href="/effort-report"> Smart Effort [ {{SmartEffort}} ] </a> - <a href=""> Stupidity [ {{Stupidity}} ] </a></div>
+					</div>
+
+					<div class="col-xs-12 hidden-sm hidden-md hidden-lg"> 
+						<div class="small-score-title"> Today's Score [ {{TodaysScore}} ]</div>
+					</div>				
+
 				</div>
 
 				<div class="row">
-					<div class="col-xs-12 respect-space"><a href="/TodaysMission">Today's Mission</a>     <a href="/Upcoming">Upcoming</a>     <a href="/EndValuePortfolio">EV Portfolio</a>     <a href="/SetViewer/KAS1">KAS1</a>     <a href="/SetViewer/KAS2">KAS2</a>     <a href="/SetViewer/KAS3">KAS3</a>     <a href="/SetViewer/KAS4">KAS4</a>     <a href="/BigOViewer">Big Os</a>     <a href="/SetViewer/Wish">Wishes</a>     <a href="/SetViewer/ImPe">People</a>     <a href="/ImInViewer">Indicators</a>
+					<div class="hidden-xs hidden-sm col-md-12 col-lg-12 respect-space text-center"><a href="/TodaysMission">Today's Mission</a>     <a href="/Upcoming">Upcoming</a>     <a href="/EndValuePortfolio">EV Portfolio</a>     <a href="/SetViewer/KAS1">KAS1</a>     <a href="/SetViewer/KAS2">KAS2</a>     <a href="/SetViewer/KAS3">KAS3</a>     <a href="/SetViewer/KAS4">KAS4</a>     <a href="/BigOViewer">Big Os</a>     <a href="/SetViewer/Wish">Wishes</a>     <a href="/SetViewer/ImPe">People</a>     <a href="/ImInViewer">Indicators</a>
 					</div>
 				</div>
+
+
+				<div class="row">
+					<div class="hidden-xs col-sm-12 hidden-md hidden-lg respect-space text-center"><a href="/TodaysMission">Today's Mission</a>     <a href="/Upcoming">Upcoming</a>     <a href="/EndValuePortfolio">EV Portfolio</a></div>
+
+					<div class="hidden-xs col-sm-12 hidden-md hidden-lg respect-space text-center"><a href="/SetViewer/KAS1">KAS1</a>     <a href="/SetViewer/KAS2">KAS2</a>     <a href="/SetViewer/KAS3">KAS3</a>     <a href="/SetViewer/KAS4">KAS4</a>     <a href="/BigOViewer">Big Os</a>     <a href="/SetViewer/Wish">Wishes</a>     <a href="/SetViewer/ImPe">People</a>     <a href="/ImInViewer">Indicators</a></div>
+				</div>
+
+
+				<div class="row">
+					<div class="col-xs-12 hidden-sm hidden-md hidden-lg respect-space text-center"><a href="/TodaysMission">Today's Mission</a>     <a href="/Upcoming">Upcoming</a>     <a href="/EndValuePortfolio">EV Portfolio</a></div>
+
+					<div class="col-xs-12 hidden-sm hidden-md hidden-lg respect-space text-center"><a href="/SetViewer/KAS1">KAS1</a>     <a href="/SetViewer/KAS2">KAS2</a>     <a href="/SetViewer/KAS3">KAS3</a>     <a href="/SetViewer/KAS4">KAS4</a></div>
+
+					<div class="col-xs-12 hidden-sm hidden-md hidden-lg respect-space text-center"><a href="/BigOViewer">Big Os</a>     <a href="/SetViewer/Wish">Wishes</a>     <a href="/SetViewer/ImPe">People</a>     <a href="/ImInViewer">Indicators</a></div>
+				</div>
+
 
 
 			{% else %}
