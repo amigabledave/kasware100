@@ -799,17 +799,18 @@ class BigOViewer(Handler):
 			return
 		post_details = get_post_details(self)
 		user_action = post_details['action_description']
-	
-		
-		if user_action == 'NewKSU':
-			self.redirect('/NewKSU/BigO?return_to=/BigOViewer')
+		ksu_id = self.request.get('ksu_id')
 
+		if user_action == 'NewKSU':
+			if ksu_id:
+				self.redirect('/NewKSU/BigO?return_to=/BigOViewer&ksu_id='+ksu_id)
+			else:
+				self.redirect('/NewKSU/BigO?return_to=/BigOViewer')
 
 		elif user_action == 'Add_Child_KSU':
 			parent_id = post_details['ksu_id']
 			self.redirect('/NewKSU/BOKA?return_to=/BigOViewer&parent_id=' + parent_id)
 		
-
 		else:
 			ksu_id = post_details['ksu_id']
 			set_name = get_type_from_id(ksu_id)

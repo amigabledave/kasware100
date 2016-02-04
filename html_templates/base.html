@@ -9,24 +9,27 @@
 
 <body>
 	<div class="container">		
+
+
+			<div class="row">			
+				<div class="col-xs-9 col-sm-9 col-md-3 col-lg-3"> 
+					<div class="KASwareTitleBlock">
+						<span class="KASwareTitleText"> KASware</span><span class="MiniTopTitle">αlpha</span>
+					</div>
+				</div>
 			
 			{% if theory %}
-
-				<div class="row">			
-					<div class="col-xs-7 col-sm-9 col-md-3 col-lg-3"> 
-						<div class="KASwareTitleBlock">
-							<span class="KASwareTitleText"> KASware</span><span class="MiniTopTitle">αlpha</span>
-						</div>
-					</div>
 				
-					<div class="col-xs-5 col-sm-3 hidden-md hidden-lg respect-space text-right"><a href="/logout" class="corner-link"> (Logout) </a>  <a href="/Settings" class="corner-link">{{theory.username}} </a> 
+					<div class="col-xs-3 col-sm-3 hidden-md hidden-lg text-left">
+						<a href="/Settings" class="corner-link">{{theory.username}}</a>
+						<a href="/logout" class="">(Logout)</a>   
 					</div>		
 						
 					<div class="hidden-xs hidden-sm col-md-6"> 
 						<div class="score-title"> Today's Score [ {{TodaysScore}} ] = <a href=""> End Value [ {{EndValue}} ] </a> + <a href="/effort-report"> Smart Effort [ {{SmartEffort}} ] </a> - <a href=""> Stupidity [ {{Stupidity}} ] </a></div>
 					</div>
 
-					<div class="hidden-xs hidden-sm col-md-3 col-lg-3 respect-space text-right"><a href="/Settings" class="corner-link">{{theory.username}} </a>   <a href="/logout" class="corner-link"> (Logout) </a></div>					
+					<div class="hidden-xs hidden-sm col-md-3 col-lg-3 respect-space text-right"><a href="/Settings" class="corner-link">{{theory.username}} </a>   <a href="/logout" class="corner-link">( Logout )</a></div>					
 				</div>
 
 
@@ -42,32 +45,17 @@
 				</div>
 
 				<div class="row">
-					<div class="hidden-xs hidden-sm col-md-12 col-lg-12 respect-space text-center"><a href="/TodaysMission">Today's Mission</a>     <a href="/Upcoming">Upcoming</a>     <a href="/EndValuePortfolio">EV Portfolio</a>     <a href="/SetViewer/KAS1">KAS1</a>     <a href="/SetViewer/KAS2">KAS2</a>     <a href="/SetViewer/KAS3">KAS3</a>     <a href="/SetViewer/KAS4">KAS4</a>     <a href="/BigOViewer">Big Os</a>     <a href="/SetViewer/Wish">Wishes</a>     <a href="/SetViewer/ImPe">People</a>     <a href="/ImInViewer">Indicators</a>
+					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center"><a href="/TodaysMission">Today's Mission</a> - <a href="/Upcoming">Upcoming</a> - <a href="/EndValuePortfolio">EV Portfolio</a> - <a href="/SetViewer/KAS1">KAS1</a> - <a href="/SetViewer/KAS2">KAS2</a> - <a href="/SetViewer/KAS3">KAS3</a> - <a href="/SetViewer/KAS4">KAS4</a> - <a href="/BigOViewer">Big Os</a> - <a href="/SetViewer/Wish">Wishes</a> - <a href="/SetViewer/ImPe">People</a> - <a href="/ImInViewer">Indicators</a>
 					</div>
 				</div>
 
 
-				<div class="row">
-					<div class="hidden-xs col-sm-12 hidden-md hidden-lg respect-space text-center"><a href="/TodaysMission">Today's Mission</a>     <a href="/Upcoming">Upcoming</a>     <a href="/EndValuePortfolio">EV Portfolio</a></div>
-
-					<div class="hidden-xs col-sm-12 hidden-md hidden-lg respect-space text-center"><a href="/SetViewer/KAS1">KAS1</a>     <a href="/SetViewer/KAS2">KAS2</a>     <a href="/SetViewer/KAS3">KAS3</a>     <a href="/SetViewer/KAS4">KAS4</a>     <a href="/BigOViewer">Big Os</a>     <a href="/SetViewer/Wish">Wishes</a>     <a href="/SetViewer/ImPe">People</a>     <a href="/ImInViewer">Indicators</a></div>
-				</div>
-
-
-				<div class="row">
-					<div class="col-xs-12 hidden-sm hidden-md hidden-lg respect-space text-center"><a href="/TodaysMission">Today's Mission</a>     <a href="/Upcoming">Upcoming</a>     <a href="/EndValuePortfolio">EV Portfolio</a></div>
-
-					<div class="col-xs-12 hidden-sm hidden-md hidden-lg respect-space text-center"><a href="/SetViewer/KAS1">KAS1</a>     <a href="/SetViewer/KAS2">KAS2</a>     <a href="/SetViewer/KAS3">KAS3</a>     <a href="/SetViewer/KAS4">KAS4</a></div>
-
-					<div class="col-xs-12 hidden-sm hidden-md hidden-lg respect-space text-center"><a href="/BigOViewer">Big Os</a>     <a href="/SetViewer/Wish">Wishes</a>     <a href="/SetViewer/ImPe">People</a>     <a href="/ImInViewer">Indicators</a></div>
-				</div>
-
-
-
 			{% else %}
-				<div class="col-xs-7"> </div>
-				<div class="col-xs-1"> <a href="/login" class="corner-link"> Login </a> </div>
-				<div class="col-xs-1"> <a href="/signup" class="corner-link"> (Signup) </a> </div>
+					<div class="col-xs-3 col-sm-3 col-md-9 col-lg-9 text-right"> 
+						<a href="/login" class="corner-link"> ( Login ) </a> 
+						<a href="/signup" class="corner-link"> ( Signup ) </a>
+					</div>
+					
 				</div>
 			{% endif %}
 					
