@@ -315,7 +315,7 @@ class TodaysMission(Handler):
 			user_Action_Push(self)
 			self.redirect('/TodaysMission')
 
-		elif user_action == 'Question_Answered':
+		elif user_action in ['Question_Answered_Yes', 'Question_Answered_No', 'Question_Answered_Record']: #xx
 			input_error = user_input_error(post_details)
 			if input_error:
 				theory = self.theory
@@ -1722,7 +1722,7 @@ def update_ksu_next_event(theory, post_details):
 		ksu['next_event'] = tomorrow
 
 
-	elif user_action == 'Question_Answered':
+	elif user_action in ['Question_Answered_Yes', 'Question_Answered_No', 'Question_Answered_Record']:
 		ksu['last_measurement'] = today
 		ksu['next_measurement'] = today + int(ksu['measurement_frequency'])
 
@@ -2269,19 +2269,21 @@ def add_Deleted_event(theory, ksu):
 
 
 def add_Answered_event(theory, post_details):
-	Hist = unpack_set(theory.Hist)
-	ksu_id = post_details['ksu_id']
-	set_name = get_type_from_id(ksu_id)
+	Hist = unpack_set(theory.Hist)	
 	event = new_event(Hist, 'Answered')
-	post_details_attributes = post_details.keys()
-
+	ksu_id = post_details['ksu_id']			
 	event['ksu_id'] = ksu_id
+	
+	user_action = post_details['action_description']
+	if user_action == 'Question_Answered_Yes':
+		event['value'] = 'Yes'
 
-	if 'numeric_answer' in post_details_attributes:
+	elif user_action == 'Question_Answered_No':
+		event['value'] = 'No'
+
+	elif user_action == 'Question_Answered_Record':
 		event['value'] = post_details['numeric_answer']
-	elif 'boolean_answer' in post_details_attributes:
-		event['value'] = post_details['boolean_answer']
-
+	
 	update_set(Hist, event)
 	theory.Hist = pack_set(Hist)
 	return event
@@ -2483,7 +2485,7 @@ def add_deleted_ksu_to_set(self):
 
 
 
-def prepare_details_for_saving(post_details): #xx
+def prepare_details_for_saving(post_details):
 	checkboxes = ['is_critical', 'is_private', 'in_upcoming', 'any_any', 'is_milestone']
 	
 	details = {'is_critical':False,
@@ -2650,7 +2652,7 @@ def user_Action_Add_To_Mission(self):
 
 def user_Action_Record_Answer(self):
 	theory = self.theory
-	post_details = get_post_details(self)
+	post_details = get_post_details(self) #xx
 	update_ksu_next_event(theory, post_details) 	
 	add_Answered_event(theory, post_details)	
 	theory.put()

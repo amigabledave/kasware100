@@ -786,12 +786,12 @@
 
 	<div class="form-group">
 
-		<div class="col-xs-6 col-sm-6 col-md-4">
+		<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
 			<label> Comments </label>
 			<textarea class="form-control" name="comments">{% if ksu['comments']%}{{ksu['comments']}}{% endif %}</textarea> 
 		</div>
 
-		<div class="col-xs-6 col-sm-6 col-md-4">
+		<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
 			<label> Tags (Please separete using comas) </label>
 			<input type="text" class="form-control" name="tags" placeholder="Tag, Tag, Tag" value="{% if ksu['tags']%}{{ksu['tags']}}{% endif %}">
 		</div>
@@ -806,22 +806,37 @@
 
 	{% if title=='Define' %}
 	  	<div class="form-group">
-			<div class="col-xs-6 col-sm-3 col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Create">   Create   </button> </div>	
-			<div class="col-xs-6 col-sm-3 col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Create_Plus"> Create + </button> </div>
-			<div class="col-xs-6 col-sm-3 col-md-2"> <button type="submit" class="btn btn-danger btn-lg  respect-space" name="action_description" value="Discard">  Discard  </button> </div>
+			<div class="hidden-xs col-sm-3 col-md-2 col-lg-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Create">   Create   </button> </div>	
+			<div class="hidden-xs col-sm-3 col-md-2 col-lg-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Create_Plus"> Create + </button> </div>
+			<div class="hidden-xs col-sm-3 col-md-2 col-lg-2"> <button type="submit" class="btn btn-danger btn-lg  respect-space" name="action_description" value="Discard">  Discard  </button> </div>
+		</div>
+
+	  	<div class="form-group">
+			<div class="col-xs-12 hidden-sm hidden-md hidden-lg">
+				<button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Create">   Create   </button>
+				<button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Create_Plus"> Create + </button> 
+				<button type="submit" class="btn btn-danger btn-lg  respect-space" name="action_description" value="Discard">  Discard  </button> 
+			</div>
 		</div>
 	{% endif%}
 
 
 	{% if title=='Edit' %}
 	  	<div class="form-group">
-			<div class="col-xs-6 col-sm-3 col-md-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Save">   Save Changes   </button> </div>	
-			<div class="col-xs-1"></div>
-			<div class="col-xs-6 col-sm-3 col-md-2"> <button type="submit" class="btn btn-warning btn-lg  respect-space" name="action_description" value="Discard"> Discard Changes </button> </div>
-			<div class="col-xs-1"></div>
-			<div class="col-xs-6 col-sm-3 col-md-2"><button type="submit" class="btn btn-danger btn-lg  respect-space" name="action_description" value="Delete">    Delete KSU     </button></div>
+			<div class="hidden-xs col-sm-4 col-md-2 col-lg-2"> <button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Save">   Save Changes   </button> </div>	
+
+			<div class="hidden-xs col-sm-4 col-md-2 col-lg-2"> <button type="submit" class="btn btn-warning btn-lg  respect-space" name="action_description" value="Discard"> Discard Changes </button> </div>
+			
+			<div class="hidden-xs col-sm-4 col-md-2 col-lg-2"><button type="submit" class="btn btn-danger btn-lg  respect-space" name="action_description" value="Delete">    Delete KSU     </button></div>
 		</div>
 
+		<div class="form-group">
+			<div class="col-xs-12 hidden-sm hidden-md hidden-lg">
+				<button type="submit" class="btn btn-success btn-lg respect-space" name="action_description" value="Save">    Save    </button>
+				<button type="submit" class="btn btn-warning btn-lg  respect-space" name="action_description" value="Discard"> Discard </button> 
+				<button type="submit" class="btn btn-danger btn-lg  respect-space" name="action_description" value="Delete"> Delete </button> 
+			</div>
+		</div>
 	{% endif%}
 
 	
@@ -829,13 +844,9 @@
 </form>
 
 {% if input_error %}
-
-<div class="row">
-	<div class="col-xs-4"></div>
-	<div class="col-xs-4 error"> {{input_error}}</div>
-	<div class="col-xs-4"></div>
-	
-</div>
+	<div class="row">
+		<div class="col-xs-12 text-center error">{{input_error}}</div>
+	</div>
 {% endif %}
 
 

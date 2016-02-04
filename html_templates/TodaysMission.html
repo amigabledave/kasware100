@@ -3,23 +3,14 @@
 {% block content %}
 
 <div class="row">
-	<div class="col-xs-9"> <div class="section-title">Todays Mission</div></div>
+	<div class="col-xs-12 col-sm-9 col-md-10 col-lg-10"> <div class="section-title">Todays Mission</div></div>
 
-	<div class="col-xs-1"> </div>
-	
-	<div class="col-xs-2"> 
-		
+	<div class="col-xs-12 col-sm-3 col-md-2 col-lg-2 text-center"> 		
 		<form method="Post"> 		
 			<button type="submit" class="btn btn-lg btn-primary new-ksu-button respect-space" name="action_description" value="NewKSU">   Add Action   </button>
 		</form> 
-
 	</div>
-
-
-
 </div>
-
-
 
 
 {% if message %}
@@ -27,7 +18,6 @@
 	<div class="row">
 		<div class="col-xs-12 mission-message"> {{message}} </div>
 	</div>
-
 {% endif %}
 
 
@@ -46,54 +36,85 @@
 
 		<div class="row">
 		
-			<div class="col-xs-1">
+			<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
 				<form class="form-horizontal" method="post">
 					<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
-				  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="Question_Skipped"> Skip </button>
+				  	<button type="submit" class="btn btn-warning btn-sm" name="action_description" value="Question_Skipped"> Skip </button>
 				</form>	
 			</div>
 
 
-			<div class="col-xs-6"> {{indicator['question']}} </div>
+			<div class="col-xs-12 col-sm-7 col-md-5 col-lg-5"> {{indicator['question']}} </div>
 				
 			{% if indicator['units'] == 'binary' %}
 
-				<div class="col-xs-1">
+				<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
 					<form class="form-horizontal" method="post">
 						<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
-						<input type="text" class="form-control hidden" name="boolean_answer" value="Yes"> 
-					  	<button type="submit" class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered">  Yes  </button>
+					  	<button type="submit" class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered_Yes">  Yes  </button>
 					</form>	
 				</div>
 				
-				<div class="col-xs-1"> </div>
-
-				<div class="col-xs-1">
+				<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
 					<form class="form-horizontal" method="post">
-						<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
-						<input type="text" class="form-control hidden" name="boolean_answer" value="No"> 
-					  	<button type="submit" class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered">  No  </button>
+						<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}">  
+					  	<button type="submit" class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered_No">  No  </button>
 					</form>	
 				</div>
+
+
+				<div class="col-xs-12 col-sm-5 hidden-md hidden-lg text-left">
+					<form class="form-horizontal" method="post">
+						<br>
+						<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 					  						
+					  	<button type="submit" class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered_Yes">  Yes  </button>
+						<button type="submit" class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered_No">  No  </button>
+						<button type="submit" class="btn btn-warning btn-md" name="action_description" value="Question_Skipped"> Skip </button>
+					</form>	
+				</div>
+
 
 			{% else %}
 
 				<form class="form-horizontal" method="post">
-					<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
-						
-					<div class="col-xs-1">
+					<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 	
+											
+					<div class="hidden-xs hidden-sm col-md-2 col-lg-2">
+						<input type="text" class="form-control" name="numeric_answer" placeholder="e.g. 7" required>
+					</div>
+					
+					<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
+						<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Question_Answered_Record">Record</button>
+					</div>	
+				
+					<div class="hidden-xs hidden-sm col-md-3 col-lg-3 error"> 
+						{{answer_error}}
+					</div>
+				</form>	
+
+			
+				<form class="form-horizontal" method="post">
+					<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}">
+					<div class="col-xs-6 col-sm-2 hidden-md hidden-lg text-left">
 						<input type="text" class="form-control" name="numeric_answer" placeholder="e.g. 7" required>
 					</div>
 
-					<div class="col-xs-1"> </div>
-					
-					<div class="col-xs-1">
-						<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Question_Answered">Record</button>
-					</div>	
-				
-					<div class="col-xs-4 error"> {{answer_error}}</div>
+					<div class="col-xs-3 col-sm-2 hidden-md hidden-lg text-left">
+						<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Question_Answered_Record">Record</button>	
+					</div>				
 
+					<div class="col-xs-3 col-sm-2 hidden-md hidden-lg text-left">
+						<button type="submit" class="btn btn-warning btn-md" name="action_description" value="Question_Skipped"> Skip </button>						
+					</div>
 				</form>	
+				
+				
+				<div class="col-xs-12 col-sm-12 hidden-md hidden-lg error text-left"> 
+					{{answer_error}}
+				</div>
+
+				
+
 
 			{% endif %}
 
@@ -120,39 +141,44 @@
 
 	{% for ksu in mission %}
 
-		<hr>
-
+	
 		<div class="row">
-
-
-			<div class="col-xs-1">
-				<form class="form-horizontal" method="post">
-					<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}"> 
-				  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="EditKSU"> Edit </button>
-				</form>	
-			</div>
-
-			
+			<hr>			
 			<form class="form-horizontal" method="post">
-
 				<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
 
-				<div class="col-xs-6"> {% if ksu['project'] %} <b> {{ksu['project']}} </b> -- {% endif %} {{ksu['description']}} {% if ksu['comments'] %} -- <em> {{ksu['comments']}} </em> {% endif %}</div>
+				<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
+					<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="EditKSU"> Edit </button>					
+				</div>
+				
+				<div class="col-xs-12 col-sm-7 col-md-5 col-lg-5"> {% if ksu['project'] %} <b> {{ksu['project']}} </b> -- {% endif %} {{ksu['description']}} {% if ksu['comments'] %} -- <em> {{ksu['comments']}} </em> {% endif %}</div>
 
-				<div class="col-xs-1">
+				<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
 					<input type="submit" class="btn btn-md btn-success" name="action_description" value="Done">
 				</div>
 				
-				<div class="col-xs-1"> </div>
-
-				<div class="col-xs-1">
+				<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
 					<input type="submit" class="btn btn-primary btn-md" name="action_description" value="Push">
-				</div>	
-
-
+				</div>				
 			</form>	
-		</div>	
-		
+		</div>
+
+		<div class="row">
+
+			<form class="form-horizontal" method="post">
+				<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+				<div class="col-xs-12 col-sm-5 hidden-md hidden-lg text-left">
+					<br>
+					<button type="submit" class="btn  btn-md btn-primary" name="action_description" value="EditKSU"> Edit </button>					
+					<input type="submit" class="btn btn-md btn-success" name="action_description" value="Done">
+					<input type="submit" class="btn btn-md btn-primary" name="action_description" value="Push">
+				</div>				
+			</form>	
+		</div>
+
+
+
+	
 
 	{% endfor %}
 
@@ -174,65 +200,95 @@
 
 	{% for indicator in night_questions %}
 
+
 		<hr>
 
 		<div class="row">
 		
-			<div class="col-xs-1">
+			<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
 				<form class="form-horizontal" method="post">
 					<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
-				  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="Question_Skipped"> Skip </button>
+				  	<button type="submit" class="btn btn-warning btn-sm" name="action_description" value="Question_Skipped"> Skip </button>
 				</form>	
 			</div>
 
 
-			<div class="col-xs-6"> {{indicator['question']}} </div>
-
+			<div class="col-xs-12 col-sm-7 col-md-5 col-lg-5"> {{indicator['question']}} </div>
 				
 			{% if indicator['units'] == 'binary' %}
 
-				<div class="col-xs-1">
+				<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
 					<form class="form-horizontal" method="post">
 						<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
-						<input type="text" class="form-control hidden" name="boolean_answer" value="Yes"> 
-					  	<button type="submit" class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered">  Yes  </button>
+					  	<button type="submit" class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered_Yes">  Yes  </button>
+					</form>	
+				</div>
+				
+				<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
+					<form class="form-horizontal" method="post">
+						<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}">  
+					  	<button type="submit" class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered_No">  No  </button>
 					</form>	
 				</div>
 
-				<div class="col-xs-1"> </div>
 
-				<div class="col-xs-1">
+				<div class="col-xs-12 col-sm-5 hidden-md hidden-lg text-left">
 					<form class="form-horizontal" method="post">
-						<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
-						<input type="text" class="form-control hidden" name="boolean_answer" value="No"> 
-					  	<button type="submit" class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered">  No  </button>
+						<br>
+						<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 					  						
+					  	<button type="submit" class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered_Yes">  Yes  </button>
+						<button type="submit" class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered_No">  No  </button>
+						<button type="submit" class="btn btn-warning btn-md" name="action_description" value="Question_Skipped"> Skip </button>
 					</form>	
 				</div>
+
 
 			{% else %}
 
 				<form class="form-horizontal" method="post">
-					<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
-						
-					<div class="col-xs-1">
+					<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 	
+											
+					<div class="hidden-xs hidden-sm col-md-2 col-lg-2">
+						<input type="text" class="form-control" name="numeric_answer" placeholder="e.g. 7" required>
+					</div>
+					
+					<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
+						<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Question_Answered_Record">Record</button>
+					</div>	
+				
+					<div class="hidden-xs hidden-sm col-md-3 col-lg-3 error"> 
+						{{answer_error}}
+					</div>
+				</form>	
+
+			
+				<form class="form-horizontal" method="post">
+					<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}">
+					<div class="col-xs-6 col-sm-2 hidden-md hidden-lg text-left">
 						<input type="text" class="form-control" name="numeric_answer" placeholder="e.g. 7" required>
 					</div>
 
-					<div class="col-xs-1"> </div>
+					<div class="col-xs-3 col-sm-2 hidden-md hidden-lg text-left">
+						<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Question_Answered_Record">Record</button>	
+					</div>				
 
-					<div class="col-xs-1">
-						<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Question_Answered">Record</button>
-					</div>	
-				
-					<div class="col-xs-4 error"> {{answer_error}}</div>
-
+					<div class="col-xs-3 col-sm-2 hidden-md hidden-lg text-left">
+						<button type="submit" class="btn btn-warning btn-md" name="action_description" value="Question_Skipped"> Skip </button>						
+					</div>
 				</form>	
+				
+				
+				<div class="col-xs-12 col-sm-12 hidden-md hidden-lg error text-left"> 
+					{{answer_error}}
+				</div>
+
+				
+
 
 			{% endif %}
 
 
-		</div>	
-		
+		</div>		
 
 	{% endfor %}
 
