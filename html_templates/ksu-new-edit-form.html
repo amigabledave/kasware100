@@ -16,56 +16,35 @@
 	<br>
 
 	<div class="form-group">
-		<div class="col-xs-12 col-sm-12 col-md-8">
+		<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
 			<label> Action Description <span class="red">*</span></label>
 			<input type="text" class="form-control" name="description" placeholder="e.g. Go for a run" required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">			
 		</div>
-
-<!-- 	 	<div class="col-xs-6 col-sm-3 col-md-2">
-	 		<div class="checkbox"> 
-	 			<label> <input type="checkbox" name="is_critical" {% if ksu['is_critical']%}checked{% endif %}> <b> Is Critical </b> </label> 
-	 		</div>
-
-	 		<div class="checkbox"> 
-	 			<label> <input type="checkbox" name="is_private"{% if ksu['is_private']%}checked{% endif %}> <b> Is Private </b> </label> 
-	 		</div>
-		</div>
-
-		<div class="col-xs-6 col-sm-3 col-md-2">
-	 		<div class="checkbox"> 
-	 			<label> <input type="checkbox" name="in_upcoming"{% if ksu['in_upcoming']%}checked{% endif %}> <b> Show in Mission </b> </label> 
-	 		</div>
-		
-	 		<div class="checkbox"> 
-	 			<label> <input type="checkbox" name="any_any"{% if ksu['any_any']%}checked{% endif %}> <b> Anywhere Anytime </b> </label> 
-	 		</div>
-		</div> -->
-
 	</div>
 
 
 
 	<div class="form-group">
 
-	 	<div class="col-xs-6 col-sm-3 col-md-2">
+	 	<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2 col-lg-2">
 	 		<div class="checkbox"> 
 	 			<label> <input type="checkbox" name="is_critical" {% if ksu['is_critical']%}checked{% endif %}> <b> Is Critical </b> </label> 
 	 		</div>
 		</div>
 
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 	 		<div class="checkbox"> 
 	 			<label> <input type="checkbox" name="is_private"{% if ksu['is_private']%}checked{% endif %}> <b> Is Private </b> </label> 
 	 		</div>
 		</div>
 
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 	 		<div class="checkbox"> 
 	 			<label> <input type="checkbox" name="in_upcoming"{% if ksu['in_upcoming']%}checked{% endif %}> <b> Show in Mission </b> </label> 
 	 		</div>
 		</div>
 
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 	 		<div class="checkbox"> 
 	 			<label> <input type="checkbox" name="any_any"{% if ksu['any_any']%}checked{% endif %}> <b> Anywhere Anytime </b> </label> 
 	 		</div>		
@@ -78,7 +57,7 @@
 
 	<div class="form-group">
 
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 			<label>Value Type <span class="red">*</span></label>
 				<select class="form-control" name="value_type">
 				{% for value in constants['l_Values'] %}
@@ -92,7 +71,7 @@
 		</div>	
 
 
-		<div class="col-xs-6 col-sm-3 col-md-2"> 
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2"> 
 			<label> Expected Impact <span class="red">*</span></label> 
 			<select class="form-control" name="importance"> 
 				{% for i in constants['l_Fibonacci'] %}
@@ -107,7 +86,7 @@
 		</div>
 
 
-		<div class="col-xs-6 col-sm-3 col-md-2"> 
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2"> 
 			<label> Expected Duration <span class="red">*</span></label>
 			<select class="form-control" name="time_cost">
 				{% for t in constants['l_long_Fibonacci'] %}
@@ -120,7 +99,7 @@
 			</select>
 		</div>
 	
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 			<label> Charging Time (Days) <span class="red">*</span></label>
 			<input type="text" class="form-control" name="charging_time" placeholder="e.g. 7" required value="{% if ksu['charging_time']%}{{ksu['charging_time']}}{% endif %}">
 		</div>
@@ -130,7 +109,7 @@
 
 	<div class="form-group">
 		
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 			<label> Prefered Day </label>
 				<select class="form-control" name="best_day">
 					{% for d in constants['l_Days'] %}
@@ -143,7 +122,7 @@
 				</select> 
 		</div>
 
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 			<label> Preferred Time (24hrs.)</label>
 				<select class="form-control" name="best_time">
 					{% for t in constants['l_Times'] %}
@@ -157,12 +136,12 @@
 		</div>
 	
 
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 			<label> Last Event </label>
 			<input type="text" class="form-control" name="last_event" placeholder="DD-MM-YYYY" value="{% if ksu['last_event']%}{{ksu['last_event']}}{% endif %}">
 		</div>
 
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 			<label> Next Event </label>
 			<input type="text" class="form-control" name="next_event" placeholder="DD-MM-YYYY" value="{% if ksu['next_event']%}{{ksu['next_event']}}{% endif %}">
 		</div>
@@ -183,12 +162,12 @@
 	<br>
 
 	<div class="form-group">
-		<div class="col-xs-8">
+		<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
 			<label> Action Description <span class="red">*</span></label>
 			<input type="text" class="form-control" name="description" placeholder="e.g. Go to my grandma birthday party " required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">			
 		</div>
 
-	 	<div class="col-xs-6 col-sm-3 col-md-2">
+	 	<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 	 		<div class="checkbox"> 
 	 			<label> <input type="checkbox" name="is_critical" {% if ksu['is_critical']%}checked{% endif %}> <b> Is Critical </b> </label> 
 	 		</div>
@@ -198,7 +177,7 @@
 	 		</div>
 		</div>
 
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 	 		<div class="checkbox"> 
 	 			<label> <input type="checkbox" name="in_upcoming"{% if ksu['in_upcoming']%}checked{% endif %}> <b> Show in Mission </b> </label> 
 	 		</div>
@@ -213,7 +192,7 @@
 
 	<div class="form-group">
 
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 			<label>Expected Value Type <span class="red">*</span> </label>
 				<select class="form-control" name="value_type">
 				{% for value in constants['l_Values'] %}
@@ -227,7 +206,7 @@
 		</div>	
 
 
-		<div class="col-xs-6 col-sm-3 col-md-2"> 
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2"> 
 			<label> Expected Impact <span class="red">*</span> </label> 
 			<select class="form-control" name="importance"> 
 				{% for i in constants['l_Fibonacci'] %}
@@ -242,7 +221,7 @@
 		</div>
 
 
-		<div class="col-xs-6 col-sm-3 col-md-2"> 
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2"> 
 			<label> Expected Duration <span class="red">*</span> </label>
 			<select class="form-control" name="time_cost">
 				{% for t in constants['l_long_Fibonacci'] %}
@@ -256,7 +235,7 @@
 		</div>		
 
 		
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 			<label> Event Date <span class="red">*</span> </label>
 			<input type="text" class="form-control" name="next_event" placeholder="DD-MM-YYYY" value="{% if ksu['next_event']%}{{ksu['next_event']}}{% endif %}"required>
 		</div>
@@ -272,7 +251,7 @@
 			<input type="text" class="form-control" name="project" placeholder="Optional" value="{% if ksu['project']%}{{ksu['project']}}{% endif %}">
 		</div>
 
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 			<label> Event Time </label>
 				<select class="form-control" name="best_time">
 					{% for t in constants['l_Times'] %}
@@ -303,12 +282,12 @@
 
 
 	<div class="form-group">
-		<div class="col-xs-8">
+		<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
 			<label> Possible Circusmtances <span class="red">*</span></label>
 			<input type="text" class="form-control" name="circumstance" placeholder="e.g. After drinking a cup of coffee" required value="{% if ksu['circumstance']%}{{ksu['circumstance']}}{% endif %}">			
 		</div>
 
-	 	<div class="col-xs-6 col-sm-3 col-md-2">
+	 	<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 	 		<div class="checkbox"> 
 	 			<label> <input type="checkbox" name="is_critical" {% if ksu['is_critical']%}checked{% endif %}> <b> Is Critical </b> </label> 
 	 		</div>
@@ -322,7 +301,7 @@
 
 
 	<div class="form-group">
-		<div class="col-xs-8"> 
+		<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8"> 
 			<label> Target Reaction <span class="red">*</span></label>
 			<input type="text" class="form-control" name="description" placeholder="e.g. Drink a glass of water " required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">			
 		</div>
@@ -332,7 +311,7 @@
 
 	<div class="form-group">
 		
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 			<label>Value Type<span class="red">*</span></label>
 				<select class="form-control" name="value_type">
 				{% for value in constants['l_Values'] %}
@@ -346,7 +325,7 @@
 		</div>
 
 
-		<div class="col-xs-6 col-sm-3 col-md-2"> 
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2"> 
 			<label> Reward if success <span class="red">*</span> </label>
 			<select class="form-control" name="reward">
 				{% for t in constants['l_long_Fibonacci'] %}
@@ -360,7 +339,7 @@
 		</div>
 
 
-		<div class="col-xs-6 col-sm-3 col-md-2"> 
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2"> 
 			<label> Punishment if failure <span class="red">*</span> </label>
 			<select class="form-control" name="punishment">
 				{% for t in constants['l_long_Fibonacci'] %}
@@ -374,7 +353,7 @@
 		</div>
 
 
-		<div class="col-xs-6 col-sm-3 col-md-2"><label> Question Frequency <span class="red">*</span></label>
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2"><label> Question Frequency <span class="red">*</span></label>
 			<input type="text" class="form-control" name="question_frequency" placeholder="e.g. 7" required value="{% if ksu['question_frequency']%}{{ksu['question_frequency']}}{% endif %}">
 		</div>
 
@@ -392,12 +371,12 @@
 	<br>
 
 	<div class="form-group">
-		<div class="col-xs-8"> 
+		<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8"> 
 			<label> Action to Avoid <span class="red">*</span></label>
 			<input type="text" class="form-control" name="description" placeholder="e.g. Procastinate" required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">
 		</div>
 	
-	 	<div class="col-xs-6 col-sm-3 col-md-2">
+	 	<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 	 		<div class="checkbox"> 
 	 			<label> <input type="checkbox" name="is_critical" {% if ksu['is_critical']%}checked{% endif %}> <b> Is Critical </b> </label> 
 	 		</div>
@@ -411,7 +390,7 @@
 
 
 	<div class="form-group">
-		<div class="col-xs-8">
+		<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
 			<label> Dangerous Circusmtances & Potential Reactions <span class="red">*</span></label>
 
 			<input type="text" class="form-control" name="circumstance" placeholder="e.g. When my boss ask's me to do something I do not know how to do" required value="{% if ksu['circumstance']%}{{ksu['circumstance']}}{% endif %}">							
@@ -421,7 +400,7 @@
 
 	<div class="form-group">
 		
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 			<label>Value Type <span class="red">*</span></label>
 				<select class="form-control" name="value_type">
 				{% for value in constants['l_Values'] %}
@@ -436,7 +415,7 @@
 
 
 
-		<div class="col-xs-6 col-sm-3 col-md-2"> 
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2"> 
 			<label> Reward if avoided <span class="red">*</span></label>
 			<select class="form-control" name="reward">
 				{% for t in constants['l_long_Fibonacci'] %}
@@ -450,7 +429,7 @@
 		</div>
 
 
-		<div class="col-xs-6 col-sm-3 col-md-2"> 
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2"> 
 			<label> Punishment if commit. <span class="red">*</span> </label>
 			<select class="form-control" name="punishment">
 				{% for t in constants['l_long_Fibonacci'] %}
@@ -463,7 +442,7 @@
 			</select>
 		</div>
 
-		<div class="col-xs-6 col-sm-3 col-md-2"><label> Question Frequency <span class="red">*</span></label>
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2"><label> Question Frequency <span class="red">*</span></label>
 			<input type="text" class="form-control" name="question_frequency" placeholder="e.g. 7" required value="{% if ksu['question_frequency']%}{{ksu['question_frequency']}}{% endif %}">
 		</div>
 
@@ -482,13 +461,13 @@
 	<br>
 
 	<div class="form-group">
-		<div class="col-xs-8"> 
+		<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8"> 
 			<label> Action Description <span class="red">*</span> </label>
 			<input type="text" class="form-control" name="description" placeholder="e.g. Define work plan" required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">
 		</div>
 
 
-	 	<div class="col-xs-6 col-sm-3 col-md-2">
+	 	<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 	 		<div class="checkbox"> 
 	 			<label> <input type="checkbox" name="is_critical" {% if ksu['is_critical']%}checked{% endif %}> <b> Is Critical </b> </label> 
 	 		</div>
@@ -499,7 +478,7 @@
 		</div>
 
 
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 	 		<div class="checkbox"> 
 	 			<label> <input type="checkbox" name="in_upcoming"{% if ksu['in_upcoming']%}checked{% endif %}> <b> Show in Mission </b> </label> 
 	 		</div>
@@ -517,7 +496,7 @@
 
 		
 
-		<div class="col-xs-6 col-sm-3 col-md-2"> 
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2"> 
 			<label> Priority <span class="red">*</span> </label> 
 			<select class="form-control" name="priority"> 
 				{% for i in ['1','2','3','4','5','6','7'] %}
@@ -530,7 +509,7 @@
 			</select>
 		</div>
 
-		<div class="col-xs-6 col-sm-3 col-md-2"> 
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2"> 
 			<label> Expected Duration <span class="red">*</span></label>
 			<select class="form-control" name="time_cost">
 				{% for t in constants['l_long_Fibonacci'] %}
@@ -543,13 +522,13 @@
 			</select>
 		</div>
 	
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 			<label> Target Date </label>
 			<input type="text" class="form-control" name="next_event" placeholder="DD-MM-YYYY" value="{% if ksu['next_event']%}{{ksu['next_event']}}{% endif %}">
 		</div>
 
 
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 			<label> Preferred Time (24hrs.)</label>
 				<select class="form-control" name="best_time">
 					{% for t in constants['l_Times'] %}
@@ -580,12 +559,12 @@
 	<br>
 
 	<div class="form-group">
-		<div class="col-xs-8"> 
+		<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8"> 
 			<label> Short Description <span class="red">*</span> </label>
 			<input type="text" class="form-control" name="short_description" placeholder="Find an awesome girlfriend" required value="{% if ksu['short_description']%}{{ksu['short_description']}}{% endif %}">
 		</div>
 	
-	 	<div class="col-xs-6 col-sm-3 col-md-2">
+	 	<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 	 		<div class="checkbox"> 
 	 			<label> <input type="checkbox" name="is_critical" {% if ksu['is_critical']%}checked{% endif %}> <b> Is Critical </b> </label> 
 	 		</div>
@@ -596,7 +575,7 @@
 		</div>
 
 
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 	 		<div class="checkbox"> 
 	 			<label> <input type="checkbox" name="is_milestone"{% if ksu['is_milestone']%}checked{% endif %}> <b> Life Milestone </b> </label> 
 	 		</div>	
@@ -605,7 +584,7 @@
 	</div>
 
 	<div class="form-group">
-		<div class="col-xs-8"> 
+		<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8"> 
 			<label> Success Definition <span class="red">*</span> </label>
 			<input type="text" class="form-control" name="description" placeholder="Find a girl with a 200 IQ that could also be a Victoria Secret model and convince her that I'm the perfect guy for her" required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">
 		</div>
@@ -615,7 +594,7 @@
 
 	<div class="form-group">
 
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 			<label>Expected Value Type <span class="red">*</span> </label>
 				<select class="form-control" name="value_type">
 				{% for value in constants['l_Values'] %}
@@ -629,7 +608,7 @@
 		</div>	
 
 
-		<div class="col-xs-6 col-sm-3 col-md-2"> 
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2"> 
 			<label> Achievement Value <span class="red">*</span> </label> 
 			<select class="form-control" name="achievement_value"> 
 				{% for i in constants['l_Fibonacci'] %}
@@ -643,7 +622,7 @@
 			</select>
 		</div>
 
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 			<label> Target Date <span class="red">*</span></label>
 			<input type="text" class="form-control" name="target_date" placeholder="DD-MM-YYYY" value="{% if ksu['target_date']%}{{ksu['target_date']}}{% endif %}" required>
 		</div>
@@ -662,12 +641,12 @@
 	<br>
  
 	<div class="form-group">
-		<div class="col-xs-8"> 
+		<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8"> 
 			<label> Wish Description <span class="red">*</span></label>
 			<input type="text" class="form-control" name="description" placeholder="e.g. Visit Paris" required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">
 		</div>
 	
-	 	<div class="col-xs-6 col-sm-3 col-md-2">
+	 	<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 
 	 		<div class="checkbox"> 
 	 			<label> <input type="checkbox" name="in_bucket_list"{% if ksu['in_bucket_list']%}checked{% endif %}> <b> In Bucket List </b> </label> 
@@ -683,7 +662,7 @@
 
 	<div class="form-group">
 
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 			<label>Expected Value Type <span class="red">*</span> </label>
 				<select class="form-control" name="value_type">
 				{% for value in constants['l_Values'] %}
@@ -697,7 +676,7 @@
 		</div>	
 
 
-		<div class="col-xs-6 col-sm-3 col-md-2"> 
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2"> 
 			<label> Achievement Value <span class="red">*</span> </label> 
 			<select class="form-control" name="achievement_value"> 
 				{% for i in constants['l_Fibonacci'] %}
@@ -711,13 +690,13 @@
 			</select>
 		</div>
 	
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 			<label> Money Cost (Currency) </label>
 			<input type="text" class="form-control" name="money_cost" placeholder="e.g. 7" value="{% if ksu['money_cost']%}{{ksu['money_cost']}}{% endif %}">
 		</div>
 
 
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 			<label> Milestone Target Date  </label>
 			<input type="text" class="form-control" name="milestone_target_date" placeholder="DD-MM-YYYY" value="{% if ksu['milestone_target_date']%}{{ksu['milestone_target_date']}}{% endif %}">
 		</div>
@@ -743,7 +722,7 @@
 			<input type="text" class="form-control" name="description" placeholder="e.g. Steve Jobs" required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">
 		</div>
 
-		<div class="col-xs-6 col-sm-3 col-md-2"><label> Contact Frequency <span class="red">*</span></label>
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2"><label> Contact Frequency <span class="red">*</span></label>
 			<input type="text" class="form-control" name="contact_frequency" placeholder="e.g. 7" required value="{% if ksu['contact_frequency']%}{{ksu['contact_frequency']}}{% endif %}">
 		</div>
 
@@ -751,20 +730,20 @@
 
 
 	<div class="form-group">
-		<div class="col-xs-6 col-sm-3 col-md-2">
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
 			<label> Birthday </label>
 			<input type="text" class="form-control" name="birthday" placeholder="DD-MM-YYYY" value="{% if ksu['birthday']%}{{ksu['birthday']}}{% endif %}">			
 		</div>
 			
-		<div class="col-xs-6 col-sm-3 col-md-2"><label> Email </label>
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2"><label> Email </label>
 			<input type="text" class="form-control" name="email" placeholder="name@friends.com"value="{% if ksu['email']%}{{ksu['email']}}{% endif %}">
 		</div>
 
-		<div class="col-xs-6 col-sm-3 col-md-2"><label> Phone </label>
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2"><label> Phone </label>
 			<input type="text" class="form-control" name="phone" placeholder="+52-155-1234-5678"value="{% if ksu['phone']%}{{ksu['phone']}}{% endif %}">
 		</div>
 
-		<div class="col-xs-6 col-sm-3 col-md-2"><label> KASware Username </label>
+		<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2"><label> KASware Username </label>
 			<input type="text" class="form-control" name="facebook" placeholder="e.g. Awesome182"value="{% if ksu['facebook']%}{{ksu['facebook']}}{% endif %}">
 		</div>
 
@@ -773,7 +752,7 @@
 
 
 	<div class="form-group">
-		<div class="col-xs-8">
+		<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
 			<label> Fun Facts </label>
 			<textarea class="form-control" name="fun_facts">{% if ksu['fun_facts']%}{{ksu['fun_facts']}}{% endif %}</textarea> 
 		</div>

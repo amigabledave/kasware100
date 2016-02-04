@@ -315,7 +315,7 @@ class TodaysMission(Handler):
 			user_Action_Push(self)
 			self.redirect('/TodaysMission')
 
-		elif user_action in ['Question_Answered_Yes', 'Question_Answered_No', 'Question_Answered_Record']: #xx
+		elif user_action in ['Question_Answered_Yes', 'Question_Answered_No', 'Question_Answered_Record']:
 			input_error = user_input_error(post_details)
 			if input_error:
 				theory = self.theory
@@ -774,10 +774,10 @@ class BigOViewer(Handler):
 		
 		BigO = unpack_set(theory.BigO)
 		
-		ksu_id = self.request.get('ksu_id')
-		if ksu_id:			
-			objective = BigO[ksu_id]
-			BigO = {ksu_id:objective}
+		BigO_id = self.request.get('BigO_id')
+		if BigO_id:			
+			objective = BigO[BigO_id]
+			BigO = {BigO_id:objective}
 			
 
 		BigO = hide_private_ksus(theory, BigO)	
@@ -799,17 +799,13 @@ class BigOViewer(Handler):
 			return
 		post_details = get_post_details(self)
 		user_action = post_details['action_description']
-		ksu_id = self.request.get('ksu_id')
-
+		
 		if user_action == 'NewKSU':
-			if ksu_id:
-				self.redirect('/NewKSU/BigO?return_to=/BigOViewer&ksu_id='+ksu_id)
-			else:
-				self.redirect('/NewKSU/BigO?return_to=/BigOViewer')
-
+			self.redirect('/NewKSU/BigO?return_to=/BigOViewer')
+				
 		elif user_action == 'Add_Child_KSU':
 			parent_id = post_details['ksu_id']
-			self.redirect('/NewKSU/BOKA?return_to=/BigOViewer&parent_id=' + parent_id)
+			self.redirect('/NewKSU/BOKA?return_to=/BigOViewer&parent_id=' + parent_id) #xx
 		
 		else:
 			ksu_id = post_details['ksu_id']
@@ -1161,18 +1157,26 @@ class NewKSU(Handler):
 				ksu = update_ksu_with_post_details(ksu, post_details)
 				show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
 				self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name, title='Create', input_error=input_error)
-			elif user_action == 'Create':
+			
+			elif user_action in ['Create', 'Create_Plus']:
 				user_Action_Create_ksu(self, set_name)
-				self.redirect(return_to)
-			elif user_action == 'Create_Plus':
-				user_Action_Create_ksu(self, set_name)
+				parent_id = self.request.get('parent_id') #xx
 				
-				parent_id = self.request.get('parent_id')
-				if parent_id:
-					self.redirect('/NewKSU/'+set_name+'?return_to='+return_to+'&parent_id='+parent_id)
-				else:
-					self.redirect('/NewKSU/'+set_name+'?return_to='+return_to)
-
+				if user_action == 'Create':
+					if parent_id:
+						parent_type = get_type_from_id(parent_id)
+						if parent_type == 'BigO':
+							self.redirect(return_to+'?BigO_id='+parent_id)
+						else:
+							self.redirect(return_to)
+					else:
+						self.redirect(return_to)
+			
+				elif user_action == 'Create_Plus':
+					if parent_id:
+						self.redirect('/NewKSU/'+set_name+'?return_to='+return_to+'&parent_id='+parent_id)
+					else:
+						self.redirect('/NewKSU/'+set_name+'?return_to='+return_to)
 
 		elif user_action == 'Discard':
 			self.redirect(return_to)
@@ -1333,39 +1337,35 @@ class Done(Handler):
 			if input_error:
 				ksu['time_cost'] = post_details['duration']
 				dropdowns = make_dropdowns(theory)
-
 				self.print_html('done.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name, event_type=event_type, input_error=input_error)
 		
 			elif event_type == 'EndValue':
 				user_Action_Done_EndValue(self)
 				self.redirect(return_to)
-
 				
 			elif event_type == 'SmartEffort':
 				user_Action_Done_SmartEffort(self)
 				self.redirect(return_to)
 
+
 		elif user_action =='Done_Confirm_Plus':
-			input_error = user_input_error(post_details)
-			
 			if set_name == 'BOKA':
 				parent_id = ksu['parent_id']
 			else:
 				parent_id = ksu['id']
 
+			input_error = user_input_error(post_details)						
 			if input_error:
 				ksu['time_cost'] = post_details['duration']
 				dropdowns = make_dropdowns(theory)
-
 				self.print_html('done.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name, event_type=event_type, input_error=input_error)
-		
+			
 			elif event_type == 'EndValue':
 				user_Action_Done_EndValue(self)
 				self.redirect('/NewKSU/' + set_name + '?return_to=' + return_to + '&parent_id=' + parent_id)
-
 				
 			elif event_type == 'SmartEffort':
-				user_Action_Done_SmartEffort(self)
+				user_Action_Done_SmartEffort(self) #xx
 				self.redirect('/NewKSU/' + set_name + '?return_to=' + return_to + '&parent_id=' + parent_id)
 
 
@@ -1707,7 +1707,7 @@ def update_ksu_next_event(theory, post_details):
 	ksu = ksu_set[ksu_id]
 	user_action = post_details['action_description']
 	
-	if user_action == 'Done_Confirm':
+	if user_action in ['Done_Confirm', 'Done_Confirm_Plus']:#xx
 		ksu['last_event'] = today
 		
 		if set_name == 'KAS1':
@@ -1804,7 +1804,7 @@ def update_ksu_status(theory, post_details):
 	ksu = ksu_set[ksu_id]	
 	user_action = post_details['action_description']
 
-	if user_action == 'Done_Confirm' or user_action == 'Done_Confirm_Continue':
+	if user_action in ['Done_Confirm','Done_Confirm_Plus']:
 		ksu['status'] = 'Done'
 		ksu['is_visible'] = False
 	
@@ -2584,7 +2584,7 @@ def user_Action_Delete_ksu(self):
 def user_Action_Done_SmartEffort(self):
 	theory = self.theory
 	post_details = get_post_details(self)
-	update_ksu_next_event(theory, post_details)
+	update_ksu_next_event(theory, post_details) #xx
 	update_ksu_in_mission(theory, post_details)
 	add_SmartEffort_event(theory, post_details)
 	update_ksu_status(theory, post_details)
@@ -2653,7 +2653,7 @@ def user_Action_Add_To_Mission(self):
 
 def user_Action_Record_Answer(self):
 	theory = self.theory
-	post_details = get_post_details(self) #xx
+	post_details = get_post_details(self)
 	update_ksu_next_event(theory, post_details) 	
 	add_Answered_event(theory, post_details)	
 	theory.put()
