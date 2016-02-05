@@ -745,6 +745,9 @@ def pretty_dates(ksu_set):
 					date_ordinal = int(ksu[date_attribute])
 					pretty_date = unpack_date(date_ordinal)
 					ksu['pretty_' + date_attribute] = pretty_date
+				else:
+					ksu['pretty_' + date_attribute] = 'Never'
+
 	return ksu_set
 	
 
@@ -2869,6 +2872,7 @@ def triggered_Action_create_ImPe_Contact(self):
 		ksu['next_event'] = today
 	person['next_contact'] = ksu['next_event']	
 	ksu['time_cost'] = '2'
+	ksu['any_any'] = True
 	ksu['parent_id'] = person['id']
 	ksu['subtype'] = 'ImPe_Contact'
 	person['contact_ksu_id'] = ksu['id']
