@@ -48,6 +48,7 @@ class Theory(db.Model):
 	NoAR = db.BlobProperty(required=True)
 	Idea = db.BlobProperty(required=True) 
 	MoRe = db.BlobProperty(required=True)
+	CoDe = db.BlobProperty(required=True)
 
 	ImIn = db.BlobProperty(required=True)
 	Hist = db.BlobProperty(required=True)
@@ -82,10 +83,13 @@ class Theory(db.Model):
 					  ImPe=new_set_KSU('ImPe'),
 
 					  RTBG=new_set_KSU('RTBG'),
-					  Prin=new_set_KSU('Prin'),
 					  NoAR=new_set_KSU('NoAR'),
-					  Idea=new_set_KSU('Idea'),
-					  MoRe=new_set_KSU('MoRe'), 					  
+
+					  Prin=new_set_KSU('Prin'),
+					  CoDe=new_set_KSU('CoDe'),
+					  Idea=new_set_KSU('Idea'),					  
+					  MoRe=new_set_KSU('MoRe'), 
+					  
 
 					  ImIn=new_set_KSU('ImIn'),
 					  Hist=new_set_Hist(),
@@ -1112,7 +1116,7 @@ def create_mega_set(theory):
 	return mega_set
 
 
-def create_mega_backup(theory):#xx
+def create_mega_backup(theory):
 	mega_backup = {	'KAS1': unpack_set(theory.KAS1),
 					'KAS2': unpack_set(theory.KAS2),
 					'KAS3': unpack_set(theory.KAS3),
@@ -1123,9 +1127,11 @@ def create_mega_backup(theory):#xx
 					'Wish': unpack_set(theory.Wish),
 					'ImPe': unpack_set(theory.ImPe),
 
-					'RTBG': unpack_set(theory.RTBG),
-					'Prin': unpack_set(theory.Prin),
 					'NoAR': unpack_set(theory.NoAR),
+					'RTBG': unpack_set(theory.RTBG),					
+					'Prin': unpack_set(theory.Prin),
+					'CoDe': unpack_set(theory.CoDe),
+										
 					'Idea': unpack_set(theory.Idea),
 					'MoRe': unpack_set(theory.MoRe),
 					
@@ -1530,27 +1536,11 @@ class LoadPythonData(Handler):
 		if user_bouncer(self):
 			return
 		theory = self.theory
-		developer_Action_Load_PythonData(theory, set_name) #xx
+		developer_Action_Load_PythonData(theory, set_name)
 		if set_name == 'All':
 			self.redirect('/TodaysMission')
 		else:
 			self.redirect('/PythonData/' + set_name)
-
-
-
-#--- Replace Python Data
-class ReplacePythonData(Handler):
-	def get(self, set_name):
-		if user_bouncer(self):
-			return
-		theory = self.theory
-		developer_Action_Replace_PythonData(theory, set_name)
-		if set_name == 'All':
-			self.redirect('/TodaysMission')
-		else:
-			self.redirect('/PythonData/' + set_name)
-
-
 
 
 
@@ -1561,7 +1551,6 @@ class EditPythonData(Handler):
 	def get(self, set_name):	
 		if user_bouncer(self):
 			return
-
 		theory = self.theory
 		ksu_set = unpack_set(eval('theory.' + set_name))	
 		self.print_html('EditPythonData.html',  ksu_set=ksu_set, set_name=set_name)
@@ -2143,10 +2132,11 @@ template_recipies = {'KAS1_KSU':[i_BASE_KSU, i_KAS_KSU, i_Proactive_KAS_KSU, i_K
 					 'Wish_KSU':[i_BASE_KSU, i_Wish_KSU],
 					 'ImPe_KSU':[i_BASE_KSU, i_ImPe_KSU],
 
-					 'RTBG_KSU':[i_BASE_KSU],
-					 'Prin_KSU':[i_BASE_KSU],
+					 'RTBG_KSU':[i_BASE_KSU],					 
 					 'NoAR_KSU':[i_BASE_KSU],
+					 'Prin_KSU':[i_BASE_KSU],
 					 'Idea_KSU':[i_BASE_KSU],
+					 'CoDe_KSU':[i_BASE_KSU],
 					 'MoRe_KSU':[i_BASE_KSU], 
 
 					 'ImIn_KSU':[i_BASE_KSU, i_ImIn_KSU],
@@ -2933,7 +2923,7 @@ def triggered_Action_Done_ImPe_Contact(self):
 
 
 #--- Developer Actions ---
-def developer_Action_Load_PythonData(theory, set_name): #xx
+def developer_Action_Load_PythonData(theory, set_name):
 	if set_name == 'KAS1':
 		KAS1 = unpack_set(theory.KAS1)
 		KAS1.update(backup_theory.sample['KAS1'])
@@ -2991,58 +2981,6 @@ def developer_Action_Load_PythonData(theory, set_name): #xx
 	
 	theory.put()	
 	return
-
-
-
-def developer_Action_Replace_PythonData(theory, set_name):
-	if set_name == 'KAS1':
-		KAS1 = backup_theory.backup['KAS1'] 		
-		theory.KAS1 = pack_set(KAS1)
-
-	elif set_name == 'KAS2':
-		KAS2 = backup_theory.backup['KAS2'] 		
-		theory.KAS2 = pack_set(KAS2)
-
-	elif set_name == 'KAS3':
-		KAS3 = backup_theory.backup['KAS3']
-		theory.KAS3 = pack_set(KAS3)		
-
-	elif set_name == 'KAS4':
-		KAS4 = backup_theory.backup['KAS4']
-		theory.KAS4 = pack_set(KAS4)
-
-	elif set_name == 'BOKA':
-		BOKA = backup_theory.backup['BOKA']
-		theory.BOKA = pack_set(BOKA)
-
-	elif set_name == 'BigO':
-		BigO = backup_theory.backup['BigO']
-		theory.BigO = pack_set(BigO)
-
-	elif set_name == 'Wish':
-		Wish = backup_theory.backup['Wish']
-		theory.Wish = pack_set(Wish)
-
-	elif set_name == 'ImPe':
-		ImPe = backup_theory.backup['ImPe']
-		theory.ImPe = pack_set(ImPe)
-
-	elif set_name == 'ImIn':
-		ImIn = backup_theory.backup['ImIn']	
-		theory.ImIn = pack_set(ImIn)	
-
-	elif set_name == 'Hist':
-		Hist = backup_theory.backup['Hist']
-		theory.Hist = pack_set(Hist)
-	# elif set_name == 'All':
-	# 	all_sets = ['KAS1', 'KAS2', 'KAS3', 'KAS4', 'BOKA', 'BigO', 'Wish', 'ImPe', 'ImIn', 'Hist']
-	# 	for ksu_set in all_sets:
-	# 		developer_Action_Replace_PythonData(theory, ksu_set)	
-	theory.put()	
-	return
-
-
-
 
 
 
@@ -3667,8 +3605,7 @@ app = webapp2.WSGIApplication([
 							 
 							 ('/email',Email),
 							 # ('/LoadCSV/' + PAGE_RE, LoadCSV), #There will be no need for this handler once it goes live
-							 ('/LoadPythonData/' + PAGE_RE, LoadPythonData),#xx
-							 # ('/ReplacePythonData/' + PAGE_RE, ReplacePythonData), #There will be no need for this handler once it goes live
+							 ('/LoadPythonData/' + PAGE_RE, LoadPythonData),							 
 							 ('/EditPythonData/'+ PAGE_RE, EditPythonData),
 							 ('/PythonData/' + PAGE_RE, PythonData)
 							 ], debug=True)

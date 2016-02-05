@@ -14,8 +14,9 @@ base = {
 		'ImPe': {},
 
 		'RTBG': {},
-		'Prin': {},
 		'NoAR': {},
+		'Prin': {},
+		'CoDe': {}, #Conclusions and Decisions
 		'Idea': {}, #My Favourite ideas and quotes
 		'MoRe': {},		
 
