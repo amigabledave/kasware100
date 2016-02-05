@@ -269,6 +269,7 @@ class TodaysMission(Handler):
 		
 		theory = self.theory
 		mission = todays_mission(theory)
+		mission = make_ordered_ksu_set_list_for_mission(mission)
 		questions = todays_questions(theory)
 		morning_questions = questions['Morning']
 		night_questions = questions['Night']
@@ -345,20 +346,101 @@ def todays_mission(theory):
 	BOKA = hide_invisible(unpack_set(theory.BOKA))
 
 	ksu_sets = [KAS1, KAS2, BOKA]
-	result = []
+	result = {}
 
 	for ksu_set in ksu_sets:
 		for ksu in ksu_set:
 			ksu = ksu_set[ksu]
+			ksu_id = ksu['id']
+			add_BigO_description(theory, ksu)
+			add_pretty_time(ksu)
+			add_time_and_description(ksu)
 
 			if ksu['in_mission']:
-				result.append(ksu)
+				result[ksu_id] = ksu
 
 			elif ksu['in_upcoming']:
 				if ksu['next_event']:
 					if today >= int(ksu['next_event']):
-						result.append(ksu)
+						result[ksu_id] = ksu
+
 	return result
+
+
+def add_BigO_description(theory, ksu):
+	ksu_id = ksu['id']
+	ksu_type = get_type_from_id(ksu_id)
+
+	if ksu_type == 'BOKA':
+		BigO = unpack_set(theory.BigO)
+		bigo_id = ksu['parent_id']
+		objective = BigO[bigo_id]
+		ksu['BigO_description'] = objective['short_description']
+	else:
+		ksu['BigO_description'] = None
+	return
+
+
+def add_time_and_description(ksu):
+	best_time = ksu['best_time']
+
+	if best_time == 'None':
+		ksu['best_time'] = None	
+
+	if ksu['best_time']:
+		ksu['time_and_description'] = ksu['best_time']+ksu['description']
+	
+	elif ksu['any_any']:
+		ksu['time_and_description']= 'zzz'+ksu['description']
+	else:
+		ksu['time_and_description'] = ksu['description']
+
+	if ksu['is_critical']:
+		ksu['time_and_description'] = '000'+ksu['time_and_description']
+
+	return	
+
+
+def add_pretty_time(ksu):
+	best_time = ksu['best_time']
+
+	if best_time == 'None':
+		ksu['best_time'] = None
+
+	if ksu['best_time']:
+		ksu['pretty_time'] = d_Times[ksu['best_time']]
+	return
+
+
+
+
+
+def make_ordered_ksu_set_list_for_mission(current_mission): 
+	ksu_set = current_mission
+
+	if len(ksu_set) == 0:
+		return []
+	result = []
+	set_order = []
+
+	attribute = 'time_and_description'
+	reverse = False
+
+	for (key, ksu) in ksu_set.items():
+		set_order.append((ksu['id'],ksu[attribute]))
+	set_order = sorted(set_order, key=itemgetter(1), reverse=reverse)	
+
+	for e in set_order:
+		ksu_id = e[0]
+		ksu = ksu_set[ksu_id]
+		result.append(ksu_set[ksu_id])
+
+	return result
+
+
+
+
+
 
 
 
@@ -2017,6 +2099,7 @@ i_BigO_KSU = {'value_type':'V500',
 
 # Big Objective Key Actions Set Specifics
 i_BOKA_KSU = {'in_upcoming':False, #To overwrite the proactiveness auto true
+			  'is_critical': False,
 			  'importance':'3',
 			  'priority':'1',
 			  'next_event':None}
@@ -2520,6 +2603,7 @@ def prepare_details_for_saving(post_details):
 			   'is_private':False,
 			   'next_event':None,
 			   'in_upcoming':False,
+			   'best_time':None,
 			   'any_any':False,
 			   'tags':None,
 	    	   'is_milestone':False,
@@ -3385,7 +3469,7 @@ l_Scope = sorted(d_Scope.items())
 
 
 
-d_Times = {'None':'None',
+d_Times = {	None:'None',
 		   '0600':'06:00',
 		   '0700':'07:00',
 		   '0800':'08:00',

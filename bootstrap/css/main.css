@@ -126,13 +126,6 @@
 }
 
 
-.purple {
-    color: #6600CC;
-}
-
-
-
-
 .small-score-title {
     display: block;
     color: #6600CC;
@@ -162,16 +155,6 @@
     text-align: center;
     text-decoration: none;
     /*white-space:pre;*/
-}
-
-
-.red {
-    color: red;
-}
-
-
-.error {
-    color: red;
 }
 
 
@@ -252,6 +235,42 @@
 }
 
 
+.mission_time{
+    color: #0000FF;
+    font-size: 18px;
+    font-weight: bold;
+}
 
+
+.error {
+    color: red;
+}
+
+.red {
+    color: red;
+}
+
+.mission_critical{
+    color: #D00000;
+    /*font-size: 15px;*/
+    font-weight: bold;
+    /*color: #0000FF;*/
+}
+
+.mission_any_any{
+    /*color: #00CC33; Light Green */
+    /*color: #993300; Marron */
+    font-size: 21px;
+    font-weight: bold;
+    color: #0000FF;
+}
+
+.purple {
+    color: #6600CC;
+}
+
+.blue {
+    color: #0000FF;
+}
 
 

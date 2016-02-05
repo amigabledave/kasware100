@@ -151,7 +151,20 @@
 					<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="EditKSU"> Edit </button>					
 				</div>
 				
-				<div class="col-xs-12 col-sm-7 col-md-5 col-lg-5"> {% if ksu['project'] %} <b> {{ksu['project']}} </b> -- {% endif %} {{ksu['description']}} {% if ksu['comments'] %} -- <em> {{ksu['comments']}} </em> {% endif %}</div>
+				<div class="col-xs-12 col-sm-7 col-md-5 col-lg-5"> 
+					
+					{% if ksu['best_time'] %} <span class="mission_time"> {{ksu['pretty_time']}}</span> - {% endif %}					
+					{% if ksu['BigO_description'] %} <b> {{ksu['BigO_description']}}</b>: {% endif %}
+					{% if ksu['project'] %} <b> {{ksu['project']}} </b>: {% endif %}
+					{% if ksu['any_any'] %} <span class="mission_any_any"> << </span>{% endif %}
+					<span class="{% if ksu['is_critical'] %}mission_critical{% endif %}"> {{ksu['description']}} </span>
+					{% if ksu['any_any'] %} <span class="mission_any_any"> >> </span>{% endif %}					
+					{% if ksu['comments'] %} -- <em> {{ksu['comments']}} </em> {% endif %}
+					{% if ksu['tags'] %} -- <em> {{ksu['tags']}} </em> {% endif %}
+
+				</div>
+
+
 
 				<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
 					<input type="submit" class="btn btn-md btn-success" name="action_description" value="Done">
@@ -175,10 +188,6 @@
 				</div>				
 			</form>	
 		</div>
-
-
-
-	
 
 	{% endfor %}
 
