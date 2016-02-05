@@ -126,6 +126,13 @@
 }
 
 
+.purple {
+    color: #6600CC;
+}
+
+
+
+
 .small-score-title {
     display: block;
     color: #6600CC;
@@ -154,7 +161,7 @@
     /*font-weight: bold;*/
     text-align: center;
     text-decoration: none;
-    white-space:pre;
+    /*white-space:pre;*/
 }
 
 

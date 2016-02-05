@@ -41,7 +41,9 @@
 <div class="row">
 	<div class="col-xs-1"></div>
 	{% for a in viewer_details['attributes'] %}
-		<div class="col-xs-{{viewer_details['columns'][a]}}">  <div class="field-header">  {{viewer_details['fields'][a]}} </div> </div>
+		<div class="hidden-xs hidden-sm col-md-{{viewer_details['columns'][a]}} col-lg-{{viewer_details['columns'][a]}}">  
+			<div class="field-header">  {{viewer_details['fields'][a]}}</div>
+		</div>
 	{% endfor %}
 </div>
 
@@ -63,23 +65,29 @@
 
 			<div class="row">
 
-				<div class="col-xs-1">
+				<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
 					<form class="form-horizontal" method="post">
 						<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}"> 
 					  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="EditKSU"> Edit </button>
 					</form>	
 				</div>
 
-
+				<div class="col-xs-12 col-sm-12 hidden-md hidden-lg">
+					{% if set_name == 'KAS3'%}<em>{{ksu['circumstance']+'-->'}}</em>{% endif %}
+					{{ksu['description']}}
+					{% if set_name == 'ImPe'%}<em>{{' -- Last contact: ' + ksu['pretty_last_contact']}}</em>{% endif %}
+				</div>
 
 				{% for a in viewer_details['attributes'] %}
-					<div class="col-xs-{{viewer_details['columns'][a]}}">  {% if ksu[a] %} {{ksu[a]}} {% endif %} </div>
+					<div class="hidden-xs hidden-sm col-md-{{viewer_details['columns'][a]}} col-lg-{{viewer_details['columns'][a]}}">
+						{% if ksu[a] %} {{ksu[a]}} {% endif %}
+					</div>
 				{% endfor %}	
 
 
 				{% if viewer_details['show_Button_Add_To_Mission'] %}
 
-					<div class="col-xs-1">
+					<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
 							<form class="form-horizontal" method="post">
 							<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
 						  	<button type="submit" class="btn btn-primary btn-md" name="action_description" value="Add_To_Mission"> To Mission </button>
@@ -93,7 +101,7 @@
 
 					{% if set_name == 'Wish' %}
 
-						<div class="col-xs-3">
+						<div class="hidden-xs hidden-sm col-md-3 col-lg-3">
 							<form class="form-horizontal" method="post">
 								<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
 							  	<button type="submit" class="btn btn-primary btn-md" name="action_description" value="Add_Child_KSU"> Small Objective </button>
@@ -105,7 +113,7 @@
 
 					{% else %}
 
-						<div class="col-xs-1">
+						<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
 							<form class="form-horizontal" method="post">
 								<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
 							  	<button type="submit" class="btn btn-primary btn-md" name="action_description" value="Add_Child_KSU"> Add Action </button>
@@ -119,7 +127,7 @@
 
 				{% if viewer_details['show_Button_Done'] %}
 
-					<div class="col-xs-1">
+					<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
 						<form class="form-horizontal" method="post">
 							<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
 						  	<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Done">  Done  </button>
@@ -132,7 +140,7 @@
 
 				{% if viewer_details['show_Button_Achieved'] %}
 
-					<div class="col-xs-1">
+					<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
 						<form class="form-horizontal" method="post">
 							<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
 						  	<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Done">  Achieved  </button>
@@ -145,7 +153,7 @@
 
 				{% if viewer_details['show_Button_Avoided'] %}
 
-					<div class="col-xs-1">
+					<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
 						<form class="form-horizontal" method="post">
 							<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
 						  	<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Done"> Avoided </button>
@@ -157,7 +165,7 @@
 
 				{% if viewer_details['show_Button_Fail'] %}
 
-					<div class="col-xs-1">
+					<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
 						<form class="form-horizontal" method="post">
 							<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
 
@@ -177,9 +185,55 @@
 
 				{% endif %}	
 
-			
-		
 			</div>
+				
+
+			<div class="row">				
+				<div class="col-xs-12 col-sm-12 hidden-md hidden-lg text-left">
+					<br>
+					<form class="form-horizontal" method="post">
+						<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+							<button type="submit" class="btn btn-primary btn-md" name="action_description" value="EditKSU"> Edit </button>
+							
+							{% if viewer_details['show_Button_Add_To_Mission'] %}							
+								<button type="submit" class="btn btn-primary btn-md" name="action_description" value="Add_To_Mission"> To Mission </button>							
+							{% endif %}
+
+							{% if viewer_details['show_Button_Add_Child_KSU'] %}
+								{% if set_name == 'Wish' %}
+									<button type="submit" class="btn btn-primary btn-md" name="action_description" value="Add_Child_KSU"> Small O </button>
+									<button type="submit" class="btn btn-primary btn-md respect-space" name="action_description" value="Transform_KSU">  Big O  </button>			
+								{% else %}
+									<button type="submit" class="btn btn-primary btn-md" name="action_description" value="Add_Child_KSU"> Add Action </button>
+								{% endif %}
+							{% endif %}
+
+							{% if viewer_details['show_Button_Done'] %}
+								<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Done">  Done  </button>
+							{% endif %}	
+
+							{% if viewer_details['show_Button_Achieved'] %}
+								<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Done">  Achieved  </button>
+							{% endif %}	
+
+							{% if viewer_details['show_Button_Avoided'] %}
+								<button type="submit" class="btn btn-success btn-md respect-space" name="action_description" value="Done"> Avoided </button>
+							{% endif %}
+
+							{% if viewer_details['show_Button_Fail'] %}
+
+								{% if set_name == 'KAS3'%}
+							  		<button type="submit" class="btn btn-danger btn-md respect-space" name="action_description" value="Fail"> Didn't </button>
+						  		{% elif set_name =='KAS4' %}
+									<button type="submit" class="btn btn-danger btn-md respect-space" name="action_description" value="Fail">Commited</button>
+						  		{% endif %}
+
+							{% endif %}
+
+					</form>
+				</div>		
+			</div>
+
 			<hr>
 
 		{% endif %}

@@ -9,12 +9,11 @@ from google.appengine.ext import db
 from google.appengine.api import memcache
 from google.appengine.api import mail
 
-from python_files import sample_theory
 from python_files import base_theory
 from python_files import backup_theory
 
 
-template_dir = os.path.join(os.path.dirname(__file__), 'html_templates')
+template_dir = os.path.join(os.path.dirname(__file__), 'html_files')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
 today = (datetime.today() - timedelta(hours=6)).toordinal()
@@ -394,7 +393,7 @@ class Upcoming(Handler):
 		upcoming = hide_invisible(upcoming)
 		upcoming = make_ordered_ksu_set_list_for_upcoming(upcoming)
 		view_groups = define_upcoming_view_groups(upcoming)
-		self.print_html('upcoming.html', upcoming=upcoming, view_groups=view_groups)
+		self.print_html('Upcoming.html', upcoming=upcoming, view_groups=view_groups)
 
 	def post(self):
 		if user_bouncer(self):
@@ -589,7 +588,7 @@ class SetViewer(Handler):
 		grouping_attribute = viewer_details['grouping_attribute']
 
 		grouping_list = update_grouping_list(ksu_set, grouping_attribute, grouping_list)	
-		self.print_html('set-viewer.html', viewer_details=viewer_details, ksu_set=ksu_set, set_name=set_name, grouping_list=grouping_list)
+		self.print_html('SetViewer.html', viewer_details=viewer_details, ksu_set=ksu_set, set_name=set_name, grouping_list=grouping_list)
 
 	def post(self, set_name):
 		if user_bouncer(self):
@@ -805,7 +804,7 @@ class BigOViewer(Handler):
 				
 		elif user_action == 'Add_Child_KSU':
 			parent_id = post_details['ksu_id']
-			self.redirect('/NewKSU/BOKA?return_to=/BigOViewer&parent_id=' + parent_id) #xx
+			self.redirect('/NewKSU/BOKA?return_to=/BigOViewer&parent_id=' + parent_id)
 		
 		else:
 			ksu_id = post_details['ksu_id']
@@ -1113,6 +1112,28 @@ def create_mega_set(theory):
 	return mega_set
 
 
+def create_mega_backup(theory):#xx
+	mega_backup = {	'KAS1': unpack_set(theory.KAS1),
+					'KAS2': unpack_set(theory.KAS2),
+					'KAS3': unpack_set(theory.KAS3),
+					'KAS4': unpack_set(theory.KAS4),
+
+					'BOKA': unpack_set(theory.BOKA),
+					'BigO': unpack_set(theory.BigO),
+					'Wish': unpack_set(theory.Wish),
+					'ImPe': unpack_set(theory.ImPe),
+
+					'RTBG': unpack_set(theory.RTBG),
+					'Prin': unpack_set(theory.Prin),
+					'NoAR': unpack_set(theory.NoAR),
+					'Idea': unpack_set(theory.Idea),
+					'MoRe': unpack_set(theory.MoRe),
+					
+					'ImIn': unpack_set(theory.ImIn),
+					'Hist': unpack_set(theory.Hist)}
+	return mega_backup
+
+
 
 
 
@@ -1139,7 +1160,7 @@ class NewKSU(Handler):
 				parent = parent_set[parent_id]
 				update_child_with_parent(ksu, parent)
 		
-		self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name ,title='Define')
+		self.print_html('NewEditKSU.html', constants=constants, ksu=ksu, set_name=set_name ,title='Define')
 
 	def post(self, set_name):
 		if user_bouncer(self):
@@ -1156,11 +1177,11 @@ class NewKSU(Handler):
 				ksu = new_ksu(self, set_name)
 				ksu = update_ksu_with_post_details(ksu, post_details)
 				show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
-				self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name, title='Create', input_error=input_error)
+				self.print_html('NewEditKSU.html', constants=constants, ksu=ksu, set_name=set_name, title='Create', input_error=input_error)
 			
 			elif user_action in ['Create', 'Create_Plus']:
 				user_Action_Create_ksu(self, set_name)
-				parent_id = self.request.get('parent_id') #xx
+				parent_id = self.request.get('parent_id')
 				
 				if user_action == 'Create':
 					if parent_id:
@@ -1224,7 +1245,7 @@ class EditKSU(Handler):
 		ksu_set = unpack_set(eval('theory.' + set_name))
 		ksu = ksu_set[ksu_id]		
 		ksu = not_ugly_dates(ksu)
-		self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name, title='Edit')
+		self.print_html('NewEditKSU.html', constants=constants, ksu=ksu, set_name=set_name, title='Edit')
 
 	def post(self):
 		if user_bouncer(self):
@@ -1245,7 +1266,7 @@ class EditKSU(Handler):
 				ksu = ksu_set[ksu_id]
 				ksu = update_ksu_with_post_details(ksu, post_details)			
 				show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
-				self.print_html('ksu-new-edit-form.html', constants=constants, ksu=ksu, set_name=set_name, title='Edit', input_error=input_error)
+				self.print_html('NewEditKSU.html', constants=constants, ksu=ksu, set_name=set_name, title='Edit', input_error=input_error)
 
 			else:
 				user_Action_Edit_ksu(self)
@@ -1300,7 +1321,7 @@ class Done(Handler):
 				event_type = 'SmartEffort'
 
 		
-		self.print_html('done.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name, event_type=event_type)
+		self.print_html('Done.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name, event_type=event_type)
 
 
 	def post(self):
@@ -1337,7 +1358,7 @@ class Done(Handler):
 			if input_error:
 				ksu['time_cost'] = post_details['duration']
 				dropdowns = make_dropdowns(theory)
-				self.print_html('done.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name, event_type=event_type, input_error=input_error)
+				self.print_html('Done.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name, event_type=event_type, input_error=input_error)
 		
 			elif event_type == 'EndValue':
 				user_Action_Done_EndValue(self)
@@ -1358,14 +1379,14 @@ class Done(Handler):
 			if input_error:
 				ksu['time_cost'] = post_details['duration']
 				dropdowns = make_dropdowns(theory)
-				self.print_html('done.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name, event_type=event_type, input_error=input_error)
+				self.print_html('Done.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name, event_type=event_type, input_error=input_error)
 			
 			elif event_type == 'EndValue':
 				user_Action_Done_EndValue(self)
 				self.redirect('/NewKSU/' + set_name + '?return_to=' + return_to + '&parent_id=' + parent_id)
 				
 			elif event_type == 'SmartEffort':
-				user_Action_Done_SmartEffort(self) #xx
+				user_Action_Done_SmartEffort(self)
 				self.redirect('/NewKSU/' + set_name + '?return_to=' + return_to + '&parent_id=' + parent_id)
 
 
@@ -1409,8 +1430,8 @@ class Failure(Handler):
 		set_name = get_type_from_id(ksu_id)
 		ksu_set = unpack_set(eval('theory.' + set_name))
 		ksu = ksu_set[ksu_id]	
-		dropdowns = make_dropdowns(theory)
-		self.print_html('failure.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name)
+		# dropdowns = make_dropdowns(theory)
+		self.print_html('Failure.html', constants=constants, ksu=ksu, set_name=set_name)
 
 	def post(self):
 		if user_bouncer(self):
@@ -1421,9 +1442,19 @@ class Failure(Handler):
 		Stupidity_sets = ['KAS3', 'KAS4']
 		return_to = self.request.get('return_to')
 		user_action = post_details['action_description']
-		
+
+
 		if user_action == 'Fail_Confirm':
-			if set_name in Stupidity_sets:
+			input_error = user_input_error(post_details)
+
+			if input_error:
+				ksu_id = post_details['ksu_id']
+				set_name = get_type_from_id(ksu_id)
+				ksu_set = unpack_set(eval('theory.' + set_name))
+				ksu = ksu_set[ksu_id]			
+				self.print_html('Failure.html', constants=constants, ksu=ksu, set_name=set_name, input_error=input_error)
+
+			elif set_name in Stupidity_sets:
 				user_Action_Fail_Stupidity(self)
 				self.redirect(return_to)
 
@@ -1499,7 +1530,7 @@ class LoadPythonData(Handler):
 		if user_bouncer(self):
 			return
 		theory = self.theory
-		developer_Action_Load_PythonData(theory, set_name)
+		developer_Action_Load_PythonData(theory, set_name) #xx
 		if set_name == 'All':
 			self.redirect('/TodaysMission')
 		else:
@@ -1626,8 +1657,14 @@ class PythonData(Handler):
 	def get(self, set_name):
 		if user_bouncer(self):
 			return
-		theory = self.theory	
-		ksu_set = unpack_set(eval('theory.' + set_name))
+		
+		theory = self.theory
+		if set_name == 'All':
+			theory = self.theory
+			ksu_set = create_mega_backup(theory)
+		else:
+			ksu_set = unpack_set(eval('theory.' + set_name))
+		
 		self.write(ksu_set)
 
 
@@ -1707,7 +1744,7 @@ def update_ksu_next_event(theory, post_details):
 	ksu = ksu_set[ksu_id]
 	user_action = post_details['action_description']
 	
-	if user_action in ['Done_Confirm', 'Done_Confirm_Plus']:#xx
+	if user_action in ['Done_Confirm', 'Done_Confirm_Plus']:
 		ksu['last_event'] = today
 		
 		if set_name == 'KAS1':
@@ -2584,7 +2621,7 @@ def user_Action_Delete_ksu(self):
 def user_Action_Done_SmartEffort(self):
 	theory = self.theory
 	post_details = get_post_details(self)
-	update_ksu_next_event(theory, post_details) #xx
+	update_ksu_next_event(theory, post_details)
 	update_ksu_in_mission(theory, post_details)
 	add_SmartEffort_event(theory, post_details)
 	update_ksu_status(theory, post_details)
@@ -2896,55 +2933,55 @@ def triggered_Action_Done_ImPe_Contact(self):
 
 
 #--- Developer Actions ---
-def developer_Action_Load_PythonData(theory, set_name):
+def developer_Action_Load_PythonData(theory, set_name): #xx
 	if set_name == 'KAS1':
 		KAS1 = unpack_set(theory.KAS1)
-		KAS1.update(sample_theory.sample['KAS1'])
+		KAS1.update(backup_theory.sample['KAS1'])
 		theory.KAS1 = pack_set(KAS1)
 
 	elif set_name == 'KAS2':
 		KAS2 = unpack_set(theory.KAS2)
-		KAS2.update(sample_theory.sample['KAS2'])
+		KAS2.update(backup_theory.sample['KAS2'])
 		theory.KAS2 = pack_set(KAS2)
 
 	elif set_name == 'KAS3':
 		KAS3 = unpack_set(theory.KAS3)
-		KAS3.update(sample_theory.sample['KAS3'])
+		KAS3.update(backup_theory.sample['KAS3'])
 		theory.KAS3 = pack_set(KAS3)		
 
 	elif set_name == 'KAS4':
 		KAS4 = unpack_set(theory.KAS4)
-		KAS4.update(sample_theory.sample['KAS4'])
+		KAS4.update(backup_theory.sample['KAS4'])
 		theory.KAS4 = pack_set(KAS4)
 
 	elif set_name == 'BOKA':
 		BOKA = unpack_set(theory.BOKA)
-		BOKA.update(sample_theory.sample['BOKA'])
+		BOKA.update(backup_theory.sample['BOKA'])
 		theory.BOKA = pack_set(BOKA)
 
 	elif set_name == 'BigO':
 		BigO = unpack_set(theory.BigO)
-		BigO.update(sample_theory.sample['BigO'])
+		BigO.update(backup_theory.sample['BigO'])
 		theory.BigO = pack_set(BigO)
 
 	elif set_name == 'Wish':
 		Wish = unpack_set(theory.Wish)
-		Wish.update(sample_theory.sample['Wish'])
+		Wish.update(backup_theory.sample['Wish'])
 		theory.Wish = pack_set(Wish)
 
 	elif set_name == 'ImPe':
 		ImPe = unpack_set(theory.ImPe)
-		ImPe.update(sample_theory.sample['ImPe'])
+		ImPe.update(backup_theory.sample['ImPe'])
 		theory.ImPe = pack_set(ImPe)
 
 	elif set_name == 'ImIn':
 		ImIn = unpack_set(theory.ImIn)
-		ImIn.update(sample_theory.sample['ImIn'])
+		ImIn.update(backup_theory.sample['ImIn'])
 		theory.ImIn = pack_set(ImIn)	
 
 	elif set_name == 'Hist':
 		Hist = unpack_set(theory.Hist)
-		Hist.update(sample_theory.sample['Hist'])
+		Hist.update(backup_theory.sample['Hist'])
 		theory.Hist = pack_set(Hist)
 
 	elif set_name == 'All':
@@ -3273,7 +3310,8 @@ def input_error(target_attribute, user_input):
 							 'charging_time',
 							 'contact_frequency',
 							 'question_frequency',
-							 'duration', 
+							 'duration',
+							 'repetitions', 
 							 'last_event', 
 							 'next_event', 
 							 'target_date', 
@@ -3333,8 +3371,11 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 		'money_cost': re.compile(r"^[0-9]{1,12}$"),
 		'money_cost_error': 'The money cost should be an integer',
 
+		'repetitions': re.compile(r"^[0-9]{1,3}$"),
+		'repetitions_error': "Repetitions should be an integer",
+
 		'period_duration': re.compile(r"^[0-9]{1,3}$"),
-		'period_duration_error': "Period's duration should be an integer with maximum 3 digits",
+		'period_duration_error': "Period's duration should be an integer",
 
 		'birthday_error':'Birthday format must be DD-MM-YYYY',
 		'last_event_error':'Last event format must be DD-MM-YYYY',
@@ -3566,9 +3607,9 @@ d_Viewer ={'KAS1':{'set_title':'Key Actions Core Set  (KAS1)',
 
 			'ImIn':{'set_title':'Important Indicators',
 				    'set_name':'ImIn',
-				    'attributes':['id','description','units','base_value', 'comparison_value'],
-				    'fields':{'id':'ID','description':'Description','units':'Units', 'base_value':'Target Period','comparison_value':'Prvious Period'},
-				    'columns':{'id':1,'description':4,'units':2, 'base_value':1, 'comparison_value':1},
+				    'attributes':['id','description','units','target_min','base_value', 'comparison_value', 'target_max'],
+				    'fields':{'id':'ID','description':'Description','units':'Units','target_min':'Target Min', 'base_value':'Current Period','comparison_value':'Prvious Period', 'target_max':'Target Max'},
+				    'columns':{'id':1,'description':4,'units':2, 'base_value':1,'target_min':1, 'comparison_value':1, 'target_max':1},
 				    'grouping_attribute':'scope',
 				    'grouping_list':l_Scope},
 
@@ -3626,7 +3667,7 @@ app = webapp2.WSGIApplication([
 							 
 							 ('/email',Email),
 							 # ('/LoadCSV/' + PAGE_RE, LoadCSV), #There will be no need for this handler once it goes live
-							 ('/LoadPythonData/' + PAGE_RE, LoadPythonData),
+							 ('/LoadPythonData/' + PAGE_RE, LoadPythonData),#xx
 							 # ('/ReplacePythonData/' + PAGE_RE, ReplacePythonData), #There will be no need for this handler once it goes live
 							 ('/EditPythonData/'+ PAGE_RE, EditPythonData),
 							 ('/PythonData/' + PAGE_RE, PythonData)

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+	<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6"> 
+		<div class="section-title">Important Indicators</div>
+	</div>
+	
+	<form method="Post"> 	
+		<div class="form-group">
+
+			<div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+				<label> Period's End </label>
+				<input type="text" class="form-control" name="period_end" placeholder="DD-MM-YYYY" value="{{period_end}}">
+			</div>
+
+			<div class="col-xs-6 col-sm-6 col-md-2 col-lg-2"> 		
+				<label> Period's Duration </label>
+				<input type="text" class="form-control" name="period_duration" required value="{% if period_duration %}{{period_duration}}{% endif %}">
+			</div>	
+
+			<div class="col-xs-6 col-sm-6 col-md-2 col-lg-2 text-left">
+				<button type="submit" class="btn btn-lg btn-primary new-ksu-button respect-space" name="action_description" value="update_period"> Update Period </button>	
+			</div>
+
+			<div class="col-xs-6 col-sm-6 hidden-md hidden-lg text-left error">
+				{% if input_error%}{{input_error}}{% endif %}
+			</div>
+
+		</div>	
+	</form>	
+</div>
+
+<div class="row">
+	<div class="hidden-xs hidden-sm col-md-12 col-lg-12 error text-right ">{% if input_error%}{{input_error}}{% endif %}</div>	
+</div>
+
+
+<br>
+
+<div class="row">
+	<div class="hidden-xs hidden-sm col-md-1 col-lg-1"></div>
+	{% for a in viewer_details['attributes'] %}
+		<div class="hidden-xs hidden-sm col-md-{{viewer_details['columns'][a]}} col-lg-{{viewer_details['columns'][a]}}">
+			<div class="field-header">  {{viewer_details['fields'][a]}} </div> 
+		</div>
+	{% endfor %}
+</div>
+
+
+
+<hr class="thick-hr-1px">
+
+
+{% for group in viewer_details['grouping_list']  %}
+
+	<div class="row">
+		<div class="col-xs-12"> <div class="section-group-title"> {{group[1]}} </div></div>
+	</div>
+
+<!-- Rows. One per KSU -->
+
+	{% for ksu in ksu_set %}
+
+		{% if ksu[viewer_details['grouping_attribute']] == group[0] %}
+
+			<div class="row">
+				
+				<div class="col-xs-2 col-sm-2 col-md-1 col-lg-1">
+					<form class="form-horizontal" method="post">
+						<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}"> 
+					  	<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="EditKSU"> Edit </button>
+					</form>	
+				</div>
+
+				{% for a in viewer_details['attributes'] %}
+					<div class="hidden-xs hidden-sm col-md-{{viewer_details['columns'][a]}} col-lg-{{viewer_details['columns'][a]}}">
+						{% if ksu[a] %} {{ksu[a]}} {% endif %} 
+					</div>
+				{% endfor %}	
+			
+				<div class="col-xs-10 col-sm-10 hidden-md hidden-lg">
+					<b>{{ksu['description']}}</b>					
+				</div>
+				
+			</div>
+			
+			<div class="row">
+				<div class="col-xs-3 col-sm-3 hidden-md hidden-lg text-center">
+					<b class="purple">T. Min: </b>
+				</div>
+
+				<div class="col-xs-3 col-sm-3 hidden-md hidden-lg text-center">
+					<b class="purple">C. Period: </b>
+				</div>
+
+				<div class="col-xs-3 col-sm-3 hidden-md hidden-lg text-center">
+					<b class="purple">P. Period: </b>
+				</div>
+
+				<div class="col-xs-3 col-sm-3 hidden-md hidden-lg text-center">
+					<b class="purple">T. Max: </b>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-xs-3 col-sm-3 hidden-md hidden-lg text-center">
+					<b>{{ksu['target_min']}}</b>					
+				</div>
+
+				<div class="col-xs-3 col-sm-3 hidden-md hidden-lg text-center">
+					<b>{{ksu['base_value']}}</b>
+				</div>
+
+				<div class="col-xs-3 col-sm-3 hidden-md hidden-lg text-center">
+					<b>{{ksu['comparison_value']}}</b>
+				</div>
+
+				<div class="col-xs-3 col-sm-3 hidden-md hidden-lg text-center">
+					<b>{{ksu['target_max']}}</b>
+				</div>
+			</div>
+
+
+
+			<hr>
+
+		{% endif %}
+
+	{% endfor %}
+
+{% endfor %}
+
+
+
+
+
+
+{% endblock %}
