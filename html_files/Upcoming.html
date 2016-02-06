@@ -4,6 +4,7 @@
 
 <div class="row">
 	<div class="col-xs-12 col-sm-12 col-md-9 col-lg-9"> <div class="section-title"> Upcoming Actions </div></div>
+	<!-- mex today: {{today}}  mex tomorrow: {{tomorrow}} british today:{{real_time}}  -->
 	
 	<div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 text-center"> 		
 		<form method="Post"> 		
@@ -51,7 +52,16 @@
 				</div>
 
 
-				<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">  <div> {{ksu['description']}} </div> </div>
+				<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">  
+					{% if ksu['best_time'] %} <span class="mission_time"> {{ksu['pretty_time']}}</span> - {% endif %}					
+					{% if ksu['BigO_description'] %} <b> {{ksu['BigO_description']}}</b>: {% endif %}
+					{% if ksu['project'] %} <b> {{ksu['project']}}</b>: {% endif %}
+					{% if ksu['any_any'] %} <span class="mission_any_any"> << </span>{% endif %}
+					<span class="{% if ksu['is_critical'] %}mission_critical{% endif %}"> {{ksu['description']}} </span>
+					{% if ksu['any_any'] %} <span class="mission_any_any"> >> </span>{% endif %}					
+					{% if ksu['comments'] %} -- <em> {{ksu['comments']}} </em> {% endif %}
+					{% if ksu['tags'] %} -- <em> {{ksu['tags']}} </em> {% endif %}
+				</div>
 				<div class="hidden-xs hidden-sm col-md-2 col-lg-2">  <div> {{ksu['pretty_next_event']}} </div> </div>
 
 				<div class="hidden-xs hidden-sm col-md-2 col-lg-2">

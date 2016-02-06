@@ -1,4 +1,4 @@
-#KASware v1.0.0 | Copyright 2016 AmigableDave & Co.
+#KASware v1.0.0 | Copyright 2016 Kasware Inc.
 
 import re, os, webapp2, jinja2, logging, hashlib, random, string, csv, pickle, ast
 
@@ -16,7 +16,8 @@ from python_files import backup_theory
 template_dir = os.path.join(os.path.dirname(__file__), 'html_files')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
-today = (datetime.today() - timedelta(hours=6)).toordinal() + 100
+real_today = datetime.today().toordinal()
+today = (datetime.today() - timedelta(hours=6)).toordinal()
 tomorrow = today + 1
 not_ugly_today = datetime.today().strftime('%d-%m-%Y')
 
@@ -443,17 +444,16 @@ def make_ordered_ksu_set_list_for_mission(current_mission):
 
 
 
+
 def todays_questions(theory):
 	ImIn = unpack_set(theory.ImIn)
 
 	KAS3 = unpack_set(theory.KAS3)	
 	KAS3 = hide_invisible(KAS3)
 
-	KAS4 = unpack_set(theory.KAS4) #xx
+	KAS4 = unpack_set(theory.KAS4)
 	KAS4 = hide_invisible(KAS4)
 	
-
-
 	morning_questions = []
 	night_questions = []
 
@@ -472,7 +472,7 @@ def todays_questions(theory):
 			if ksu['question_frequency'] == '1':
 				ksu['question'] = jinja2.Markup('<span class="red">Did this situation happenend today: </span>' + ksu['circumstance'] + '. <span class="red">And if so, did you have this reaction:</span> ' + ksu['description'] + "?")
 				night_questions.append(ksu)	
-			else:#xx
+			else:
 				ksu['question'] = jinja2.Markup('<span class="red">Did this situation happenend in the last ' + ksu['question_frequency'] + ' days: </span>'+ ksu['circumstance'] + '. <span class="red">And if so, did you have this reaction: </span>' + ksu['description']) 
 				morning_questions.append(ksu)
 
@@ -483,7 +483,7 @@ def todays_questions(theory):
 				if ksu['question_frequency'] == '1':
 					ksu['question'] = jinja2.Markup('<span class="red">Were tempted, but mange to avoid: </span>' + ksu['description'] + ' <span class="red">today?</span>')
 					night_questions.append(ksu)	
-				else:#xx
+				else:
 					ksu['question'] = jinja2.Markup('<span class="red">Were tempted, but mange to avoid:</span> ' + ksu['description'] + ',<span class="red"> throughout the last ' + ksu['question_frequency'] + ' days?</span>')
 					morning_questions.append(ksu)	
 
@@ -510,7 +510,8 @@ class Upcoming(Handler):
 		upcoming = hide_invisible(upcoming)
 		upcoming = make_ordered_ksu_set_list_for_upcoming(upcoming)
 		view_groups = define_upcoming_view_groups(upcoming)
-		self.print_html('Upcoming.html', upcoming=upcoming, view_groups=view_groups)
+		upcoming = ordere_upcoming_base_on_criticality(upcoming)
+		self.print_html('Upcoming.html', upcoming=upcoming, view_groups=view_groups, real_time=real_today, today=today, tomorrow=tomorrow)
 
 	def post(self):
 		if user_bouncer(self):
@@ -548,14 +549,18 @@ def current_upcoming(self):
 	for ksu_set in ksu_sets:
 		for ksu in ksu_set:
 			ksu = ksu_set[ksu]
-			if ksu['in_upcoming']:
-				result[ksu['id']] = ksu
+			if ksu['is_visible']:
+				add_BigO_description(theory, ksu)
+				add_pretty_time(ksu)
+				add_time_and_description(ksu)
+				if ksu['in_upcoming']:
+					result[ksu['id']] = ksu
 
 	return result
 
 
 
-def make_ordered_ksu_set_list_for_upcoming(current_upcoming): 
+def make_ordered_ksu_set_list_for_upcoming(current_upcoming):
 	ksu_set = current_upcoming 
 
 	if len(ksu_set) == 0:
@@ -564,20 +569,27 @@ def make_ordered_ksu_set_list_for_upcoming(current_upcoming):
 	set_order = []
 
 	attribute = 'next_event'
+	# attribute = 'time_and_description' 
 	reverse = False
 
 	for (key, ksu) in ksu_set.items():
-		set_order.append((ksu['id'],int(ksu[attribute])))
+		# set_order.append((ksu['id'],ksu[attribute]))
+		if ksu[attribute]:
+			set_order.append((ksu['id'],int(ksu[attribute])))
+		else:
+			set_order.append((ksu['id'],ksu[attribute]))	
 	set_order = sorted(set_order, key=itemgetter(1), reverse=reverse)	
 
 	for e in set_order:
 		ksu_id = e[0]
 		ksu = ksu_set[ksu_id]
-		ksu['view_group'] = define_ksu_upcoming_group(int(ksu['next_event']))
+		if ksu['next_event']:
+			ksu['view_group'] = define_ksu_upcoming_group(int(ksu['next_event']))
+		else:
+			ksu['view_group'] = 'Someday Maybe'
 		result.append(ksu_set[ksu_id])
 
 	return result
-
 
 
 
@@ -586,9 +598,6 @@ def define_ksu_upcoming_group(date_ordinal):
 	date_month = date.strftime('%B')
 	date_year = date.strftime('%Y')
 	date = datetime.toordinal(date)
-
-	today = datetime.today().toordinal()
-	tomorrow = today + 1
 
 	if date <= today:
 		group = 'Today'
@@ -609,13 +618,49 @@ def define_ksu_upcoming_group(date_ordinal):
 
 def define_upcoming_view_groups(ordered_upcoming_list):
 	upcoming = ordered_upcoming_list
+	someday_maybe = False
 	groups = []
 	for ksu in upcoming:
 		group = ksu['view_group']
-		if group not in groups:
+		if group not in groups and group != 'Someday Maybe':
 			groups.append(group)
+		elif group == 'Someday Maybe':
+			someday_maybe = True
+	if someday_maybe:
+		groups.append('Someday Maybe')			
 	return groups
 
+
+def ordere_upcoming_base_on_criticality(ordered_upcoming_list):
+	upcoming = ordered_upcoming_list
+	ksu_set = turn_ksu_list_into_a_dictionary(upcoming)
+
+	if len(upcoming) == 0:
+		return []
+	result = []
+	set_order = []
+
+	attribute = 'time_and_description'
+	reverse = False
+
+	for ksu in upcoming:
+		set_order.append((ksu['id'],ksu[attribute]))
+	set_order = sorted(set_order, key=itemgetter(1), reverse=reverse)	
+
+	for e in set_order:
+		ksu_id = e[0]
+		ksu = ksu_set[ksu_id]
+		result.append(ksu_set[ksu_id])
+
+	return result
+
+
+def turn_ksu_list_into_a_dictionary(ksu_list):
+	result = {}
+	for ksu in ksu_list:
+		ksu_id = ksu['id']
+		result[ksu_id] = ksu
+	return result
 
 
 
@@ -1838,7 +1883,7 @@ def update_ksu_with_post_details(ksu, details):
 
 
 
-def update_ksu_next_event(theory, post_details):#xx
+def update_ksu_next_event(theory, post_details):
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
 	valid_sets = ['KAS1', 'KAS2', 'KAS3', 'KAS4', 'BOKA', 'ImIn']	
@@ -2094,7 +2139,7 @@ i_Proactive_KAS_KSU = {'time_cost': '1', # Reasonable Time Requirements in Minut
 			           'best_time': 'None'}
 
 
-i_Reactive_KAS_KSU = {'circumstance':None, #xx
+i_Reactive_KAS_KSU = {'circumstance':None,
 					  'exceptions':None,
 					  'success_since':None,
 					  'question_frequency':'1',

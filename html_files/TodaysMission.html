@@ -13,7 +13,7 @@
 </div>
 
 
-{% if message %}
+{% if message and not morning_questions and not night_questions %}
 	<br><br>	
 	<div class="row">
 		<div class="col-xs-12 mission-message"> {{message}} </div>
