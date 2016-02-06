@@ -301,6 +301,12 @@
 		</div>
 	</div>
 
+	<div class="form-group">
+		<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8"> 
+			<label> Valid Exceptions</label>
+			<input type="text" class="form-control" name="exceptions" placeholder="e.g. Unless Im in the middle of the dessert " value="{% if ksu['exceptions']%}{{ksu['exceptions']}}{% endif %}">			
+		</div>
+	</div>
 
 	<div class="form-group">
 	
@@ -383,7 +389,7 @@
 	<div class="form-group">
 		<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8"> 
 			<label> Action to Avoid <span class="red">*</span></label>
-			<input type="text" class="form-control" name="description" placeholder="e.g. Procastinate" required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">
+			<input type="text" class="form-control" name="description" placeholder="e.g. Wake up after 8:00 AM" required value="{% if ksu['description']%}{{ksu['description']}}{% endif %}">
 		</div>	
 	</div>
 
@@ -392,9 +398,19 @@
 		<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
 			<label> Dangerous Circusmtances & Potential Reactions <span class="red">*</span></label>
 
-			<input type="text" class="form-control" name="circumstance" placeholder="e.g. When my boss ask's me to do something I do not know how to do" required value="{% if ksu['circumstance']%}{{ksu['circumstance']}}{% endif %}">							
+			<input type="text" class="form-control" name="circumstance" placeholder="e.g. Going to sleep after 12:00 AM" value="{% if ksu['circumstance']%}{{ksu['circumstance']}}{% endif %}">							
 		</div>
 	</div>
+
+
+	<div class="form-group">
+		<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8"> 
+			<label> Valid Exceptions</label>
+			<input type="text" class="form-control" name="exceptions" placeholder="e.g. Unless Im on vacation " value="{% if ksu['exceptions']%}{{ksu['exceptions']}}{% endif %}">			
+		</div>
+	</div>
+
+
 
 	<div class="form-group">
 	 	<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2 col-lg-2">

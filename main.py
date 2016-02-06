@@ -16,7 +16,7 @@ from python_files import backup_theory
 template_dir = os.path.join(os.path.dirname(__file__), 'html_files')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
-today = (datetime.today() - timedelta(hours=6)).toordinal()
+today = (datetime.today() - timedelta(hours=6)).toordinal() + 100
 tomorrow = today + 1
 not_ugly_today = datetime.today().strftime('%d-%m-%Y')
 
@@ -333,6 +333,10 @@ class TodaysMission(Handler):
 				user_Action_Record_Answer(self)
 				self.redirect('/TodaysMission')
 
+		elif user_action == 'Fail':
+			ksu_id = post_details['ksu_id']
+			self.redirect('/Failure?ksu_id=' + ksu_id + '&return_to=/TodaysMission')
+
 		elif user_action == 'Question_Skipped':
 			user_Action_Skip_Question(self) 
 			self.redirect('/TodaysMission')
@@ -439,13 +443,16 @@ def make_ordered_ksu_set_list_for_mission(current_mission):
 
 
 
-
-
-
-
-
 def todays_questions(theory):
 	ImIn = unpack_set(theory.ImIn)
+
+	KAS3 = unpack_set(theory.KAS3)	
+	KAS3 = hide_invisible(KAS3)
+
+	KAS4 = unpack_set(theory.KAS4) #xx
+	KAS4 = hide_invisible(KAS4)
+	
+
 
 	morning_questions = []
 	night_questions = []
@@ -458,6 +465,30 @@ def todays_questions(theory):
 					morning_questions.append(ksu)
 				else:
 					night_questions.append(ksu)
+
+	for (ksu_id, ksu) in list(KAS3.items()):
+		if today >= int(ksu['next_question']):
+			ksu['units'] = 'KAS3'			
+			if ksu['question_frequency'] == '1':
+				ksu['question'] = jinja2.Markup('<span class="red">Did this situation happenend today: </span>' + ksu['circumstance'] + '. <span class="red">And if so, did you have this reaction:</span> ' + ksu['description'] + "?")
+				night_questions.append(ksu)	
+			else:#xx
+				ksu['question'] = jinja2.Markup('<span class="red">Did this situation happenend in the last ' + ksu['question_frequency'] + ' days: </span>'+ ksu['circumstance'] + '. <span class="red">And if so, did you have this reaction: </span>' + ksu['description']) 
+				morning_questions.append(ksu)
+
+
+	for (ksu_id, ksu) in list(KAS4.items()):
+		if today >= int(ksu['next_question']):			
+				ksu['units'] = 'KAS4'
+				if ksu['question_frequency'] == '1':
+					ksu['question'] = jinja2.Markup('<span class="red">Were tempted, but mange to avoid: </span>' + ksu['description'] + ' <span class="red">today?</span>')
+					night_questions.append(ksu)	
+				else:#xx
+					ksu['question'] = jinja2.Markup('<span class="red">Were tempted, but mange to avoid:</span> ' + ksu['description'] + ',<span class="red"> throughout the last ' + ksu['question_frequency'] + ' days?</span>')
+					morning_questions.append(ksu)	
+
+	morning_questions = sorted(morning_questions)
+	night_questions = sorted(night_questions)
 
 	return {'Morning':morning_questions, 'Night':night_questions}
 
@@ -1807,10 +1838,10 @@ def update_ksu_with_post_details(ksu, details):
 
 
 
-def update_ksu_next_event(theory, post_details):
+def update_ksu_next_event(theory, post_details):#xx
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
-	valid_sets = ['KAS1', 'KAS2', 'BOKA', 'ImIn']	
+	valid_sets = ['KAS1', 'KAS2', 'KAS3', 'KAS4', 'BOKA', 'ImIn']	
 	if set_name not in valid_sets:
 		return
 
@@ -1818,16 +1849,23 @@ def update_ksu_next_event(theory, post_details):
 	ksu = ksu_set[ksu_id]
 	user_action = post_details['action_description']
 	
-	if user_action in ['Done_Confirm', 'Done_Confirm_Plus']:
-		ksu['last_event'] = today
-		
+	if user_action in ['Done_Confirm', 'Done_Confirm_Plus', 'Fail_Confirm']:
+				
 		if set_name == 'KAS1':
+			ksu['last_event'] = today
 			ksu['next_event'] = today + int(ksu['charging_time'])
 
 		elif set_name == 'KAS2':
+			ksu['last_event'] = today
 			ksu['next_event'] = None
 
+		elif set_name in ['KAS3', 'KAS4']:
+			ksu['last_question'] = today
+			ksu['next_question'] = today + int(ksu['question_frequency'])
+
+
 		elif set_name == 'BOKA':
+			ksu['last_event'] = today
 			ksu['next_event'] = None
 			
 	elif user_action == 'Push':
@@ -1839,7 +1877,10 @@ def update_ksu_next_event(theory, post_details):
 		ksu['next_measurement'] = today + int(ksu['measurement_frequency'])
 
 	elif user_action == 'Question_Skipped':
-		ksu['next_measurement'] = today + int(ksu['measurement_frequency'])
+		if set_name == 'ImIn':
+			ksu['next_measurement'] = today + int(ksu['measurement_frequency'])
+		else:
+			ksu['next_question'] = today + int(ksu['question_frequency'])
 
 	update_theory(theory, ksu_set)	
 	return
@@ -2053,10 +2094,12 @@ i_Proactive_KAS_KSU = {'time_cost': '1', # Reasonable Time Requirements in Minut
 			           'best_time': 'None'}
 
 
-i_Reactive_KAS_KSU = {'circumstance':None,
+i_Reactive_KAS_KSU = {'circumstance':None, #xx
 					  'exceptions':None,
 					  'success_since':None,
 					  'question_frequency':'1',
+					  'last_question':today,
+					  'next_question':today,
 			  		  'streak':'0',
 			  		  'record':'0'}
 
@@ -2608,6 +2651,7 @@ def prepare_details_for_saving(post_details):
 			   'in_upcoming':False,
 			   'best_time':None,
 			   'any_any':False,
+			   'exceptions':None,
 			   'tags':None,
 	    	   'is_milestone':False,
 	    	   'comments':None}
@@ -2695,7 +2739,7 @@ def user_Action_Delete_ksu(self):
 
 
 
-def user_Action_Done_SmartEffort(self):
+def user_Action_Done_SmartEffort(self): 
 	theory = self.theory
 	post_details = get_post_details(self)
 	update_ksu_next_event(theory, post_details)
@@ -2722,7 +2766,8 @@ def user_Action_Done_Achievement(self):
 
 def user_Action_Fail_Stupidity(self):
 	theory = self.theory
-	post_details = get_post_details(self)	
+	post_details = get_post_details(self)
+	update_ksu_next_event(theory, post_details)	
 	add_Stupidity_event(theory, post_details)
 	update_ksu_streak_and_record(theory, post_details)
 	trigger_additional_actions(self)
@@ -3107,9 +3152,6 @@ def developer_Action_Load_CSV(theory, set_name):
 
 
 
-
-
-
 def developer_Action_Load_Set_CSV(theory, set_name, csv_path):
 	f = open(csv_path, 'rU')
 	f.close
@@ -3389,7 +3431,7 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 		'duration_error': 'Duration should be an integer with maximum 3 digits',
 
 		'question_frequency': re.compile(r"^[0-9]{1,3}$"),
-		'question_frequency_error': 'question_frequency should be an integer with maximum 3 digits',
+		'question_frequency_error': 'Question Frequency should be an integer',
 
 		'contact_frequency': re.compile(r"^[0-9]{1,3}$"),
 		'contact_error': 'contact_frequency should be an integer with maximum 3 digits',		

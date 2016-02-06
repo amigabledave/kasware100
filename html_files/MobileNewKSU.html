@@ -7,24 +7,29 @@
 	</div>
 
 	<form class="form-horizontal" method="post"> 	
-		<div class="col-xs-12"> <button type="submit" class="btn btn-lg btn-primary new-ksu-button mobile_button" name="target_set" value="KAS2">Independent Action </button> </div>	
+		<div class="col-xs-12 text-center"> 
+			<button type="submit" class="btn btn-lg btn-primary new-ksu-button respect-space" name="target_set" value="KAS2">        Independent Action        </button> 
+		</div>	
 		<br>
 	</form>
 	
-	<form class="form-horizontal" method="post"> 			
-		<div class="col-xs-12"> <button type="submit" class="btn btn-lg btn-primary new-ksu-button mobile_button" name="target_set" value="Wish"> Wish </button> </div>		
-		<br>
-	</form> 
-
 	{% for objective in BigO %}
 
 		<form class="form-horizontal" method="post"> 
 			<input type="text" class="form-control hidden" name="ksu_id" value="{{objective['id']}}">			
-			<div class="col-xs-12"> <button type="submit" class="btn btn-lg btn-primary new-ksu-button mobile_button" name="target_set" value="BOKA">{{"BigO: "+ objective['short_description']}}</button> </div>		
+			<div class="col-xs-12 text-center"> 
+				<button type="submit" class="btn btn-lg btn-default new-ksu-button" name="target_set" value="BOKA">{{"BigO: "+ objective['short_description']}}</button> 
+			</div>		
 			<br>
 		</form> 
 
 	{% endfor %}
+
+	<form class="form-horizontal" method="post"> 			
+		<div class="col-xs-12 text-center"> 
+			<button type="submit" class="btn btn-lg btn-primary respect-space new-ksu-button" name="target_set" value="Wish">                    Wish                    </button> </div>		
+		<br>
+	</form> 
 
 	<div class="row">
 		<div class="col-xs-12"> <br> </div>
