@@ -445,7 +445,7 @@ def make_ordered_ksu_set_list_for_mission(current_mission):
 
 
 
-def todays_questions(theory): #xx
+def todays_questions(theory):
 	ImIn = unpack_set(theory.ImIn)
 
 	KAS3 = unpack_set(theory.KAS3)	
@@ -481,10 +481,10 @@ def todays_questions(theory): #xx
 		if today >= int(ksu['next_question']):			
 				ksu['units'] = 'KAS4'
 				if ksu['question_frequency'] == '1':
-					ksu['question'] = jinja2.Markup('<span class="red">Were tempted, but mange to avoid: </span>' + ksu['description'] + ' <span class="red">today?</span>')
+					ksu['question'] = jinja2.Markup('<span class="red">Were you tempted, but mange to avoid: </span>' + ksu['description'] + ' <span class="red">today?</span>')
 					night_questions.append(ksu)	
 				else:
-					ksu['question'] = jinja2.Markup('<span class="red">Were tempted, but mange to avoid:</span> ' + ksu['description'] + ',<span class="red"> throughout the last ' + ksu['question_frequency'] + ' days?</span>')
+					ksu['question'] = jinja2.Markup('<span class="red">Were you tempted, but mange to avoid:</span> ' + ksu['description'] + ',<span class="red"> throughout the last ' + ksu['question_frequency'] + ' days?</span>')
 					morning_questions.append(ksu)	
 
 	morning_questions = sorted(morning_questions)
@@ -1032,7 +1032,7 @@ class ImInViewer(Handler):
 		self.print_html('ImInViewer.html', viewer_details=viewer_details, ksu_set=ksu_set, set_name='ImIn', period_end=period_end, period_duration=period_duration) #viewer_details=viewer_details
 
 
-	def post(self): #xx
+	def post(self):
 		if user_bouncer(self):
 			return
 		post_details = get_post_details(self)
@@ -1170,7 +1170,8 @@ def ImIn_calculate_indicators_values(theory, period_end, period_duration):
 		for unit in score_units:
 			target_holder[unit] += score[unit]
 		target_holder['duration'] += score['duration']
-
+		
+	target_holder['TotalScore'] = results_holder['Total']['EndValue']+results_holder['Total']['SmartEffort']-results_holder['Total']['Stupidity']
 	answers_history = relevant_history['Answers_history']
 	results_holder['Answer_indicators'] = ImIn_calculate_Answer_indicator_value(theory, answers_history)
 
@@ -1219,7 +1220,7 @@ def make_results_holder():
 	values = ['V000', 'V100', 'V200', 'V300', 'V400', 'V500', 'V600', 'V700', 'V800', 'V900']
 	for value_type in values:
 		result[value_type] = {'EndValue':0, 'SmartEffort':0, 'Stupidity':0, 'Achievement':0, 'duration':0, 'Awesomeness':0}
-	result['Total'] = {'EndValue':0, 'SmartEffort':0, 'Stupidity':0, 'Achievement':0, 'duration':0, 'Awesomeness':0}
+	result['Total'] = {'EndValue':0, 'SmartEffort':0, 'Stupidity':0, 'Achievement':0, 'duration':0, 'Awesomeness':0, 'TotalScore':0}
 	result['Answer_indicators'] = {}
 	return result
 
@@ -2236,8 +2237,8 @@ i_ImPe_KSU = {'contact_ksu_id':None,
 			  'related_ksus':[]}
 
 
-# Possible indicators subtypes and units = {Score:[EndValue, SmartEfort, Stupidity, Achievement], Awesomeness:[Awesomeness], AcumulatedPerception:[Boolean], RealitySnapshot:[Number], Behaviour:[Repetitions, Duration]}
-i_ImIn_KSU = {'relevant':True, #users cannot create their own indicators, so here they choose if this one in particular they find relevant
+# Possible indicators subtypes and units = {Score:[EndValue, SmartEfort, Stupidity, Achievement], Awesomeness:[Awesomeness], AcumulatedPerception:[Boolean], RealitySnapshot:[Number], Behaviour:[repetitions, duration]}
+i_ImIn_KSU = {'from_base':False, #Attribute used to differenciate if the KSU can be deleted or not (Igual no pasa nada si lo borran)
 			  'scope':None, #Indicator of the precense/absence of a certain value_type
 			  'units':None, #
 			  'viewer_hierarchy':'7',
@@ -3791,7 +3792,7 @@ app = webapp2.WSGIApplication([
 							 ('/MobileNewKSU', MobileNewKSU),
 							 
 							 ('/email',Email),
-							 # ('/LoadCSV/' + PAGE_RE, LoadCSV), #There will be no need for this handler once it goes live
+							 ('/LoadCSV/' + PAGE_RE, LoadCSV), #There will be no need for this handler once it goes live
 							 ('/LoadPythonData/' + PAGE_RE, LoadPythonData),							 
 							 ('/EditPythonData/'+ PAGE_RE, EditPythonData),
 							 ('/PythonData/' + PAGE_RE, PythonData)

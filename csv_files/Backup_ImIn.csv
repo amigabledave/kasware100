@@ -1,85 +1,50 @@
-id,subtype,description,comments,scope,is_visible,units,viewer_hierarchy,measurement_best_time,measurement_frequency,next_measurement,target_min,target_max,question,reverse
-ImIn_0001,Score,Total End Value experienced during target period,,Total,True,EndValue,1,,,,0,,,False
-ImIn_0002,Behaviour,Total time used experiencing End Value and doing an Smart Effort,,Total,True,duration,2,,,,0,,,False
-ImIn_0003,Awesomeness,My life's total present Awesomeness,,Total,False,Awesomeness,3,,,,0,,,False
-ImIn_0004,Score,Total Smart Effort made during target period,,Total,True,SmartEffort,5,,,,0,,,False
-ImIn_0005,Score,Total Stupidity commited during target period,,Total,True,Stupidity,5,,,,,0,,True
-ImIn_0006,Score,Total Achievements during target period,,Total,True,Achievement,6,,,,0,,,False
-ImIn_0007,Score,End Value experienced during target period,,V000,True,EndValue,1,,,,0,,,False
-ImIn_0008,Behaviour,Total time used experiencing End Value,,V000,True,duration,2,,,,0,,,False
-ImIn_0009,AcumulatedPerception,Excitement,,V000,True,binary,4,Morning,1,today+0,0,,Did you wake up felling excited about this day?,False
-ImIn_0100,Awesomeness,My life's present Awesomeness because of my 'Inner Peace & Consciousness',,V100,False,Awesomeness,2,,,,0,,,False
-ImIn_0101,Score,Smart Effort made during target period,,V100,True,SmartEffort,3,,,,0,,,False
-ImIn_0102,Behaviour,Total time used woking for 'Inner Peace & Consciousness',,V100,True,duration,4,,,,0,,,False
-ImIn_0103,Score,Stupidity commited during target period,,V100,True,Stupidity,5,,,,,0,,True
-ImIn_0104,Score,Achievements during target period,,V100,True,Achievement,6,,,,0,,,False
-ImIn_0105,AcumulatedPerception,Stress,,V100,True,binary,7,Morning,1,today+0,,0,Did you feel signigicantly upset or stressed yesterday? ,True
-ImIn_0200,Awesomeness,My life's present Awesomeness because of my 'Fun & Excitement',,V200,False,Awesomeness,2,,,,0,,,False
-ImIn_0201,Score,Smart Effort made during target period,,V200,True,SmartEffort,3,,,,0,,,False
-ImIn_0202,Behaviour,Total time used woking for 'Fun & Excitement',,V200,True,duration,4,,,,0,,,False
-ImIn_0203,Score,Stupidity commited during target period,,V200,True,Stupidity,5,,,,,0,,True
-ImIn_0204,Score,Achievements during target period,,V200,True,Achievement,6,,,,0,,,False
-ImIn_0205,AcumulatedPerception,Fun,,V200,True,binary,7,Morning,1,today+0,0,,Do you feel like you had enough fun yesterday?,False
-ImIn_0300,Awesomeness,My life's present Awesomeness because of my 'Meaning & Direction',,V300,False,Awesomeness,2,,,,0,,,False
-ImIn_0301,Score,Smart Effort made during target period,,V300,True,SmartEffort,3,,,,0,,,False
-ImIn_0302,Behaviour,Total time used woking for 'Meaning & Direction',,V300,True,duration,4,,,,0,,,False
-ImIn_0303,Score,Stupidity commited during target period,,V300,True,Stupidity,5,,,,,0,,True
-ImIn_0304,Score,Achievements during target period,,V300,True,Achievement,6,,,,0,,,False
-ImIn_0305,AcumulatedPerception,Achievement speed,,V300,True,binary,7,Night,1,today+0,0,,Do you feel like you advanced enough towards your goals today?,False
-ImIn_0306,AcumulatedPerception,Meaning,,V300,True,binary,7,Morning,7,today+1,0,,Do you feel like you spend most of your day doing stuff that you find truly important?,False
-ImIn_0307,AcumulatedPerception,Chance of dreams comming true,,V300,True,binary,7,Morning,30,today+1,0,,Do you believe that you will be able to make your dreams come true?,False
-ImIn_0400,Awesomeness,My life's present Awesomeness because of my 'Health & Vitality',,V400,False,Awesomeness,2,,,,0,,,False
-ImIn_0401,Score,Smart Effort made during target period,,V400,True,SmartEffort,3,,,,0,,,False
-ImIn_0402,Behaviour,Total time used woking for 'Health & Vitality',,V400,True,duration,4,,,,0,,,False
-ImIn_0403,Score,Stupidity commited during target period,,V400,True,Stupidity,5,,,,,0,,True
-ImIn_0404,Score,Achievements during target period,,V400,True,Achievement,6,,,,0,,,False
-ImIn_0405,AcumulatedPerception,Tiredness,,V400,True,binary,7,Morning,1,today+0,,0,Did you wake up today felling tired?,True
-ImIn_0406,AcumulatedPerception,Pain,,V400,True,binary,7,Morning,1,today+0,,0,Did you feel any significant pain or bothersome from your body yesterday?,True
-ImIn_0407,AcumulatedPerception,Endurance,,V400,True,binary,7,Morning,30,today+2,0,,Do you feel confortable with your phisical endurance?,False
-ImIn_0408,AcumulatedPerception,Strenght,,V400,True,binary,7,Morning,30,today+3,0,,Do you feel confortable with your phisical strenght?,False
-ImIn_0409,AcumulatedPerception,Flexibility,,V400,True,binary,7,Morning,30,today+4,0,,Do you feel confortable with your phisical flexibility?,False
-ImIn_0410,AcumulatedPerception,Appearance,,V400,True,binary,7,Morning,30,today+5,0,,Do you feel confortable with your physical appearance?,False
-ImIn_0411,RealitySnapshot,Body Weight,,V400,True,number,8,Morning,7,today+7,0,,How much do I weight?,False
-ImIn_0412,RealitySnapshot,Body Fat,,V400,True,number,8,Morning,7,today+8,0,,Whats my body fat?,False
-ImIn_0413,RealitySnapshot,Time to run a mile,,V400,True,number,8,Morning,14,today+9,0,,How fast can you ran a mile?,False
-ImIn_0414,RealitySnapshot,Consecutive pushups,,V400,True,number,8,Morning,14,today+10,0,,How many consecutive pushups can you do?,False
-ImIn_0415,RealitySnapshot,Feet reach while holding straigh legs,,V400,True,binary,8,Morning,14,today+11,0,,Can you easily touch your feet holding your legs straigh?,False
-ImIn_0500,Awesomeness,My life's present Awesomeness because of my 'Love & Friendship',,V500,False,Awesomeness,2,,,,0,,,False
-ImIn_0501,Score,Smart Effort made during target period,,V500,True,SmartEffort,3,,,,0,,,False
-ImIn_0502,Behaviour,Total time used woking for 'Love & Friendship',,V500,True,duration,4,,,,0,,,False
-ImIn_0503,Score,Stupidity commited during target period,,V500,True,Stupidity,5,,,,,0,,True
-ImIn_0504,Score,Achievements during target period,,V500,True,Achievement,6,,,,0,,,False
-ImIn_0505,AcumulatedPerception,Relationship love,,V500,True,binary,7,Night,1,today+0,0,,Did you feel loved by your partner today?,False
-ImIn_0506,AcumulatedPerception,Relationship confict,,V500,True,binary,7,Night,1,today+0,,0,Did your partner upset you significantly today?,True
-ImIn_0507,AcumulatedPerception,Relationship status,,V500,True,binary,7,Morning,30,today+6,0,,Do you feel like you wold like to continue with your current relationship status for the rest of your life?,False
-ImIn_0508,AcumulatedPerception,Friends quantity,,V500,True,binary,7,Morning,30,today+7,0,,Do you feel like you have enough good friends?,False
-ImIn_0509,RealitySnapshot,People that proactively contacted each day because they care for you,Not work related. And also the people that lives with you doesnt count.,V500,True,number,8,Night,1,today+0,0,,How many people proactively contacted you today because they care for you?,False
-ImIn_0600,Awesomeness,My life's present Awesomeness because of my 'Knowledge & Skills',,V600,False,Awesomeness,2,,,,0,,,False
-ImIn_0601,Score,Smart Effort made during target period,,V600,True,SmartEffort,3,,,,0,,,False
-ImIn_0602,Behaviour,Total time used woking for 'Knowledge & Skills',,V600,True,duration,4,,,,0,,,False
-ImIn_0603,Score,Stupidity commited during target period,,V600,True,Stupidity,5,,,,,0,,True
-ImIn_0604,Score,Achievements during target period,,V600,True,Achievement,6,,,,0,,,False
-ImIn_0605,AcumulatedPerception,Daily learning,,V600,True,binary,7,Night,1,today+0,0,,Do you feel like you learned enough new things today?,False
-ImIn_0606,AcumulatedPerception,Arts mastery,,V600,True,binary,7,Morning,7,today+2,0,,Do you feel like you are improved your arts in the last week?,False
-ImIn_0607,AcumulatedPerception,Practical mastery,,V600,True,binary,7,Morning,7,today+3,0,,Do you think improved in your practical skills in the last week?,False
-ImIn_0700,Awesomeness,My life's present Awesomeness because of my 'Outer Order & Peace',,V700,False,Awesomeness,2,,,,0,,,False
-ImIn_0701,Score,Smart Effort made during target period,,V700,True,SmartEffort,3,,,,0,,,False
-ImIn_0702,Behaviour,Total time used woking for 'Outer Order & Peace',,V700,True,duration,4,,,,0,,,False
-ImIn_0703,Score,Stupidity commited during target period,,V700,True,Stupidity,5,,,,,0,,True
-ImIn_0704,Score,Achievements during target period,,V700,True,Achievement,6,,,,0,,,False
-ImIn_0705,AcumulatedPerception,Work environment,,V700,True,binary,7,Morning,7,today+4,0,,Are you confortable at your work place?,False
-ImIn_0706,AcumulatedPerception,Home environment,,V700,True,binary,7,Morning,7,today+5,0,,Are you feel confortable at your home?,False
-ImIn_0800,Awesomeness,My life's present Awesomeness because of my 'Stuff',,V800,False,Awesomeness,2,,,,0,,,False
-ImIn_0801,Score,Smart Effort made during target period,,V800,True,SmartEffort,3,,,,0,,,False
-ImIn_0802,Behaviour,Total time used woking for 'Stuff',,V800,True,duration,4,,,,0,,,False
-ImIn_0803,Score,Stupidity commited during target period,,V800,True,Stupidity,5,,,,,0,,True
-ImIn_0804,Score,Achievements during target period,,V800,True,Achievement,6,,,,0,,,False
-ImIn_0805,AcumulatedPerception,Stuff annoyance,,V800,True,binary,7,Morning,1,today+0,,0,Do you feel significantly annoyed for any of your posetions?,True
-ImIn_0900,Awesomeness,My life's present Awesomeness because of my 'Money & Power',,V900,False,Awesomeness,2,,,,0,,,False
-ImIn_0901,Score,Smart Effort made during target period,,V900,True,SmartEffort,3,,,,0,,,False
-ImIn_0902,Behaviour,Total time used woking for 'Money & Power',,V900,True,duration,4,,,,0,,,False
-ImIn_0903,Score,Stupidity commited during target period,,V900,True,Stupidity,5,,,,,0,,True
-ImIn_0904,Score,Achievements during target period,,V900,True,Achievement,6,,,,0,,,False
-ImIn_0905,AcumulatedPerception,Money constrain,,V900,True,binary,8,Morning,7,today+6,,0,Do you feel constrained by money in a signigicant way?,True
-ImIn_0906,RealitySnapshot,Net worth,,V900,True,number,8,Morning,90,today+0,0,,Whats your net worth?,False
-ImIn_0907,RealitySnapshot,Money earned,,V900,True,number,8,Morning,30,today+8,0,,How much money did you earned in the last month?,False
+id,subtype,description,scope,is_visible,units,viewer_hierarchy,measurement_best_time,measurement_frequency,next_measurement,target_min,target_max,question,reverse
+ImIn_0001,Score,Total Score (End Value + Smart Effort - Stupidity),Total,TRUE,TotalScore,1,,,,,,,FALSE
+ImIn_0002,Score,Total End Value experienced,Total,TRUE,EndValue,2,,,,0,,,FALSE
+ImIn_0003,Score,Total Smart Effort made,Total,TRUE,SmartEffort,3,,,,,,,FALSE
+ImIn_0004,Score,Total Stupidity commited,Total,TRUE,Stupidity,4,,,,,0,,TRUE
+ImIn_0100,Awesomeness,Awesomeness in my life thanks to 'Inner Peace & Consciousness',V100,FALSE,Awesomeness,1,,,,0,,,FALSE
+ImIn_0101,Score,Achievements regarding 'Inner Peace & Consciousness',V100,TRUE,Achievement,2,,,,0,,,FALSE
+ImIn_0102,Score,Smart Effort made,V100,TRUE,SmartEffort,3,,,,0,,,FALSE
+ImIn_0103,Score,Stupidity commited,V100,TRUE,Stupidity,4,,,,,0,,TRUE
+ImIn_0104,Behaviour,Time spent woking for 'Inner Peace & Consciousness',V100,TRUE,duration,5,,,,0,,,FALSE
+ImIn_0200,Awesomeness,Awesomeness in my life thanks to 'Fun & Excitement',V200,FALSE,Awesomeness,1,,,,0,,,FALSE
+ImIn_0201,Score,Achievements regarding,V200,TRUE,Achievement,2,,,,0,,,FALSE
+ImIn_0202,Score,Smart Effort made,V200,TRUE,SmartEffort,3,,,,0,,,FALSE
+ImIn_0203,Score,Stupidity commited,V200,TRUE,Stupidity,4,,,,,0,,TRUE
+ImIn_0204,Behaviour,Time spend woking for 'Fun & Excitement',V200,TRUE,duration,5,,,,0,,,FALSE
+ImIn_0300,Awesomeness,Awesomeness in my life thanks to 'Meaning & Direction',V300,FALSE,Awesomeness,1,,,,0,,,FALSE
+ImIn_0301,Score,Achievements regarding,V300,TRUE,Achievement,2,,,,0,,,FALSE
+ImIn_0302,Score,Smart Effort made,V300,TRUE,SmartEffort,3,,,,0,,,FALSE
+ImIn_0303,Score,Stupidity commited,V300,TRUE,Stupidity,4,,,,,0,,TRUE
+ImIn_0304,Behaviour,Time spend woking for 'Meaning & Direction',V300,TRUE,duration,5,,,,0,,,FALSE
+ImIn_0400,Awesomeness,Awesomeness in my life thanks to 'Health & Vitality',V400,FALSE,Awesomeness,1,,,,0,,,FALSE
+ImIn_0401,Score,Achievements regarding,V400,TRUE,Achievement,2,,,,0,,,FALSE
+ImIn_0402,Score,Smart Effort made,V400,TRUE,SmartEffort,3,,,,0,,,FALSE
+ImIn_0403,Score,Stupidity commited,V400,TRUE,Stupidity,4,,,,,0,,TRUE
+ImIn_0404,Behaviour,Time spend woking for 'Health & Vitality',V400,TRUE,duration,5,,,,0,,,FALSE
+ImIn_0500,Awesomeness,Awesomeness in my life thanks to 'Love & Friendship',V500,FALSE,Awesomeness,1,,,,0,,,FALSE
+ImIn_0501,Score,Achievements regarding,V500,TRUE,Achievement,2,,,,0,,,FALSE
+ImIn_0502,Score,Smart Effort made,V500,TRUE,SmartEffort,3,,,,0,,,FALSE
+ImIn_0503,Score,Stupidity commited,V500,TRUE,Stupidity,4,,,,,0,,TRUE
+ImIn_0504,Behaviour,Time spend woking for 'Love & Friendship',V500,TRUE,duration,5,,,,0,,,FALSE
+ImIn_0600,Awesomeness,Awesomeness in my life thanks to 'Knowledge & Skills',V600,FALSE,Awesomeness,1,,,,0,,,FALSE
+ImIn_0601,Score,Achievements regarding,V600,TRUE,Achievement,2,,,,0,,,FALSE
+ImIn_0602,Score,Smart Effort made,V600,TRUE,SmartEffort,3,,,,0,,,FALSE
+ImIn_0603,Score,Stupidity commited,V600,TRUE,Stupidity,4,,,,,0,,TRUE
+ImIn_0604,Behaviour,Time spend woking for 'Knowledge & Skills',V600,TRUE,duration,5,,,,0,,,FALSE
+ImIn_0700,Awesomeness,Awesomeness in my life thanks to 'Outer Order & Peace',V700,FALSE,Awesomeness,1,,,,0,,,FALSE
+ImIn_0701,Score,Achievements regarding,V700,TRUE,Achievement,2,,,,0,,,FALSE
+ImIn_0702,Score,Smart Effort made,V700,TRUE,SmartEffort,3,,,,0,,,FALSE
+ImIn_0703,Score,Stupidity commited,V700,TRUE,Stupidity,4,,,,,0,,TRUE
+ImIn_0704,Behaviour,Time spend woking for 'Outer Order & Peace',V700,TRUE,duration,5,,,,0,,,FALSE
+ImIn_0800,Awesomeness,Awesomeness in my life thanks to 'Stuff',V800,FALSE,Awesomeness,1,,,,0,,,FALSE
+ImIn_0801,Score,Achievements regarding,V800,TRUE,Achievement,2,,,,0,,,FALSE
+ImIn_0802,Score,Smart Effort made,V800,TRUE,SmartEffort,3,,,,0,,,FALSE
+ImIn_0803,Score,Stupidity commited,V800,TRUE,Stupidity,4,,,,,0,,TRUE
+ImIn_0804,Behaviour,Time spend woking for 'Stuff',V800,TRUE,duration,5,,,,0,,,FALSE
+ImIn_0900,Awesomeness,Awesomeness in my life thanks to 'Money & Power',V900,FALSE,Awesomeness,1,,,,0,,,FALSE
+ImIn_0901,Score,Achievements regarding,V900,TRUE,Achievement,2,,,,0,,,FALSE
+ImIn_0902,Score,Smart Effort made,V900,TRUE,SmartEffort,3,,,,0,,,FALSE
+ImIn_0903,Score,Stupidity commited,V900,TRUE,Stupidity,4,,,,,0,,TRUE
+ImIn_0904,Behaviour,Time spend woking for 'Money & Power',V900,TRUE,duration,5,,,,0,,,FALSE
