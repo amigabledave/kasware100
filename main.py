@@ -445,7 +445,7 @@ def make_ordered_ksu_set_list_for_mission(current_mission):
 
 
 
-def todays_questions(theory):
+def todays_questions(theory): #xx
 	ImIn = unpack_set(theory.ImIn)
 
 	KAS3 = unpack_set(theory.KAS3)	
@@ -1032,7 +1032,7 @@ class ImInViewer(Handler):
 		self.print_html('ImInViewer.html', viewer_details=viewer_details, ksu_set=ksu_set, set_name='ImIn', period_end=period_end, period_duration=period_duration) #viewer_details=viewer_details
 
 
-	def post(self):
+	def post(self): #xx
 		if user_bouncer(self):
 			return
 		post_details = get_post_details(self)
@@ -1065,7 +1065,9 @@ class ImInViewer(Handler):
 				period_duration = post_details['period_duration'] 
 				period_end = post_details['period_end']
 				self.redirect('/ImInViewer?end=' + period_end +'&duration=' + period_duration)
-				
+	
+		elif user_action == 'NewKSU':
+			self.redirect('/NewKSU/ImIn?return_to=/ImInViewer')		
 
 		elif user_action == 'EditKSU':
 			ksu_id = post_details['ksu_id']		
@@ -1092,7 +1094,13 @@ def add_indicators_values_to_to_ImIn(theory, period_end, period_duration):
 
 		if indicator['is_visible']:
 			subtype = indicator['subtype']
-			units = indicator['units']
+			
+			if subtype == 'AcumulatedPerception':#xx
+				units = 'binary'
+			elif subtype == 'RealitySnapshot':
+				units = 'number'
+			else:
+				units = indicator['units']
 
 			if subtype in agregated_subtypes:				
 				scope = indicator['scope']				
@@ -1102,7 +1110,7 @@ def add_indicators_values_to_to_ImIn(theory, period_end, period_duration):
 			elif subtype in answer_subtypes:
 				indicator_id = indicator['id']
 				
-				if indicator_id in base_values['Answer_indicators']:
+				if indicator_id in base_values['Answer_indicators']:#xx
 					base_value = base_values['Answer_indicators'][indicator_id]
 					if units == 'binary':
 						indicator['base_value'] = "{:10.2f}".format(base_value)
@@ -1186,7 +1194,10 @@ def ImIn_calculate_Answer_indicator_value(theory, Answers_history):
 
 	for (indicator_id, indicator_history) in list(history_by_indicator.items()):		
 		indicator = ImIn[indicator_id]
-		indicator_units = indicator['units']
+		if indicator['subtype'] == 'AcumulatedPerception':
+			indicator_units = 'binary'
+		if indicator['subtype'] == 'RealitySnapshot':
+			indicator_units = 'number'
 
 		if indicator_units =='binary':
 			value = (sum(1.0 if x == 'Yes' else 0 for x in indicator_history))/len(indicator_history)
@@ -2225,15 +2236,15 @@ i_ImPe_KSU = {'contact_ksu_id':None,
 			  'related_ksus':[]}
 
 
-# Possible indicators subtypes # Score, AcumulatedPerception, RealitySnapshot, TimeUse
+# Possible indicators subtypes and units = {Score:[EndValue, SmartEfort, Stupidity, Achievement], Awesomeness:[Awesomeness], AcumulatedPerception:[Boolean], RealitySnapshot:[Number], Behaviour:[Repetitions, Duration]}
 i_ImIn_KSU = {'relevant':True, #users cannot create their own indicators, so here they choose if this one in particular they find relevant
 			  'scope':None, #Indicator of the precense/absence of a certain value_type
-			  'units':None,
-			  'viewer_hierarchy':None,
+			  'units':None, #
+			  'viewer_hierarchy':'7',
 
-			  'measurement_best_time':None,
+			  'measurement_best_time':None,#xx
 			  'measurement_frequency':None,
-			  'next_measurement':None,
+			  'next_measurement':today,
 			  'last_measurement':None,
 
 			  'target_min':None,
@@ -2688,9 +2699,10 @@ def add_deleted_ksu_to_set(self):
 
 
 def prepare_details_for_saving(post_details):
-	checkboxes = ['is_critical', 'is_private', 'in_upcoming', 'any_any', 'is_milestone']
+	checkboxes = ['is_critical', 'is_private', 'in_upcoming', 'any_any', 'is_milestone', 'reverse']
 	
 	details = {'is_critical':False,
+			   'reverse':False,
 			   'is_private':False,
 			   'next_event':None,
 			   'in_upcoming':False,

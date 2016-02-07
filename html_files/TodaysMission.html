@@ -38,7 +38,7 @@
 		
 			<div class="col-xs-12 col-sm-7 col-md-5 col-lg-5"> {{indicator['question']|safe}} </div>
 				
-			{% if indicator['units'] == 'binary' %}
+			{% if indicator['subtype'] == 'AcumulatedPerception' %}
 
 				<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
 					<form class="form-horizontal" method="post">
@@ -199,7 +199,7 @@
 					<span class="{% if ksu['is_critical'] %}mission_critical{% endif %}"> {{ksu['description']}} </span>
 					{% if ksu['any_any'] %} <span class="mission_any_any"> >> </span>{% endif %}					
 					{% if ksu['comments'] %} -- <em> {{ksu['comments']}} </em> {% endif %}
-					{% if ksu['tags'] %} -- <em> {{ksu['tags']}} </em> {% endif %}
+					{% if ksu['tags'] %} -- <em class="purple"> {{ksu['tags']}} </em> {% endif %}
 
 				</div>
 
@@ -255,7 +255,7 @@
 		
 			<div class="col-xs-12 col-sm-7 col-md-5 col-lg-5"> {{indicator['question']}} </div>
 				
-			{% if indicator['units'] == 'binary' %}
+			{% if indicator['subtype'] == 'AcumulatedPerception' %}
 
 				<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
 					<form class="form-horizontal" method="post">
