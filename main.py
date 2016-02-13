@@ -984,7 +984,7 @@ class BigOViewer(Handler):
 			if user_action == 'Fail':
 				self.redirect('/Failure?ksu_id=' + ksu_id + '&return_to=/BigOViewer')
 
-			if user_action == 'Add_To_Mission':
+			if user_action == 'Add_To_Mission': #xx
 				user_Action_Add_To_Mission(self)
 				self.redirect('/BigOViewer')
 
@@ -1346,8 +1346,9 @@ class NewKSU(Handler):
 			return
 		theory = self.theory	
 		post_details = get_post_details(self)
-		return_to = self.request.get('return_to')
+		redirect = select_redirect(self, set_name)
 		user_action = post_details['action_description']
+
 
 		if user_action == 'Create' or user_action == 'Create_Plus':
 			input_error = user_input_error(post_details)
@@ -1358,28 +1359,52 @@ class NewKSU(Handler):
 				show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
 				self.print_html('NewEditKSU.html', constants=constants, ksu=ksu, set_name=set_name, title='Create', input_error=input_error)
 			
-			elif user_action in ['Create', 'Create_Plus']:
+			elif user_action in ['Create', 'Create_Plus']:				 
 				user_Action_Create_ksu(self, set_name)
 				parent_id = self.request.get('parent_id')
+				self.redirect(redirect)
 				
-				if user_action == 'Create':
-					if parent_id:
-						parent_type = get_type_from_id(parent_id)
-						if parent_type == 'BigO':
-							self.redirect(return_to+'?BigO_id='+parent_id)
-						else:
-							self.redirect(return_to)
-					else:
-						self.redirect(return_to)
-			
-				elif user_action == 'Create_Plus':
-					if parent_id:
-						self.redirect('/NewKSU/'+set_name+'?return_to='+return_to+'&parent_id='+parent_id)
-					else:
-						self.redirect('/NewKSU/'+set_name+'?return_to='+return_to)
-
 		elif user_action == 'Discard':
-			self.redirect(return_to)
+			self.redirect(redirect)
+
+
+
+def select_redirect(self, set_name): #xx
+	post_details = get_post_details(self)
+	return_to = self.request.get('return_to')		
+	user_action = post_details['action_description']
+	parent_id = self.request.get('parent_id')
+
+	redirect = return_to
+
+	if user_action == 'Create':
+		if parent_id:
+			parent_type = get_type_from_id(parent_id)
+			if parent_type == 'BigO':
+				redirect = return_to+'?BigO_id='+parent_id
+
+	elif user_action == 'Create_Plus':
+		if parent_id:
+			parent_type = get_type_from_id(parent_id)			
+			if parent_type == 'BigO':
+				redirect = '/NewKSU/'+set_name+'?return_to='+return_to+'&parent_id='+parent_id+'&BigO_id='+parent_id			
+			else:
+				redirect = '/NewKSU/'+set_name+'?return_to='+return_to+'&parent_id='+parent_id
+		
+		else:
+			redirect = '/NewKSU/'+set_name+'?return_to='+return_to
+
+	elif user_action in ['Save','Discard','Delete']:
+		ksu_id = self.request.get('ksu_id')
+		ksu_type = get_type_from_id(ksu_id)		
+		if ksu_type == 'BOKA':
+			BOKA = unpack_set(self.theory.BOKA)
+			parent_id = BOKA[ksu_id]['parent_id']
+			redirect = return_to+'?BigO_id='+parent_id
+
+	return redirect
+
+
 
 
 def update_child_with_parent(child_ksu, parent_ksu):
@@ -1414,7 +1439,7 @@ def update_child_with_parent(child_ksu, parent_ksu):
 
 #---Edit KSU Handler ---
 
-class EditKSU(Handler):
+class EditKSU(Handler): #xx
 	def get(self):
 		if user_bouncer(self):
 			return
@@ -1432,7 +1457,7 @@ class EditKSU(Handler):
 		theory = self.theory			
 		post_details = get_post_details(self)
 		set_name = get_type_from_id(post_details['ksu_id'])
-		return_to = self.request.get('return_to')
+		redirect = select_redirect(self, set_name)
 		user_action = post_details['action_description']
 
 		if user_action == 'Save':
@@ -1449,16 +1474,16 @@ class EditKSU(Handler):
 
 			else:
 				user_Action_Edit_ksu(self)
-				self.redirect(return_to)
+				self.redirect(redirect)
 
 
 		if user_action == 'Discard':
-			self.redirect(return_to)
+			self.redirect(redirect)
 
 
 		if user_action == 'Delete':
 			user_Action_Delete_ksu(self)
-			self.redirect(return_to)
+			self.redirect(redirect)
 
 						
 
@@ -1473,7 +1498,7 @@ def show_date_as_inputed(ksu, post_details):
 
 #---Done Handler---
 
-class Done(Handler):
+class Done(Handler): #xx
 
 	def get(self):
 		if user_bouncer(self):

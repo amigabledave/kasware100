@@ -1,50 +1,12 @@
-id,subtype,description,scope,is_visible,units,viewer_hierarchy,measurement_best_time,measurement_frequency,next_measurement,target_min,target_max,question,reverse
-ImIn_0001,Score,Total Score (End Value + Smart Effort - Stupidity),Total,TRUE,TotalScore,1,,,,,,,FALSE
-ImIn_0002,Score,Total End Value experienced,Total,TRUE,EndValue,2,,,,0,,,FALSE
-ImIn_0003,Score,Total Smart Effort made,Total,TRUE,SmartEffort,3,,,,,,,FALSE
-ImIn_0004,Score,Total Stupidity commited,Total,TRUE,Stupidity,4,,,,,0,,TRUE
-ImIn_0100,Awesomeness,Awesomeness in my life thanks to 'Inner Peace & Consciousness',V100,FALSE,Awesomeness,1,,,,0,,,FALSE
-ImIn_0101,Score,Achievements regarding 'Inner Peace & Consciousness',V100,TRUE,Achievement,2,,,,0,,,FALSE
-ImIn_0102,Score,Smart Effort made,V100,TRUE,SmartEffort,3,,,,0,,,FALSE
-ImIn_0103,Score,Stupidity commited,V100,TRUE,Stupidity,4,,,,,0,,TRUE
-ImIn_0104,Behaviour,Time spent woking for 'Inner Peace & Consciousness',V100,TRUE,duration,5,,,,0,,,FALSE
-ImIn_0200,Awesomeness,Awesomeness in my life thanks to 'Fun & Excitement',V200,FALSE,Awesomeness,1,,,,0,,,FALSE
-ImIn_0201,Score,Achievements regarding,V200,TRUE,Achievement,2,,,,0,,,FALSE
-ImIn_0202,Score,Smart Effort made,V200,TRUE,SmartEffort,3,,,,0,,,FALSE
-ImIn_0203,Score,Stupidity commited,V200,TRUE,Stupidity,4,,,,,0,,TRUE
-ImIn_0204,Behaviour,Time spend woking for 'Fun & Excitement',V200,TRUE,duration,5,,,,0,,,FALSE
-ImIn_0300,Awesomeness,Awesomeness in my life thanks to 'Meaning & Direction',V300,FALSE,Awesomeness,1,,,,0,,,FALSE
-ImIn_0301,Score,Achievements regarding,V300,TRUE,Achievement,2,,,,0,,,FALSE
-ImIn_0302,Score,Smart Effort made,V300,TRUE,SmartEffort,3,,,,0,,,FALSE
-ImIn_0303,Score,Stupidity commited,V300,TRUE,Stupidity,4,,,,,0,,TRUE
-ImIn_0304,Behaviour,Time spend woking for 'Meaning & Direction',V300,TRUE,duration,5,,,,0,,,FALSE
-ImIn_0400,Awesomeness,Awesomeness in my life thanks to 'Health & Vitality',V400,FALSE,Awesomeness,1,,,,0,,,FALSE
-ImIn_0401,Score,Achievements regarding,V400,TRUE,Achievement,2,,,,0,,,FALSE
-ImIn_0402,Score,Smart Effort made,V400,TRUE,SmartEffort,3,,,,0,,,FALSE
-ImIn_0403,Score,Stupidity commited,V400,TRUE,Stupidity,4,,,,,0,,TRUE
-ImIn_0404,Behaviour,Time spend woking for 'Health & Vitality',V400,TRUE,duration,5,,,,0,,,FALSE
-ImIn_0500,Awesomeness,Awesomeness in my life thanks to 'Love & Friendship',V500,FALSE,Awesomeness,1,,,,0,,,FALSE
-ImIn_0501,Score,Achievements regarding,V500,TRUE,Achievement,2,,,,0,,,FALSE
-ImIn_0502,Score,Smart Effort made,V500,TRUE,SmartEffort,3,,,,0,,,FALSE
-ImIn_0503,Score,Stupidity commited,V500,TRUE,Stupidity,4,,,,,0,,TRUE
-ImIn_0504,Behaviour,Time spend woking for 'Love & Friendship',V500,TRUE,duration,5,,,,0,,,FALSE
-ImIn_0600,Awesomeness,Awesomeness in my life thanks to 'Knowledge & Skills',V600,FALSE,Awesomeness,1,,,,0,,,FALSE
-ImIn_0601,Score,Achievements regarding,V600,TRUE,Achievement,2,,,,0,,,FALSE
-ImIn_0602,Score,Smart Effort made,V600,TRUE,SmartEffort,3,,,,0,,,FALSE
-ImIn_0603,Score,Stupidity commited,V600,TRUE,Stupidity,4,,,,,0,,TRUE
-ImIn_0604,Behaviour,Time spend woking for 'Knowledge & Skills',V600,TRUE,duration,5,,,,0,,,FALSE
-ImIn_0700,Awesomeness,Awesomeness in my life thanks to 'Outer Order & Peace',V700,FALSE,Awesomeness,1,,,,0,,,FALSE
-ImIn_0701,Score,Achievements regarding,V700,TRUE,Achievement,2,,,,0,,,FALSE
-ImIn_0702,Score,Smart Effort made,V700,TRUE,SmartEffort,3,,,,0,,,FALSE
-ImIn_0703,Score,Stupidity commited,V700,TRUE,Stupidity,4,,,,,0,,TRUE
-ImIn_0704,Behaviour,Time spend woking for 'Outer Order & Peace',V700,TRUE,duration,5,,,,0,,,FALSE
-ImIn_0800,Awesomeness,Awesomeness in my life thanks to 'Stuff',V800,FALSE,Awesomeness,1,,,,0,,,FALSE
-ImIn_0801,Score,Achievements regarding,V800,TRUE,Achievement,2,,,,0,,,FALSE
-ImIn_0802,Score,Smart Effort made,V800,TRUE,SmartEffort,3,,,,0,,,FALSE
-ImIn_0803,Score,Stupidity commited,V800,TRUE,Stupidity,4,,,,,0,,TRUE
-ImIn_0804,Behaviour,Time spend woking for 'Stuff',V800,TRUE,duration,5,,,,0,,,FALSE
-ImIn_0900,Awesomeness,Awesomeness in my life thanks to 'Money & Power',V900,FALSE,Awesomeness,1,,,,0,,,FALSE
-ImIn_0901,Score,Achievements regarding,V900,TRUE,Achievement,2,,,,0,,,FALSE
-ImIn_0902,Score,Smart Effort made,V900,TRUE,SmartEffort,3,,,,0,,,FALSE
-ImIn_0903,Score,Stupidity commited,V900,TRUE,Stupidity,4,,,,,0,,TRUE
-ImIn_0904,Behaviour,Time spend woking for 'Money & Power',V900,TRUE,duration,5,,,,0,,,FALSE
+subtype,description,question,scope,measurement_best_time,measurement_frequency,target_min,target_max
+AcumulatedPerception,Estres,Me senti significativamente estresado hoy?,V100,Night,1,,0
+AcumulatedPerception,Emocion,Estoy emocionado por este dia que estoy a punto de vivir?,V200,Morning,1,,0
+AcumulatedPerception,Cansancio,Me  siento cansado?,V400,Morning,1,,0
+RealitySnapshot,Peso (kg),Cuanto peso?,V400,Morning,7,0,
+RealitySnapshot,Grasa corporal (%),Cual es mi porcentaje de grasa corporal?,V400,Morning,7,0,
+RealitySnapshot,Tiempo para correr una milla,Que tan rapido puedo correr una milla?,V400,Morning,30,0,
+RealitySnapshot,Lagartijas consecutivas,Cuantas lagartijas consecutivas puedo hacer?,V400,Morning,30,0,
+AcumulatedPerception,Calidad de mi relacion,Me gustaria pasar el resto de mi vida con mi pareja si se fuera a comportar todos los dias igual que como se comporto hoy?,V500,Night,1,0,
+AcumulatedPerception,Daily learning,Aprendiste algo nuevo e importante hoy?,V600,Night,1,0,
+RealitySnapshot,Activos (USD),Cuanto valen tus activos?,V900,Morning,180,0,
+RealitySnapshot,Ingresos (USD),Cuanto dinero ganaste en el ultimo mes?,V900,Morning,30,0,
