@@ -958,35 +958,17 @@ class BigOViewer(Handler):
 		self.print_html('BigOViewer.html', BigO=BigO, BOKA=BOKA, today=today ) #viewer_details=viewer_details
 
 
-	def post(self):
+	def post(self): #xx
 		if user_bouncer(self):
 			return
 		post_details = get_post_details(self)
 		user_action = post_details['action_description']
+		redirect = select_redirect(self, 'BigOViewer', 'BigO')
+
+		if user_action == 'Add_To_Mission':
+			user_Action_Add_To_Mission(self)
+		self.redirect(redirect)
 		
-		if user_action == 'NewKSU':
-			self.redirect('/NewKSU/BigO?return_to=/BigOViewer')
-				
-		elif user_action == 'Add_Child_KSU':
-			parent_id = post_details['ksu_id']
-			self.redirect('/NewKSU/BOKA?return_to=/BigOViewer&parent_id=' + parent_id)
-		
-		else:
-			ksu_id = post_details['ksu_id']
-			set_name = get_type_from_id(ksu_id)
-				
-			if user_action == 'EditKSU':			
-				self.redirect('/EditKSU?ksu_id=' + ksu_id + '&return_to=/BigOViewer')
-
-			if user_action == 'Done':
-				self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/BigOViewer')
-
-			if user_action == 'Fail':
-				self.redirect('/Failure?ksu_id=' + ksu_id + '&return_to=/BigOViewer')
-
-			if user_action == 'Add_To_Mission': #xx
-				user_Action_Add_To_Mission(self)
-				self.redirect('/BigOViewer')
 
 
 def add_days_left(ksu_set):
@@ -1095,7 +1077,7 @@ def add_indicators_values_to_to_ImIn(theory, period_end, period_duration):
 		if indicator['is_visible']:
 			subtype = indicator['subtype']
 			
-			if subtype == 'AcumulatedPerception':#xx
+			if subtype == 'AcumulatedPerception':
 				units = 'binary'
 			elif subtype == 'RealitySnapshot':
 				units = 'number'
@@ -1110,7 +1092,7 @@ def add_indicators_values_to_to_ImIn(theory, period_end, period_duration):
 			elif subtype in answer_subtypes:
 				indicator_id = indicator['id']
 				
-				if indicator_id in base_values['Answer_indicators']:#xx
+				if indicator_id in base_values['Answer_indicators']:
 					base_value = base_values['Answer_indicators'][indicator_id]
 					if units == 'binary':
 						indicator['base_value'] = "{:10.2f}".format(base_value)
@@ -1346,7 +1328,7 @@ class NewKSU(Handler):
 			return
 		theory = self.theory	
 		post_details = get_post_details(self)
-		redirect = select_redirect(self, set_name)
+		redirect = select_redirect(self, 'NewKSU', set_name)
 		user_action = post_details['action_description']
 
 
@@ -1357,7 +1339,7 @@ class NewKSU(Handler):
 				ksu = new_ksu(self, set_name)
 				ksu = update_ksu_with_post_details(ksu, post_details)
 				show_date_as_inputed(ksu, post_details) # Shows the date as it was typed in by the user
-				self.print_html('NewEditKSU.html', constants=constants, ksu=ksu, set_name=set_name, title='Create', input_error=input_error)
+				self.print_html('NewEditKSU.html', constants=constants, ksu=ksu, set_name=set_name, title='Define', input_error=input_error)
 			
 			elif user_action in ['Create', 'Create_Plus']:				 
 				user_Action_Create_ksu(self, set_name)
@@ -1369,15 +1351,38 @@ class NewKSU(Handler):
 
 
 
-def select_redirect(self, set_name): #xx
-	post_details = get_post_details(self)
-	return_to = self.request.get('return_to')		
-	user_action = post_details['action_description']
-	parent_id = self.request.get('parent_id')
-
+def select_redirect(self, handler_name, set_name):
+	return_to = self.request.get('return_to')
+	if not return_to:
+		return_to = select_return_to(handler_name, set_name)
 	redirect = return_to
 
-	if user_action == 'Create':
+	post_details = get_post_details(self)
+	user_action = post_details['action_description']	
+	parent_id = self.request.get('parent_id')
+		
+	if user_action == 'Add_To_Mission':
+		ksu_id = post_details['ksu_id']
+		ksu_type = get_type_from_id(ksu_id)
+		if ksu_type == 'BOKA':
+			BOKA = unpack_set(self.theory.BOKA)
+			parent_id = BOKA[ksu_id]['parent_id']
+			redirect = '/'+handler_name + '?BigO_id='+parent_id
+		else:
+			redirect = '/'+handler_name
+
+
+	elif user_action == 'NewKSU':
+		redirect = '/NewKSU/' + set_name +'?return_to=' + return_to
+
+			
+	elif user_action == 'Add_Child_KSU':
+			parent_id = post_details['ksu_id']
+			parent_type = get_type_from_id(parent_id)
+			if parent_type == 'BigO':
+				redirect = '/NewKSU/BOKA?return_to=/BigOViewer&parent_id=' + parent_id 
+
+	elif user_action == 'Create':
 		if parent_id:
 			parent_type = get_type_from_id(parent_id)
 			if parent_type == 'BigO':
@@ -1385,14 +1390,19 @@ def select_redirect(self, set_name): #xx
 
 	elif user_action == 'Create_Plus':
 		if parent_id:
-			parent_type = get_type_from_id(parent_id)			
+			parent_type = get_type_from_id(parent_id)	
 			if parent_type == 'BigO':
 				redirect = '/NewKSU/'+set_name+'?return_to='+return_to+'&parent_id='+parent_id+'&BigO_id='+parent_id			
 			else:
-				redirect = '/NewKSU/'+set_name+'?return_to='+return_to+'&parent_id='+parent_id
-		
+				redirect = '/NewKSU/'+set_name+'?return_to='+return_to+'&parent_id='+parent_id		
 		else:
 			redirect = '/NewKSU/'+set_name+'?return_to='+return_to
+
+
+	elif user_action == 'EditKSU':
+		ksu_id = post_details['ksu_id']			
+		redirect = '/EditKSU?ksu_id=' + ksu_id + '&return_to=' + return_to
+
 
 	elif user_action in ['Save','Discard','Delete']:
 		ksu_id = self.request.get('ksu_id')
@@ -1401,8 +1411,50 @@ def select_redirect(self, set_name): #xx
 			BOKA = unpack_set(self.theory.BOKA)
 			parent_id = BOKA[ksu_id]['parent_id']
 			redirect = return_to+'?BigO_id='+parent_id
+			
+	elif user_action == 'Done':
+		ksu_id = self.request.get('ksu_id')
+		redirect = '/Done?ksu_id=' + ksu_id + '&return_to=' + return_to
+
+	elif user_action == 'Done_Confirm':
+		ksu_id = self.request.get('ksu_id')
+		ksu_type = get_type_from_id(ksu_id)		
+		if ksu_type == 'BOKA':
+			BOKA = unpack_set(self.theory.BOKA)
+			parent_id = BOKA[ksu_id]['parent_id']
+			redirect = return_to+'?BigO_id='+parent_id	
+
+
+	elif user_action == 'Done_Confirm_Plus': #xx
+		ksu_id = post_details['ksu_id']
+		ksu_type = get_type_from_id(ksu_id)
+		if ksu_type == 'BOKA':
+			BOKA = unpack_set(self.theory.BOKA)
+			parent_id = BOKA[ksu_id]['parent_id']
+			redirect = '/NewKSU/'+set_name+'?return_to='+return_to+'&parent_id='+parent_id+'&BigO_id='+parent_id			
+		else:
+			parent_id = ksu_id	
+			redirect = '/NewKSU/'+set_name+'?return_to='+return_to+'&parent_id='+parent_id	
+
+	elif user_action == 'Fail':
+		ksu_id = post_details['ksu_id']
+		redirect = '/Failure?ksu_id=' + ksu_id + '&return_to=' + return_to
+
 
 	return redirect
+
+
+
+def select_return_to(handler_name, set_name):
+	if set_name == 'BigO':
+		return '/BigOViewer'
+
+	elif set_name == 'ImIn':
+		return '/ImInViewer'
+
+	else:
+		return '/SetViewer/' + set_name
+
 
 
 
@@ -1439,7 +1491,7 @@ def update_child_with_parent(child_ksu, parent_ksu):
 
 #---Edit KSU Handler ---
 
-class EditKSU(Handler): #xx
+class EditKSU(Handler):
 	def get(self):
 		if user_bouncer(self):
 			return
@@ -1457,7 +1509,7 @@ class EditKSU(Handler): #xx
 		theory = self.theory			
 		post_details = get_post_details(self)
 		set_name = get_type_from_id(post_details['ksu_id'])
-		redirect = select_redirect(self, set_name)
+		redirect = select_redirect(self, 'EditKSU' ,set_name)
 		user_action = post_details['action_description']
 
 		if user_action == 'Save':
@@ -1540,8 +1592,7 @@ class Done(Handler): #xx
 		set_name = get_type_from_id(ksu_id)
 		ksu_set = unpack_set(eval('theory.' + set_name))
 		ksu = ksu_set[ksu_id]
-
-
+		redirect = select_redirect(self, 'Done', set_name)
 
 		if set_name == 'BigO' or set_name == 'Wish':
 			event_type = 'Achievement'
@@ -1556,7 +1607,7 @@ class Done(Handler): #xx
 				event_type = 'SmartEffort'
 
 		
-		if user_action == 'Done_Confirm':
+		if user_action == 'Done_Confirm': #xx
 			input_error = user_input_error(post_details)
 
 			if input_error:
@@ -1566,11 +1617,11 @@ class Done(Handler): #xx
 		
 			elif event_type == 'EndValue':
 				user_Action_Done_EndValue(self)
-				self.redirect(return_to)
+				self.redirect(redirect)
 				
 			elif event_type == 'SmartEffort':
 				user_Action_Done_SmartEffort(self)
-				self.redirect(return_to)
+				self.redirect(redirect)
 
 
 		elif user_action =='Done_Confirm_Plus':
@@ -1587,20 +1638,20 @@ class Done(Handler): #xx
 			
 			elif event_type == 'EndValue':
 				user_Action_Done_EndValue(self)
-				self.redirect('/NewKSU/' + set_name + '?return_to=' + return_to + '&parent_id=' + parent_id)
+				self.redirect(redirect)
 				
 			elif event_type == 'SmartEffort':
 				user_Action_Done_SmartEffort(self)
-				self.redirect('/NewKSU/' + set_name + '?return_to=' + return_to + '&parent_id=' + parent_id)
+				self.redirect(redirect)
 
 
 		elif user_action == 'Achieved_Confirm':
 			user_Action_Done_Achievement(self)
-			self.redirect(return_to)
+			self.redirect(redirect)
 
 
 		elif user_action == 'Discard':
-			self.redirect(return_to)	
+			self.redirect(redirect)	
 
 				
 
@@ -2268,7 +2319,7 @@ i_ImIn_KSU = {'from_base':False, #Attribute used to differenciate if the KSU can
 			  'units':None, #
 			  'viewer_hierarchy':'7',
 
-			  'measurement_best_time':None,#xx
+			  'measurement_best_time':None,
 			  'measurement_frequency':None,
 			  'next_measurement':today,
 			  'last_measurement':None,
