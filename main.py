@@ -2070,9 +2070,11 @@ def update_ksu_in_mission(theory, post_details): #xx
 
 	if user_action == 'Add_To_Mission':
 		ksu['in_mission'] = True
+		ksu['in_upcoming'] = True
 
 	elif user_action == 'Remove_From_Mission':
 		ksu['in_mission'] = False
+		ksu['in_upcoming'] = False
 
 	elif user_action == 'Done_Confirm':
 		ksu['in_mission'] = False
