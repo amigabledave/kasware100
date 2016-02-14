@@ -320,6 +320,11 @@ class TodaysMission(Handler):
 			user_Action_Push(self)
 			self.redirect('/TodaysMission')
 
+		elif user_action == 'Remove_From_Mission':
+			user_Action_Remove_From_Mission(self)
+			self.redirect('/TodaysMission')
+
+
 		elif user_action in ['Question_Answered_Yes', 'Question_Answered_No', 'Question_Answered_Record']:
 			input_error = user_input_error(post_details)
 			if input_error:
@@ -958,7 +963,7 @@ class BigOViewer(Handler):
 		self.print_html('BigOViewer.html', BigO=BigO, BOKA=BOKA, today=today ) #viewer_details=viewer_details
 
 
-	def post(self): #xx
+	def post(self):
 		if user_bouncer(self):
 			return
 		post_details = get_post_details(self)
@@ -1411,7 +1416,7 @@ def select_redirect(self, handler_name, set_name):
 			BOKA = unpack_set(self.theory.BOKA)
 			parent_id = BOKA[ksu_id]['parent_id']
 			redirect = return_to+'?BigO_id='+parent_id
-			
+
 	elif user_action == 'Done':
 		ksu_id = self.request.get('ksu_id')
 		redirect = '/Done?ksu_id=' + ksu_id + '&return_to=' + return_to
@@ -1425,7 +1430,7 @@ def select_redirect(self, handler_name, set_name):
 			redirect = return_to+'?BigO_id='+parent_id	
 
 
-	elif user_action == 'Done_Confirm_Plus': #xx
+	elif user_action == 'Done_Confirm_Plus':
 		ksu_id = post_details['ksu_id']
 		ksu_type = get_type_from_id(ksu_id)
 		if ksu_type == 'BOKA':
@@ -1550,7 +1555,7 @@ def show_date_as_inputed(ksu, post_details):
 
 #---Done Handler---
 
-class Done(Handler): #xx
+class Done(Handler):
 
 	def get(self):
 		if user_bouncer(self):
@@ -1607,7 +1612,7 @@ class Done(Handler): #xx
 				event_type = 'SmartEffort'
 
 		
-		if user_action == 'Done_Confirm': #xx
+		if user_action == 'Done_Confirm':
 			input_error = user_input_error(post_details)
 
 			if input_error:
@@ -2052,7 +2057,7 @@ def update_ksu_streak_and_record(theory, post_details):
 
 
 
-def update_ksu_in_mission(theory, post_details):
+def update_ksu_in_mission(theory, post_details): #xx
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
 	valid_sets = ['KAS1', 'KAS2', 'BOKA']	
@@ -2065,6 +2070,9 @@ def update_ksu_in_mission(theory, post_details):
 
 	if user_action == 'Add_To_Mission':
 		ksu['in_mission'] = True
+
+	elif user_action == 'Remove_From_Mission':
+		ksu['in_mission'] = False
 
 	elif user_action == 'Done_Confirm':
 		ksu['in_mission'] = False
@@ -2941,6 +2949,14 @@ def user_Action_Add_To_Mission(self):
 	theory.put()
 	return
 
+
+def user_Action_Remove_From_Mission(self): #xx
+	theory = self.theory
+	post_details = get_post_details(self)
+	update_ksu_in_mission(theory, post_details)
+	trigger_additional_actions(self)
+	theory.put()
+	return
 
 
 

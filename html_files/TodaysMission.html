@@ -211,7 +211,12 @@
 				
 				<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
 					<input type="submit" class="btn btn-primary btn-md" name="action_description" value="Push">
-				</div>				
+				</div>
+				{% if ksu['in_mission'] %}
+					<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
+						<button type="submit" class="btn btn-warning btn-md" name="action_description" value="Remove_From_Mission"> Remove </button>
+					</div>
+				{% endif %}
 			</form>	
 		</div>
 
