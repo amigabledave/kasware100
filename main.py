@@ -324,6 +324,10 @@ class TodaysMission(Handler):
 			user_Action_Remove_From_Mission(self)
 			self.redirect('/TodaysMission')
 
+		
+		elif user_action == 'Skip_Action':
+			user_Action_Skip_Action(self)
+			self.redirect('/TodaysMission')	
 
 		elif user_action in ['Question_Answered_Yes', 'Question_Answered_No', 'Question_Answered_Record']:
 			input_error = user_input_error(post_details)
@@ -365,6 +369,7 @@ def todays_mission(theory):
 			add_BigO_description(theory, ksu)
 			add_pretty_time(ksu)
 			add_time_and_description(ksu)
+			ksu['type'] = get_type_from_id(ksu_id)
 
 			if ksu['in_mission']:
 				result[ksu_id] = ksu
@@ -2010,6 +2015,10 @@ def update_ksu_next_event(theory, post_details):
 		ksu['next_event'] = tomorrow
 
 
+	elif user_action == 'Skip_Action':
+		ksu['next_event'] = today + int(ksu['charging_time'])
+
+
 	elif user_action in ['Question_Answered_Yes', 'Question_Answered_No', 'Question_Answered_Record']:
 		ksu['last_measurement'] = today
 		ksu['next_measurement'] = today + int(ksu['measurement_frequency'])
@@ -2076,12 +2085,19 @@ def update_ksu_in_mission(theory, post_details): #xx
 		ksu['in_mission'] = False
 		ksu['in_upcoming'] = False
 
+
 	elif user_action == 'Done_Confirm':
 		ksu['in_mission'] = False
+
 
 	elif user_action == 'Push':
 		ksu['in_upcoming'] = True
 		ksu['in_mission'] = False		
+
+
+	elif user_action == 'Skip_Action':
+		ksu['in_mission'] = False
+
 
 	update_theory(theory, ksu_set)	
 	return
@@ -2952,9 +2968,18 @@ def user_Action_Add_To_Mission(self):
 	return
 
 
-def user_Action_Remove_From_Mission(self): #xx
+def user_Action_Remove_From_Mission(self):
 	theory = self.theory
 	post_details = get_post_details(self)
+	update_ksu_in_mission(theory, post_details)
+	trigger_additional_actions(self)
+	theory.put()
+	return
+
+def user_Action_Skip_Action(self): #xx
+	theory = self.theory
+	post_details = get_post_details(self)
+	update_ksu_next_event(theory, post_details)
 	update_ksu_in_mission(theory, post_details)
 	trigger_additional_actions(self)
 	theory.put()

@@ -213,8 +213,12 @@
 					<input type="submit" class="btn btn-primary btn-md" name="action_description" value="Push">
 				</div>
 				
-				<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
-					<button type="submit" class="btn btn-warning btn-md" name="action_description" value="Remove_From_Mission"> Remove </button>
+				<div class="hidden-xs hidden-sm col-md-1 col-lg-1">					
+					{% if ksu['type'] == 'KAS1' %}
+						<button type="submit" class="btn btn-warning btn-md" name="action_description" value="Skip_Action"> Skip </button>
+					{% else %}
+						<button type="submit" class="btn btn-warning btn-md" name="action_description" value="Remove_From_Mission"> Remove </button>
+					{% endif %}
 				</div>
 				
 			</form>	
@@ -229,7 +233,11 @@
 					<button type="submit" class="btn  btn-md btn-primary" name="action_description" value="EditKSU"> Edit </button>					
 					<input type="submit" class="btn btn-md btn-success" name="action_description" value="Done">
 					<input type="submit" class="btn btn-md btn-primary" name="action_description" value="Push">
-					<button type="submit" class="btn btn-warning btn-md" name="action_description" value="Remove_From_Mission"> Remove </button>
+					{% if ksu['type'] == 'KAS1' %}
+						<button type="submit" class="btn btn-warning btn-md" name="action_description" value="Skip_Action"> Skip </button>
+					{% else %}
+						<button type="submit" class="btn btn-warning btn-md" name="action_description" value="Remove_From_Mission"> Remove </button>
+					{% endif %}
 				</div>				
 			</form>	
 		</div>
