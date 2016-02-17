@@ -5,8 +5,9 @@ from datetime import timedelta
 
 # --- Formulas basicas de datetime:
 today = datetime.today()
+
 # tomorrow = today + 1
-print today
+print today.toordinal()
 
 print today - timedelta(hours=6)
 

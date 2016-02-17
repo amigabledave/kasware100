@@ -2066,7 +2066,7 @@ def update_ksu_streak_and_record(theory, post_details):
 
 
 
-def update_ksu_in_mission(theory, post_details): #xx
+def update_ksu_in_mission(theory, post_details):
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
 	valid_sets = ['KAS1', 'KAS2', 'BOKA']	
@@ -2755,7 +2755,7 @@ def calculate_event_score(event):
 
 
 
-def add_ksu_to_set(self, set_name):
+def add_ksu_to_set(self, set_name): #xx
 	theory = self.theory
 	post_details = get_post_details(self)
 	ksu_set = unpack_set(eval('theory.' + set_name))
@@ -2855,7 +2855,7 @@ def user_Action_Edit_Settings(self):
 
 def user_Action_Create_ksu(self, set_name):
 	theory = self.theory
-	ksu = add_ksu_to_set(self, set_name)
+	ksu = add_ksu_to_set(self, set_name) #xx
 	add_Created_event(theory, ksu)
 	trigger_additional_actions(self)
 	theory.put()
@@ -2976,7 +2976,7 @@ def user_Action_Remove_From_Mission(self):
 	theory.put()
 	return
 
-def user_Action_Skip_Action(self): #xx
+def user_Action_Skip_Action(self):
 	theory = self.theory
 	post_details = get_post_details(self)
 	update_ksu_next_event(theory, post_details)
@@ -3016,10 +3016,10 @@ def trigger_additional_actions(self):
 	ksu_set = unpack_set(eval('theory.' + ksu_type))
 	ksu_subtype = ksu_set[ksu_id]['subtype']
 
-	if action_type == 'Create':
+	if action_type in ['Create', 'Create_Plus']:
 		
 		if ksu_type == 'KAS1':
-			triggered_Action_create_KAS1_next_event(self)
+			triggered_Action_create_KAS1_next_event(self) #xx
 
 		elif ksu_type == 'BOKA':
 			triggered_Action_BOKA_add_value_type(self)	
