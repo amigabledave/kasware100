@@ -15,11 +15,10 @@ from python_files import backup_theory
 
 template_dir = os.path.join(os.path.dirname(__file__), 'html_files')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
-
-real_today = datetime.today().toordinal()
+ 
 today = (datetime.today() - timedelta(hours=6)).toordinal()
 tomorrow = today + 1
-not_ugly_today = datetime.today().strftime('%d-%m-%Y')
+
 
 
 # --- Datastore Entities ----------------------------------------------------------------------------
@@ -118,6 +117,10 @@ class Handler(webapp2.RequestHandler):
 		if self.theory:
 			theory = self.theory			
 			MLog = unpack_set(theory.MLog)
+
+			today = (datetime.today() - timedelta(hours=6)).toordinal()
+			ugly_today = (datetime.today() - timedelta(hours=6))
+			pretty_date_and_time = ugly_today.strftime('%a, %b %d - %I:%M%p')
 			
 			if today not in MLog:
 				MLog[today] = {'EndValue':0, 'SmartEffort':0, 'Stupidity':0, 'Achievement':0}
@@ -127,7 +130,7 @@ class Handler(webapp2.RequestHandler):
 			SmartEffort = "{:,}".format(todays_log['SmartEffort'])
 			Stupidity = "{:,}".format(todays_log['Stupidity'])
 			TodaysScore = "{:,}".format(int(todays_log['EndValue'])+int(todays_log['SmartEffort'])-int(todays_log['Stupidity']))
-			return t.render(theory=theory, EndValue=EndValue, SmartEffort=SmartEffort, Stupidity=Stupidity, TodaysScore=TodaysScore, **kw)		
+			return t.render(theory=theory, EndValue=EndValue, SmartEffort=SmartEffort, Stupidity=Stupidity, TodaysScore=TodaysScore, ugly_today=pretty_date_and_time, **kw)		
 		else:
 			return t.render(**kw)
 
@@ -1414,13 +1417,21 @@ def select_redirect(self, handler_name, set_name):
 		redirect = '/EditKSU?ksu_id=' + ksu_id + '&return_to=' + return_to
 
 
-	elif user_action in ['Save','Discard','Delete']:
+	elif user_action in ['Save','Delete']:
 		ksu_id = self.request.get('ksu_id')
 		ksu_type = get_type_from_id(ksu_id)		
 		if ksu_type == 'BOKA':
 			BOKA = unpack_set(self.theory.BOKA)
 			parent_id = BOKA[ksu_id]['parent_id']
 			redirect = return_to+'?BigO_id='+parent_id
+
+
+	elif user_action == 'Discard':
+		if parent_id:
+			parent_type = get_type_from_id(parent_id)
+			if parent_type == 'BigO':
+				redirect = return_to+'?BigO_id='+parent_id
+
 
 	elif user_action == 'Done':
 		ksu_id = self.request.get('ksu_id')
@@ -2755,7 +2766,7 @@ def calculate_event_score(event):
 
 
 
-def add_ksu_to_set(self, set_name): #xx
+def add_ksu_to_set(self, set_name):
 	theory = self.theory
 	post_details = get_post_details(self)
 	ksu_set = unpack_set(eval('theory.' + set_name))
@@ -2855,7 +2866,7 @@ def user_Action_Edit_Settings(self):
 
 def user_Action_Create_ksu(self, set_name):
 	theory = self.theory
-	ksu = add_ksu_to_set(self, set_name) #xx
+	ksu = add_ksu_to_set(self, set_name)
 	add_Created_event(theory, ksu)
 	trigger_additional_actions(self)
 	theory.put()
@@ -3019,7 +3030,7 @@ def trigger_additional_actions(self):
 	if action_type in ['Create', 'Create_Plus']:
 		
 		if ksu_type == 'KAS1':
-			triggered_Action_create_KAS1_next_event(self) #xx
+			triggered_Action_create_KAS1_next_event(self)
 
 		elif ksu_type == 'BOKA':
 			triggered_Action_BOKA_add_value_type(self)	

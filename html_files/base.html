@@ -29,7 +29,11 @@
 						<div class="score-title"> Today's Score [ {{TodaysScore}} ] = <a href=""> End Value [ {{EndValue}} ] </a> + <a href="/effort-report"> Smart Effort [ {{SmartEffort}} ] </a> - <a href=""> Stupidity [ {{Stupidity}} ] </a></div>
 					</div>
 
-					<div class="hidden-xs hidden-sm col-md-3 col-lg-3 respect-space text-right"><a href="/Settings" class="corner-link">{{theory.username}} </a>   <a href="/logout" class="corner-link">( Logout )</a></div>					
+					<div class="hidden-xs hidden-sm col-md-3 col-lg-3 text-right">
+						<a href="/Settings" class="corner-link"> {{theory.username}} </a> - 
+						<a href="/logout" class="corner-link"> Logout </a>
+						<div>{{ugly_today}}</div> 
+					</div> 					
 				</div>
 
 
