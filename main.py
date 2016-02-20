@@ -16,8 +16,6 @@ from python_files import backup_theory
 template_dir = os.path.join(os.path.dirname(__file__), 'html_files')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
  
-today = (datetime.today() - timedelta(hours=6)).toordinal()
-
 
 
 # --- Datastore Entities ----------------------------------------------------------------------------
@@ -2285,8 +2283,8 @@ i_Reactive_KAS_KSU = {'circumstance':None,
 					  'exceptions':None,
 					  'success_since':None,
 					  'question_frequency':'1',
-					  'last_question':today,
-					  'next_question':today,
+					  'last_question':(datetime.today() - timedelta(hours=6)).toordinal(),
+					  'next_question':(datetime.today() - timedelta(hours=6)).toordinal(),
 			  		  'streak':'0',
 			  		  'record':'0'}
 
@@ -2306,7 +2304,7 @@ i_KAS1_KSU = {'charging_time': '7',
 
 i_KAS2_KSU = {'project':None,			  
 	    	  'time_cost': '13', # Reasonable Time Requirements in Minutes
-	    	  'next_event':today}
+	    	  'next_event':(datetime.today() - timedelta(hours=6)).toordinal()}
 
 
 
@@ -2326,7 +2324,7 @@ i_BigO_KSU = {'value_type':'V500',
 			  'short_description':None,
 			  'achievement_value':None, #How much Achievement Points do you believe that achieving this goal would add to your life. Fibbo Scale. Can actually be 0. Formely known as achievement points.
 			  'is_milestone':False,
-			  'target_date':today+90} # if no target date is provided is automatically calculated based on days required			  
+			  'target_date':(datetime.today() - timedelta(hours=6)).toordinal()+90} # if no target date is provided is automatically calculated based on days required			  
 			  
 
 
@@ -2348,7 +2346,7 @@ i_Wish_KSU = {'value_type':'V500',
 
 i_RTBG_KSU = {'awesomeness_value':'3', #How much awesomeness Points is worth this reason to be gratefull
 			  'last_event':None, # The events refers to make an effort to experienced gratefulness associeted with this specific reason
-			  'next_event':today,
+			  'next_event':(datetime.today() - timedelta(hours=6)).toordinal(),
 			  'time_frame':'Present'} # Present, Past, Future
 
 
@@ -2358,7 +2356,7 @@ i_ImPe_KSU = {'contact_ksu_id':None,
 			  'relation_type':None,
 			  'last_contact':None,
 			  'next_contact':None,
-			  'important_since':today,
+			  'important_since':(datetime.today() - timedelta(hours=6)).toordinal(),
 			  'fun_facts':None,
 			  'email':None,
 			  'phone':None,
@@ -2375,7 +2373,7 @@ i_ImIn_KSU = {'from_base':False, #Attribute used to differenciate if the KSU can
 
 			  'measurement_best_time':None,
 			  'measurement_frequency':None,
-			  'next_measurement':today,
+			  'next_measurement':(datetime.today() - timedelta(hours=6)).toordinal(),
 			  'last_measurement':None,
 
 			  'target_min':None,
@@ -2387,7 +2385,7 @@ i_ImIn_KSU = {'from_base':False, #Attribute used to differenciate if the KSU can
 
 i_BASE_Event = {'id':None,
 				'ksu_id':None,
-				'date':today,
+				'date':(datetime.today() - timedelta(hours=6)).toordinal(),
 				'type':None} # Created, Edited, Deleted, EndValue, SmartEffort or Stupidity
 
 
@@ -2531,7 +2529,7 @@ def new_set_Hist():
 
 
 
-def new_set_MLog(start_date=today, end_date=today+365):
+def new_set_MLog(start_date=(datetime.today() - timedelta(hours=6)).toordinal(), end_date=(datetime.today() - timedelta(hours=6)).toordinal()+365):
 	result = {}
 	for date in range(start_date, end_date):
 		entry = {'EndValue':0, 'SmartEffort':0, 'Stupidity':0, 'Achievement':0}
