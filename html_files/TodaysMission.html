@@ -34,7 +34,7 @@
 
 		<hr>
 
-		<div class="row">
+		<div class="row" id="{{indicator['id']}}">
 		
 			<div class="col-xs-12 col-sm-7 col-md-5 col-lg-5"> {{indicator['question']|safe}} </div>
 				
@@ -43,7 +43,7 @@
 				<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
 					<form class="form-horizontal" method="post">
 						<input type="text" class="form-control hidden" name="ksu_id" value="{{indicator['id']}}"> 
-					  	<button type="submit" class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered_Yes">  Yes  </button>
+					  	<button class="btn btn-primary btn-smd respect-space" name="action_description" value="Question_Answered_Yes" onclick="answeredQuestion('Question_Answered_Yes');">  Yes  </button>
 					</form>	
 				</div>
 				
@@ -397,7 +397,31 @@
 
 
 
+<script>
+	function answeredQuestion(answer){
+		var div_to_be_hidden = $(this).closest('div.row');
+		var id = div_to_be_hidden.attr('id');
+		$.ajax({
+			type: 'POST',
+			url: '/TodaysMission.py',
+			data: {
+				user_action : answer,
+				id: id
+			},
+			beforeSend: function(){
+				// logic what to do before sending the request
+			},
+			success: function(){
+				div_to_be_hidden.hide();
+			}
+			error: function(){
+				
+			}
 
+
+		});
+	}
+</script>
 
 
 

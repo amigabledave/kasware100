@@ -1,6 +1,6 @@
 #KASware v1.0.0 | Copyright 2016 Kasware Inc.
 
-import re, os, webapp2, jinja2, logging, hashlib, random, string, csv, pickle, ast
+import re, os, webapp2, jinja2, logging, hashlib, random, string, csv, pickle, ast, sys
 
 from datetime import datetime, timedelta
 from operator import itemgetter
@@ -343,8 +343,11 @@ class TodaysMission(Handler):
 				self.print_html('TodaysMission.html', mission=mission, morning_questions=morning_questions, night_questions=night_questions, answer_error=input_error)
 
 			else:
-				user_Action_Record_Answer(self)
-				self.redirect('/TodaysMission')
+				# user_Action_Record_Answer(self)
+				self.write("Hi Imran")		
+				# self.redirect('/TodaysMission')
+				self.response.headers['Content-Type'] = 'application/json; charset=UTF-8'
+        		self.response.out.write('')
 
 		elif user_action == 'Fail':
 			ksu_id = post_details['ksu_id']
