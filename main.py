@@ -17,7 +17,6 @@ template_dir = os.path.join(os.path.dirname(__file__), 'html_files')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
  
 today = (datetime.today() - timedelta(hours=6)).toordinal()
-tomorrow = today + 1
 
 
 
@@ -286,6 +285,7 @@ class TodaysMission(Handler):
 			night_questions = None		
 
 		MLog = unpack_set(theory.MLog)
+		today = (datetime.today() - timedelta(hours=6)).toordinal()
 		if today in MLog:
 			todays_effort = MLog[today]['SmartEffort']
 		else:
@@ -361,6 +361,8 @@ def todays_mission(theory):
 	KAS1 = hide_invisible(unpack_set(theory.KAS1))
 	KAS2 = hide_invisible(unpack_set(theory.KAS2))
 	BOKA = hide_invisible(unpack_set(theory.BOKA))
+
+	today = (datetime.today() - timedelta(hours=6)).toordinal()
 
 	ksu_sets = [KAS1, KAS2, BOKA]
 	result = {}
@@ -467,6 +469,8 @@ def todays_questions(theory):
 	KAS4 = unpack_set(theory.KAS4)
 	KAS4 = hide_invisible(KAS4)
 	
+	today = (datetime.today() - timedelta(hours=6)).toordinal()
+
 	morning_questions = []
 	night_questions = []
 
@@ -524,7 +528,7 @@ class Upcoming(Handler):
 		upcoming = make_ordered_ksu_set_list_for_upcoming(upcoming)
 		view_groups = define_upcoming_view_groups(upcoming)
 		upcoming = ordere_upcoming_base_on_criticality(upcoming)
-		self.print_html('Upcoming.html', upcoming=upcoming, view_groups=view_groups, real_time=real_today, today=today, tomorrow=tomorrow)
+		self.print_html('Upcoming.html', upcoming=upcoming, view_groups=view_groups)
 
 	def post(self):
 		if user_bouncer(self):
@@ -611,6 +615,8 @@ def define_ksu_upcoming_group(date_ordinal):
 	date_month = date.strftime('%B')
 	date_year = date.strftime('%Y')
 	date = datetime.toordinal(date)
+	today = (datetime.today() - timedelta(hours=6)).toordinal()
+	tomorrow = today + 1
 
 	if date <= today:
 		group = 'Today'
@@ -949,6 +955,8 @@ class BigOViewer(Handler):
 			return
 		theory = self.theory
 		
+		today = (datetime.today() - timedelta(hours=6)).toordinal()
+
 		BigO = unpack_set(theory.BigO)
 		
 		BigO_id = self.request.get('BigO_id')
@@ -985,6 +993,7 @@ class BigOViewer(Handler):
 
 
 def add_days_left(ksu_set):
+	today = (datetime.today() - timedelta(hours=6)).toordinal()
 	for date_attribute in date_attributes:
 		for ksu in ksu_set:
 			ksu = ksu_set[ksu]
@@ -1007,6 +1016,8 @@ class ImInViewer(Handler):
 			return
 		theory = self.theory
 		
+		today = (datetime.today() - timedelta(hours=6)).toordinal()
+
 		period_end = self.request.get('end')
 		if not period_end:
 			period_end = make_not_ugly(str(today))
@@ -1033,6 +1044,8 @@ class ImInViewer(Handler):
 		post_details = get_post_details(self)
 		user_action = post_details['action_description']
 	
+		today = (datetime.today() - timedelta(hours=6)).toordinal()
+
 		if user_action == 'update_period':
 			
 			input_error = user_input_error(post_details)
@@ -1750,6 +1763,7 @@ class EffortReport(Handler):
 		if user_bouncer(self):
 			return
 		theory = self.theory
+		today = (datetime.today() - timedelta(hours=6)).toordinal()
 		report = create_effort_report(theory,today)
 		self.print_html('effort-report.html', report=report)
 
@@ -1999,6 +2013,8 @@ def update_ksu_next_event(theory, post_details):
 	if set_name not in valid_sets:
 		return
 
+	today = (datetime.today() - timedelta(hours=6)).toordinal()
+
 	ksu_set = unpack_set(eval('theory.' + set_name))
 	ksu = ksu_set[ksu_id]
 	user_action = post_details['action_description']
@@ -2023,7 +2039,7 @@ def update_ksu_next_event(theory, post_details):
 			ksu['next_event'] = None
 			
 	elif user_action == 'Push':
-		ksu['next_event'] = tomorrow
+		ksu['next_event'] = today + 1
 
 
 	elif user_action == 'Skip_Action':
@@ -2052,6 +2068,7 @@ def update_ksu_streak_and_record(theory, post_details):
 	valid_sets = ['KAS3', 'KAS4']	
 	if set_name not in valid_sets:
 		return
+	today = (datetime.today() - timedelta(hours=6)).toordinal()
 
 	ksu_set = unpack_set(eval('theory.' + set_name))
 	ksu = ksu_set[ksu_id]
@@ -3072,6 +3089,8 @@ def triggered_Action_create_KAS1_next_event(self):
 	ksu_id = post_details['ksu_id']
 	KAS1 = unpack_set(theory.KAS1)
 	ksu = KAS1[ksu_id]
+	today = (datetime.today() - timedelta(hours=6)).toordinal()
+
 	if ksu['last_event'] and not ksu['next_event']:
 		ksu['next_event'] = int(ksu['last_event']) + int(ksu['charging_time'])
 		if ksu['next_event'] < today:
@@ -3088,6 +3107,7 @@ def triggered_Action_create_KAS1_next_event(self):
 def triggered_Action_create_ImPe_Contact(self):
 	theory = self.theory
 	post_details = get_post_details(self)
+	today = (datetime.today() - timedelta(hours=6)).toordinal()
 	ksu_id = post_details['ksu_id']
 	ImPe = unpack_set(theory.ImPe)
 	KAS1 = unpack_set(theory.KAS1)
@@ -3176,6 +3196,7 @@ def triggered_Action_update_Wish_parent(self):
 def triggered_Action_update_ImPe_Contact(self):
 	theory = self.theory
 	post_details = get_post_details(self)
+	today = (datetime.today() - timedelta(hours=6)).toordinal()
 	ksu_id = post_details['ksu_id']
 	ImPe = unpack_set(theory.ImPe)
 	KAS1 = unpack_set(theory.KAS1)
@@ -3428,6 +3449,7 @@ def update_ksu_with_csv_details(ksu, details):
 
 
 def csv_triggered_Action_create_KAS1_next_event(theory, ksu):
+	today = (datetime.today() - timedelta(hours=6)).toordinal()
 	KAS1 = unpack_set(theory.KAS1)
 	if ksu['last_event'] and not ksu['next_event']:
 		ksu['next_event'] = int(ksu['last_event']) + int(ksu['charging_time'])
@@ -3443,6 +3465,7 @@ def csv_triggered_Action_create_KAS1_next_event(theory, ksu):
 
 
 def csv_triggered_Action_create_ImPe_Contact(theory, person):
+	today = (datetime.today() - timedelta(hours=6)).toordinal()
 	ImPe = unpack_set(theory.ImPe)
 	KAS1 = unpack_set(theory.KAS1)
 	ksu = make_ksu_template('KAS1')
