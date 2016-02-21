@@ -18,6 +18,10 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), a
  
 
 
+def get_today():
+	return (datetime.today() - timedelta(hours=6)).toordinal()
+
+
 # --- Datastore Entities ----------------------------------------------------------------------------
 
 class Theory(db.Model):
@@ -115,7 +119,7 @@ class Handler(webapp2.RequestHandler):
 			theory = self.theory			
 			MLog = unpack_set(theory.MLog)
 
-			today = (datetime.today() - timedelta(hours=6)).toordinal()
+			today = get_today()
 			ugly_today = (datetime.today() - timedelta(hours=6))
 			pretty_date_and_time = ugly_today.strftime('%a, %b %d - %I:%M%p')
 			
@@ -283,7 +287,7 @@ class TodaysMission(Handler):
 			night_questions = None		
 
 		MLog = unpack_set(theory.MLog)
-		today = (datetime.today() - timedelta(hours=6)).toordinal()
+		today = get_today()
 		if today in MLog:
 			todays_effort = MLog[today]['SmartEffort']
 		else:
@@ -360,7 +364,7 @@ def todays_mission(theory):
 	KAS2 = hide_invisible(unpack_set(theory.KAS2))
 	BOKA = hide_invisible(unpack_set(theory.BOKA))
 
-	today = (datetime.today() - timedelta(hours=6)).toordinal()
+	today = get_today()
 
 	ksu_sets = [KAS1, KAS2, BOKA]
 	result = {}
@@ -467,7 +471,7 @@ def todays_questions(theory):
 	KAS4 = unpack_set(theory.KAS4)
 	KAS4 = hide_invisible(KAS4)
 	
-	today = (datetime.today() - timedelta(hours=6)).toordinal()
+	today = get_today()
 
 	morning_questions = []
 	night_questions = []
@@ -613,7 +617,7 @@ def define_ksu_upcoming_group(date_ordinal):
 	date_month = date.strftime('%B')
 	date_year = date.strftime('%Y')
 	date = datetime.toordinal(date)
-	today = (datetime.today() - timedelta(hours=6)).toordinal()
+	today = get_today()
 	tomorrow = today + 1
 
 	if date <= today:
@@ -953,7 +957,7 @@ class BigOViewer(Handler):
 			return
 		theory = self.theory
 		
-		today = (datetime.today() - timedelta(hours=6)).toordinal()
+		today = get_today()
 
 		BigO = unpack_set(theory.BigO)
 		
@@ -991,7 +995,7 @@ class BigOViewer(Handler):
 
 
 def add_days_left(ksu_set):
-	today = (datetime.today() - timedelta(hours=6)).toordinal()
+	today = get_today()
 	for date_attribute in date_attributes:
 		for ksu in ksu_set:
 			ksu = ksu_set[ksu]
@@ -1014,7 +1018,7 @@ class ImInViewer(Handler):
 			return
 		theory = self.theory
 		
-		today = (datetime.today() - timedelta(hours=6)).toordinal()
+		today = get_today()
 
 		period_end = self.request.get('end')
 		if not period_end:
@@ -1042,7 +1046,7 @@ class ImInViewer(Handler):
 		post_details = get_post_details(self)
 		user_action = post_details['action_description']
 	
-		today = (datetime.today() - timedelta(hours=6)).toordinal()
+		today = get_today()
 
 		if user_action == 'update_period':
 			
@@ -1761,7 +1765,7 @@ class EffortReport(Handler):
 		if user_bouncer(self):
 			return
 		theory = self.theory
-		today = (datetime.today() - timedelta(hours=6)).toordinal()
+		today = get_today()
 		report = create_effort_report(theory,today)
 		self.print_html('effort-report.html', report=report)
 
@@ -2011,7 +2015,7 @@ def update_ksu_next_event(theory, post_details):
 	if set_name not in valid_sets:
 		return
 
-	today = (datetime.today() - timedelta(hours=6)).toordinal()
+	today = get_today()
 
 	ksu_set = unpack_set(eval('theory.' + set_name))
 	ksu = ksu_set[ksu_id]
@@ -2066,7 +2070,7 @@ def update_ksu_streak_and_record(theory, post_details):
 	valid_sets = ['KAS3', 'KAS4']	
 	if set_name not in valid_sets:
 		return
-	today = (datetime.today() - timedelta(hours=6)).toordinal()
+	today = get_today()
 
 	ksu_set = unpack_set(eval('theory.' + set_name))
 	ksu = ksu_set[ksu_id]
@@ -2249,8 +2253,6 @@ def update_theory(theory, ksu_set):
 	return
 
 
-
-
 #---Templates---
 
 #General Attributes
@@ -2283,8 +2285,8 @@ i_Reactive_KAS_KSU = {'circumstance':None,
 					  'exceptions':None,
 					  'success_since':None,
 					  'question_frequency':'1',
-					  'last_question':(datetime.today() - timedelta(hours=6)).toordinal(),
-					  'next_question':(datetime.today() - timedelta(hours=6)).toordinal(),
+					  'last_question':get_today(),
+					  'next_question':get_today(),
 			  		  'streak':'0',
 			  		  'record':'0'}
 
@@ -2304,7 +2306,7 @@ i_KAS1_KSU = {'charging_time': '7',
 
 i_KAS2_KSU = {'project':None,			  
 	    	  'time_cost': '13', # Reasonable Time Requirements in Minutes
-	    	  'next_event':(datetime.today() - timedelta(hours=6)).toordinal()}
+	    	  'next_event':get_today()}
 
 
 
@@ -2324,7 +2326,7 @@ i_BigO_KSU = {'value_type':'V500',
 			  'short_description':None,
 			  'achievement_value':None, #How much Achievement Points do you believe that achieving this goal would add to your life. Fibbo Scale. Can actually be 0. Formely known as achievement points.
 			  'is_milestone':False,
-			  'target_date':(datetime.today() - timedelta(hours=6)).toordinal()+90} # if no target date is provided is automatically calculated based on days required			  
+			  'target_date':get_today()+90} # if no target date is provided is automatically calculated based on days required			  
 			  
 
 
@@ -2346,7 +2348,7 @@ i_Wish_KSU = {'value_type':'V500',
 
 i_RTBG_KSU = {'awesomeness_value':'3', #How much awesomeness Points is worth this reason to be gratefull
 			  'last_event':None, # The events refers to make an effort to experienced gratefulness associeted with this specific reason
-			  'next_event':(datetime.today() - timedelta(hours=6)).toordinal(),
+			  'next_event':get_today(),
 			  'time_frame':'Present'} # Present, Past, Future
 
 
@@ -2356,7 +2358,7 @@ i_ImPe_KSU = {'contact_ksu_id':None,
 			  'relation_type':None,
 			  'last_contact':None,
 			  'next_contact':None,
-			  'important_since':(datetime.today() - timedelta(hours=6)).toordinal(),
+			  'important_since':get_today(),
 			  'fun_facts':None,
 			  'email':None,
 			  'phone':None,
@@ -2373,7 +2375,7 @@ i_ImIn_KSU = {'from_base':False, #Attribute used to differenciate if the KSU can
 
 			  'measurement_best_time':None,
 			  'measurement_frequency':None,
-			  'next_measurement':(datetime.today() - timedelta(hours=6)).toordinal(),
+			  'next_measurement':get_today(),
 			  'last_measurement':None,
 
 			  'target_min':None,
@@ -2385,8 +2387,10 @@ i_ImIn_KSU = {'from_base':False, #Attribute used to differenciate if the KSU can
 
 i_BASE_Event = {'id':None,
 				'ksu_id':None,
-				'date':(datetime.today() - timedelta(hours=6)).toordinal(),
+				'date':get_today(),
 				'type':None} # Created, Edited, Deleted, EndValue, SmartEffort or Stupidity
+
+
 
 
 
@@ -2529,7 +2533,7 @@ def new_set_Hist():
 
 
 
-def new_set_MLog(start_date=(datetime.today() - timedelta(hours=6)).toordinal(), end_date=(datetime.today() - timedelta(hours=6)).toordinal()+365):
+def new_set_MLog(start_date=get_today(), end_date=get_today()+365):
 	result = {}
 	for date in range(start_date, end_date):
 		entry = {'EndValue':0, 'SmartEffort':0, 'Stupidity':0, 'Achievement':0}
@@ -3087,7 +3091,7 @@ def triggered_Action_create_KAS1_next_event(self):
 	ksu_id = post_details['ksu_id']
 	KAS1 = unpack_set(theory.KAS1)
 	ksu = KAS1[ksu_id]
-	today = (datetime.today() - timedelta(hours=6)).toordinal()
+	today = get_today()
 
 	if ksu['last_event'] and not ksu['next_event']:
 		ksu['next_event'] = int(ksu['last_event']) + int(ksu['charging_time'])
@@ -3105,7 +3109,7 @@ def triggered_Action_create_KAS1_next_event(self):
 def triggered_Action_create_ImPe_Contact(self):
 	theory = self.theory
 	post_details = get_post_details(self)
-	today = (datetime.today() - timedelta(hours=6)).toordinal()
+	today = get_today()
 	ksu_id = post_details['ksu_id']
 	ImPe = unpack_set(theory.ImPe)
 	KAS1 = unpack_set(theory.KAS1)
@@ -3194,7 +3198,7 @@ def triggered_Action_update_Wish_parent(self):
 def triggered_Action_update_ImPe_Contact(self):
 	theory = self.theory
 	post_details = get_post_details(self)
-	today = (datetime.today() - timedelta(hours=6)).toordinal()
+	today = get_today()
 	ksu_id = post_details['ksu_id']
 	ImPe = unpack_set(theory.ImPe)
 	KAS1 = unpack_set(theory.KAS1)
@@ -3447,7 +3451,7 @@ def update_ksu_with_csv_details(ksu, details):
 
 
 def csv_triggered_Action_create_KAS1_next_event(theory, ksu):
-	today = (datetime.today() - timedelta(hours=6)).toordinal()
+	today = get_today()
 	KAS1 = unpack_set(theory.KAS1)
 	if ksu['last_event'] and not ksu['next_event']:
 		ksu['next_event'] = int(ksu['last_event']) + int(ksu['charging_time'])
@@ -3463,7 +3467,7 @@ def csv_triggered_Action_create_KAS1_next_event(theory, ksu):
 
 
 def csv_triggered_Action_create_ImPe_Contact(theory, person):
-	today = (datetime.today() - timedelta(hours=6)).toordinal()
+	today = get_today()
 	ImPe = unpack_set(theory.ImPe)
 	KAS1 = unpack_set(theory.KAS1)
 	ksu = make_ksu_template('KAS1')
