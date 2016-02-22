@@ -2285,12 +2285,13 @@ i_Reactive_KAS_KSU = {'circumstance':None,
 					  'exceptions':None,
 					  'success_since':None,
 					  'question_frequency':'1',
-					  'last_question':get_today(),
-					  'next_question':get_today(),
+					  'last_question':None,
+					  'next_question':None,
 			  		  'streak':'0',
 			  		  'record':'0'}
 
 
+					  
 
 #KAS1 Specifics	- Resource Generation Core Set - Acciones Recurrentes Proactivas con el objetivo de generar recursos	
 i_KAS1_KSU = {'charging_time': '7',
@@ -2306,7 +2307,8 @@ i_KAS1_KSU = {'charging_time': '7',
 
 i_KAS2_KSU = {'project':None,			  
 	    	  'time_cost': '13', # Reasonable Time Requirements in Minutes
-	    	  'next_event':get_today()}
+	    	  'next_event':None}
+
 
 
 
@@ -2326,8 +2328,9 @@ i_BigO_KSU = {'value_type':'V500',
 			  'short_description':None,
 			  'achievement_value':None, #How much Achievement Points do you believe that achieving this goal would add to your life. Fibbo Scale. Can actually be 0. Formely known as achievement points.
 			  'is_milestone':False,
-			  'target_date':get_today()+90} # if no target date is provided is automatically calculated based on days required			  
+			  'target_date':None} # if no target date is provided is automatically calculated based on days required			  
 			  
+
 
 
 # Big Objective Key Actions Set Specifics
@@ -2348,8 +2351,10 @@ i_Wish_KSU = {'value_type':'V500',
 
 i_RTBG_KSU = {'awesomeness_value':'3', #How much awesomeness Points is worth this reason to be gratefull
 			  'last_event':None, # The events refers to make an effort to experienced gratefulness associeted with this specific reason
-			  'next_event':get_today(),
+			  'next_event':None,
 			  'time_frame':'Present'} # Present, Past, Future
+
+
 
 
 i_ImPe_KSU = {'contact_ksu_id':None,
@@ -2358,7 +2363,7 @@ i_ImPe_KSU = {'contact_ksu_id':None,
 			  'relation_type':None,
 			  'last_contact':None,
 			  'next_contact':None,
-			  'important_since':get_today(),
+			  'important_since':None,
 			  'fun_facts':None,
 			  'email':None,
 			  'phone':None,
@@ -2375,7 +2380,7 @@ i_ImIn_KSU = {'from_base':False, #Attribute used to differenciate if the KSU can
 
 			  'measurement_best_time':None,
 			  'measurement_frequency':None,
-			  'next_measurement':get_today(),
+			  'next_measurement':None,
 			  'last_measurement':None,
 
 			  'target_min':None,
@@ -2385,9 +2390,10 @@ i_ImIn_KSU = {'from_base':False, #Attribute used to differenciate if the KSU can
 
 
 
+
 i_BASE_Event = {'id':None,
 				'ksu_id':None,
-				'date':get_today(),
+				'date':None,
 				'type':None} # Created, Edited, Deleted, EndValue, SmartEffort or Stupidity
 
 
@@ -2473,13 +2479,27 @@ template_recipies = {'KAS1_KSU':[i_BASE_KSU, i_KAS_KSU, i_Proactive_KAS_KSU, i_K
 
 
 
+
+
+
+
+
+
 def make_ksu_template(set_name):
-	template = {}
+	template = {}	
+	today_attributes = ['last_question', 'next_question', 'next_event', 'target_date', 'important_since', 'next_measurement']
+	today = get_today()
+
 	target_template = set_name + '_KSU'
 	template_recipe = template_recipies[target_template]
+
 	for ingredient in template_recipe:
 		for (attribute,value) in ingredient.items():
-			template[attribute] = value
+			if attribute in today_attributes:
+				template[attribute] = today
+			else:
+				template[attribute] = value
+
 	return template
 
 
@@ -2491,6 +2511,9 @@ def make_event_template(event_type):
 	for ingredient in template_recipe:
 		for (attribute,value) in ingredient.items():
 			template[attribute] = value
+	
+	today = get_today()
+	template['date'] = today
 	return template
 
 
