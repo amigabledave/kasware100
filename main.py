@@ -3710,6 +3710,13 @@ l_Fibonacci = ['1','2','3','5','8','13']
 
 l_long_Fibonacci = ['1','2','3','5','8','13','21','34','55','89','144','233','377','610','987']
 
+l_Fibonacci_1_8 = ['1','2','3','5','8']
+
+l_Fibonacci_8_55 = ['8','13','21','34','55']
+
+l_Fibonacci_21_144 = ['21','34','55','89','144']
+
+
 
 d_Values = {'V000': '0. End Value',
 			'V100': '1. Inner Peace & Consciousness',
@@ -3816,6 +3823,9 @@ l_Days = sorted(d_Days.items())
 
 constants = {'l_Fibonacci':l_Fibonacci,
 			 'l_long_Fibonacci': l_long_Fibonacci,
+			 'l_Fibonacci_1_8' :l_Fibonacci_1_8,
+			 'l_Fibonacci_8_55':l_Fibonacci_8_55,
+			 'l_Fibonacci_21_144':l_Fibonacci_21_144, 
 			 'l_Values':l_Values,
 			 'l_Mean_Values':l_Mean_Values,
 			 'l_Days':l_Days,
@@ -3847,20 +3857,20 @@ d_Viewer ={'KAS1':{'set_title':'Key Actions Core Set  (KAS1)',
 
 			'KAS3':{'set_title':'Key Re-Actions Set (KAS3)',
 				    'set_name':'KAS3',
-				    'attributes':['circumstance','description','streak','record'],
-				    'fields':{'circumstance': 'Circumstance','description':'Target Reaction','streak':'Streak','record':'Record'},
-				    'columns':{'circumstance':3,'description':4,'streak':1,'record':1},
+				    'attributes':['circumstance','description'],
+				    'fields':{'circumstance': 'Circumstance','description':'Target Reaction'},
+				    'columns':{'circumstance':4,'description':5},
 				    'show_Button_Done':True,
-				    'show_Button_Fail':True,
+				    'show_Button_Fail':False,
 				    'grouping_attribute':'value_type',
 				    'grouping_list':l_Values},
 
 			'KAS4':{'set_title':'Key Negative-Actions Set -- To be avoided  (KAS4)',
 				    'set_name':'KAS4',
-				    'attributes':['description','circumstance','reaction','streak','record'],
-				    'fields':{'description':'Action to Avoid','circumstance':'Dangerous Circumstances & Potential Reactions', 'streak':'Streak','record':'Record'},
-				    'columns':{'description':3,'circumstance':4,'streak':1,'record':1},				    
-				    'show_Button_Avoided':True,
+				    'attributes':['description'],
+				    'fields':{'description':'Action to Avoid'},
+				    'columns':{'description':6},				    
+				    'show_Button_Avoided':False,
 				    'show_Button_Fail':True,
 				    'grouping_attribute':'value_type',
 				    'grouping_list':l_Values},
