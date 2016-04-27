@@ -2791,11 +2791,11 @@ def calculate_event_score(event):
 			result['EndValue'] = int(event['duration'])*event['joy']
 			
 		if set_name in reactive_sets:
-			result['SmartEffort'] = int(event['reward'])*int(event['repetitions'])
+			result['SmartEffort'] = int(event['reward'])
 
 
 	elif event_type == 'Stupidity':
-		result['Stupidity'] = int(event['punishment'])*int(event['repetitions']) + int(event['streak'])
+		result['Stupidity'] = int(event['punishment']) 
 
 
 	elif event_type == 'Achievement':
@@ -2959,7 +2959,6 @@ def user_Action_Done_SmartEffort(self):
 	update_ksu_in_mission(theory, post_details)
 	add_SmartEffort_event(theory, post_details)
 	update_ksu_status(theory, post_details)
-	update_ksu_streak_and_record(theory, post_details)
 	trigger_additional_actions(self)
 	theory.put()
 	return
@@ -2982,7 +2981,6 @@ def user_Action_Fail_Stupidity(self):
 	post_details = get_post_details(self)
 	update_ksu_next_event(theory, post_details)	
 	add_Stupidity_event(theory, post_details)
-	update_ksu_streak_and_record(theory, post_details)
 	trigger_additional_actions(self)
 	theory.put()
 	return
