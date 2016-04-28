@@ -464,13 +464,9 @@ def make_ordered_ksu_set_list_for_mission(current_mission):
 
 def todays_questions(theory):
 	ImIn = unpack_set(theory.ImIn)
+	ImIn = hide_invisible(ImIn)
 
-	KAS3 = unpack_set(theory.KAS3)	
-	KAS3 = hide_invisible(KAS3)
 
-	KAS4 = unpack_set(theory.KAS4)
-	KAS4 = hide_invisible(KAS4)
-	
 	today = get_today()
 
 	morning_questions = []
@@ -485,26 +481,6 @@ def todays_questions(theory):
 				else:
 					night_questions.append(ksu)
 
-	for (ksu_id, ksu) in list(KAS3.items()):
-		if today >= int(ksu['next_question']):
-			ksu['units'] = 'KAS3'			
-			if ksu['question_frequency'] == '1':
-				ksu['question'] = jinja2.Markup('<span class="red">Did this situation happenend today: </span>' + ksu['circumstance'] + '. <span class="red">And if so, did you have this reaction:</span> ' + ksu['description'] + "?")
-				night_questions.append(ksu)	
-			else:
-				ksu['question'] = jinja2.Markup('<span class="red">Did this situation happenend in the last ' + ksu['question_frequency'] + ' days: </span>'+ ksu['circumstance'] + '. <span class="red">And if so, did you have this reaction: </span>' + ksu['description']) 
-				morning_questions.append(ksu)
-
-
-	for (ksu_id, ksu) in list(KAS4.items()):
-		if today >= int(ksu['next_question']):			
-				ksu['units'] = 'KAS4'
-				if ksu['question_frequency'] == '1':
-					ksu['question'] = jinja2.Markup('<span class="red">Were you tempted, but mange to avoid: </span>' + ksu['description'] + ' <span class="red">today?</span>')
-					night_questions.append(ksu)	
-				else:
-					ksu['question'] = jinja2.Markup('<span class="red">Were you tempted, but mange to avoid:</span> ' + ksu['description'] + ',<span class="red"> throughout the last ' + ksu['question_frequency'] + ' days?</span>')
-					morning_questions.append(ksu)	
 
 	morning_questions = sorted(morning_questions)
 	night_questions = sorted(night_questions)
@@ -2313,7 +2289,7 @@ i_KAS2_KSU = {'project':None,
 
 
 #KAS3 Specifics - Acciones Reactivas Recurrentes con el objetivo de ejecutar una accion
-i_KAS3_KSU = {'reward':'34',
+i_KAS3_KSU = {'reward':'21',
 			  'punishment':'3'} 
 
 
@@ -2761,7 +2737,6 @@ def add_Stupidity_event(theory, post_details):
 	event['importance'] = ksu['importance']
 	event['streak'] = ksu['streak']
 	event['punishment'] = post_details['punishment']
-	event['repetitions'] = post_details['repetitions']
 	
 	update_set(Hist, event)
 	update_MLog(theory, event)
