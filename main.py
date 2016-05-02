@@ -3585,6 +3585,7 @@ def input_error(target_attribute, user_input):
 							 'description',
 							 'short_description',
 							 'charging_time',
+							 'time_cost',
 							 'contact_frequency',
 							 'question_frequency',
 							 'duration',
@@ -3635,6 +3636,9 @@ d_RE = {'username': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
 
 		'charging_time': re.compile(r"^[0-9]{1,3}$"),
 		'charging_time_error': 'Charging Time should be an integer with maximum 3 digits',
+
+		'time_cost': re.compile(r"^[0-9]{1,3}$"),
+		'time_cost_error': 'Time cost should be an integer with maximum 3 digits',
 
 		'duration': re.compile(r"^[0-9]{1,3}$"),
 		'duration_error': 'Duration should be an integer with maximum 3 digits',
