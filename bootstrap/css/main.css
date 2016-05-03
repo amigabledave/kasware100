@@ -242,6 +242,13 @@
     font-weight: bold;
 }
 
+.mission_points{
+    color: #0000FF;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+
 
 .error {
     color: red;

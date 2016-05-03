@@ -310,10 +310,32 @@ class TodaysMission(Handler):
 		post_details = get_post_details(self)
 		user_action = post_details['action_description']
 
-		if user_action == 'Done':
+
+		if user_action == 'Done':#xx
+			theory = self.theory				
+			ksu_id = post_details['ksu_id']
+			set_name = get_type_from_id(ksu_id)
+			ksu_set = unpack_set(eval('theory.' + set_name))
+			ksu = ksu_set[ksu_id]
+			
+			if ksu['value_type'] == 'V000':
+				event_type = 'EndValue'
+			else:
+				event_type = 'SmartEffort'
+		
+			if event_type == 'EndValue': 
+				user_Action_Done_EndValue(self)
+				
+			elif event_type == 'SmartEffort':
+				user_Action_Done_SmartEffort(self)
+
+			self.redirect('/TodaysMission')
+
+
+		if user_action == 'Done_Plus':
 			ksu_id = post_details['ksu_id']
 			self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/TodaysMission')
-		
+
 		elif user_action == 'NewKSU':
 			self.redirect('/NewKSU/KAS2?return_to=/TodaysMission')
 
@@ -376,6 +398,7 @@ def todays_mission(theory):
 			add_BigO_description(theory, ksu)
 			add_pretty_time(ksu)
 			add_time_and_description(ksu)
+			ksu['expected_points'] = int(ksu['time_cost'])*int(ksu['importance'])
 			ksu['type'] = get_type_from_id(ksu_id)
 
 			if ksu['in_mission']:
@@ -403,7 +426,7 @@ def add_BigO_description(theory, ksu):
 	return
 
 
-def add_time_and_description(ksu):
+def add_time_and_description(ksu): 
 	best_time = ksu['best_time']
 
 	if best_time == 'None':
@@ -1627,7 +1650,7 @@ class Done(Handler):
 				dropdowns = make_dropdowns(theory)
 				self.print_html('Done.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name, event_type=event_type, input_error=input_error)
 		
-			elif event_type == 'EndValue':
+			elif event_type == 'EndValue': #xx
 				user_Action_Done_EndValue(self)
 				self.redirect(redirect)
 				
@@ -2673,15 +2696,22 @@ def add_SmartEffort_event(theory, post_details): #Duration & Importance to be up
 
 	if 'duration' in post_details:
 		event['duration'] = post_details['duration']
+	else:
+		event['duration'] = ksu['time_cost']	
 
 	if 'repetitions' in post_details:
 			event['repetitions'] = post_details['repetitions']	
 
 
 	if set_name in poractive_sets:		
-		event['importance'] = post_details['importance']
+		if 'importance' in post_details:
+			event['importance'] = post_details['importance']
+		else:
+			event['importance'] = ksu['importance']
+
 		if 'joy' in post_details:
 			event['joy'] = True
+
 		if 'disconfort' in post_details:
 			event['disconfort'] = True
 
@@ -2927,7 +2957,7 @@ def user_Action_Delete_ksu(self):
 
 
 
-def user_Action_Done_SmartEffort(self): 
+def user_Action_Done_SmartEffort(self): #xx
 	theory = self.theory
 	post_details = get_post_details(self)
 	update_ksu_next_event(theory, post_details)
