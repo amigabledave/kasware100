@@ -181,10 +181,12 @@
 
 	
 		<div class="row">
-			<a name="{{i}}"></a>
+		<a name="{{ksu['mission_hight']}}"> </a>
+
 			<hr>			
 			<form class="form-horizontal" method="post">
 				<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+				<input type="text" class="form-control hidden" name="mission_hight" value="{{ksu['mission_hight']}}">
 
 				<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
 					<button type="submit" class="btn btn-primary btn-sm" name="action_description" value="EditKSU"> Edit </button>					
@@ -208,7 +210,7 @@
 
 
 				<div class="hidden-xs hidden-sm col-md-6 col-lg-4">
-					<input type="submit" class="btn btn-md btn-success" name="action_description" value="Done">
+					<button type="submit" class="btn btn-md btn-success" name="action_description" value="Done_Confirm"> Done </button>
 					<button type="submit" class="btn btn-md btn-success respect-space" name="action_description" value="Done_Plus">   +   </button>
 					<button type="submit" class="btn btn-primary btn-md respect-space" name="action_description" value="Push">   Push   </button>
 					{% if ksu['type'] == 'KAS1' %}
@@ -226,10 +228,11 @@
 
 			<form class="form-horizontal" method="post">
 				<input type="text" class="form-control hidden" name="ksu_id" value="{{ksu['id']}}">
+				<input type="text" class="form-control hidden" name="mission_hight" value="{{ksu['mission_hight']}}">
 				<div class="col-xs-12 col-sm-12 hidden-md hidden-lg text-left">
 					<br>
 					<button type="submit" class="btn  btn-md btn-primary" name="action_description" value="EditKSU"> Edit </button>
-					<input type="submit" class="btn btn-md btn-success" name="action_description" value="Done">					
+					<button type="submit" class="btn btn-md btn-success" name="action_description" value="Done_Confirm"> Done </button>
 					<button type="submit" class="btn btn-md btn-success respect-space" name="action_description" value="Done_Plus">   +   </button>
 					<button type="submit" class="btn btn-primary btn-md respect-space" name="action_description" value="Push">   Push   </button>
 					{% if ksu['type'] == 'KAS1' %}

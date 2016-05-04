@@ -310,51 +310,58 @@ class TodaysMission(Handler):
 		post_details = get_post_details(self)
 		user_action = post_details['action_description']
 
+		if 'mission_hight' in post_details:
+			mission_hight = post_details['mission_hight']
+		else:
+			mission_hight = ''
 
-		if user_action == 'Done':
+
+
+		if user_action == 'Done_Confirm':
 			theory = self.theory				
 			ksu_id = post_details['ksu_id']
 			set_name = get_type_from_id(ksu_id)
 			ksu_set = unpack_set(eval('theory.' + set_name))
-			ksu = ksu_set[ksu_id]
+			ksu = ksu_set[ksu_id]			
 			
 			if ksu['value_type'] == 'V000':
 				event_type = 'EndValue'
 			else:
 				event_type = 'SmartEffort'
 		
-			if event_type == 'EndValue': 
+			if event_type == 'EndValue':
 				user_Action_Done_EndValue(self)
 				
 			elif event_type == 'SmartEffort':
 				user_Action_Done_SmartEffort(self)
 
-			self.redirect('/TodaysMission')
-
+			# self.redirect('/TodaysMission') 
+			self.redirect('/TodaysMission' + '#' + mission_hight) #xx
+			# self.write(post_details)
 
 		if user_action == 'Done_Plus':
 			ksu_id = post_details['ksu_id']
-			self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/TodaysMission')
+			self.redirect('/Done?ksu_id=' + ksu_id + '&return_to=/TodaysMission'+ '#' + mission_hight)
 
 		elif user_action == 'NewKSU':
-			self.redirect('/NewKSU/KAS2?return_to=/TodaysMission')
+			self.redirect('/NewKSU/KAS2?return_to=/TodaysMission' + '#' + mission_hight)
 
 		elif user_action == 'EditKSU':
 			ksu_id = post_details['ksu_id']			
-			self.redirect('/EditKSU?ksu_id=' + ksu_id + '&return_to=/TodaysMission')
+			self.redirect('/EditKSU?ksu_id=' + ksu_id + '&return_to=/TodaysMission' + '#' + mission_hight)
 
 		elif user_action == 'Push':
 			user_Action_Push(self)
-			self.redirect('/TodaysMission')
+			self.redirect('/TodaysMission' + '#' + mission_hight)
 
 		elif user_action == 'Remove_From_Mission':
 			user_Action_Remove_From_Mission(self)
-			self.redirect('/TodaysMission')
+			self.redirect('/TodaysMission' + '#' + mission_hight)
 
 		
 		elif user_action == 'Skip_Action':
 			user_Action_Skip_Action(self)
-			self.redirect('/TodaysMission')	
+			self.redirect('/TodaysMission' + '#' + mission_hight)	
 
 		elif user_action in ['Question_Answered_Yes', 'Question_Answered_No', 'Question_Answered_Record']:
 			input_error = user_input_error(post_details)
@@ -368,15 +375,15 @@ class TodaysMission(Handler):
 
 			else:
 				user_Action_Record_Answer(self)
-				self.redirect('/TodaysMission')
+				self.redirect('/TodaysMission' + '#0')
 
 		elif user_action == 'Fail':
 			ksu_id = post_details['ksu_id']
-			self.redirect('/Failure?ksu_id=' + ksu_id + '&return_to=/TodaysMission')
+			self.redirect('/Failure?ksu_id=' + ksu_id + '&return_to=/TodaysMission' + '#0')
 
 		elif user_action == 'Question_Skipped':
 			user_Action_Skip_Question(self) 
-			self.redirect('/TodaysMission')
+			self.redirect('/TodaysMission' + '#0')
 
 
 
@@ -475,10 +482,14 @@ def make_ordered_ksu_set_list_for_mission(current_mission):
 		set_order.append((ksu['id'],ksu[attribute]))
 	set_order = sorted(set_order, key=itemgetter(1), reverse=reverse)	
 
+
+	i = 0
 	for e in set_order:
 		ksu_id = e[0]
 		ksu = ksu_set[ksu_id]
-		result.append(ksu_set[ksu_id])
+		ksu['mission_hight'] = 'hight_' + str(i)
+		i += 1
+		result.append(ksu)
 
 	return result
 
@@ -1070,7 +1081,6 @@ class ImInViewer(Handler):
 				self.print_html('ImInViewer.html', viewer_details=viewer_details, ksu_set=ksu_set, set_name='ImIn', period_end=period_end, period_duration=period_duration, input_error=input_error)
 			
 			else:
-				# self.write(post_details)
 				period_duration = post_details['period_duration'] 
 				period_end = post_details['period_end']
 				self.redirect('/ImInViewer?end=' + period_end +'&duration=' + period_duration)
@@ -1650,8 +1660,8 @@ class Done(Handler):
 				dropdowns = make_dropdowns(theory)
 				self.print_html('Done.html', constants=constants, dropdowns=dropdowns, ksu=ksu, set_name=set_name, event_type=event_type, input_error=input_error)
 		
-			elif event_type == 'EndValue': #xx
-				user_Action_Done_EndValue(self)
+			elif event_type == 'EndValue':
+				user_Action_Done_EndValue(self) 
 				self.redirect(redirect)
 				
 			elif event_type == 'SmartEffort':
@@ -2666,7 +2676,7 @@ def add_EndValue_event(theory, post_details): #Duration & Importance to be updat
 	set_name = get_type_from_id(ksu_id)
 	ksu_set = unpack_set(eval('theory.' + set_name))
 	ksu = ksu_set[ksu_id]
-	event = new_event(Hist, 'EndValue') #xx
+	event = new_event(Hist, 'EndValue')
 
 	if 'effort' in post_details:
 		event['effort'] = True
@@ -2971,13 +2981,13 @@ def user_Action_Delete_ksu(self):
 
 
 
-def user_Action_Done_SmartEffort(self): #xx
+def user_Action_Done_SmartEffort(self):
 	theory = self.theory
 	post_details = get_post_details(self)
 	update_ksu_next_event(theory, post_details)
 	update_ksu_in_mission(theory, post_details)
 	add_SmartEffort_event(theory, post_details)
-	update_ksu_status(theory, post_details)
+	update_ksu_status(theory, post_details) 
 	trigger_additional_actions(self)
 	theory.put()
 	return
