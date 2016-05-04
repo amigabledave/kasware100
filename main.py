@@ -311,7 +311,7 @@ class TodaysMission(Handler):
 		user_action = post_details['action_description']
 
 
-		if user_action == 'Done':#xx
+		if user_action == 'Done':
 			theory = self.theory				
 			ksu_id = post_details['ksu_id']
 			set_name = get_type_from_id(ksu_id)
@@ -2664,15 +2664,29 @@ def add_EndValue_event(theory, post_details): #Duration & Importance to be updat
 	Hist = unpack_set(theory.Hist)
 	ksu_id = post_details['ksu_id']
 	set_name = get_type_from_id(ksu_id)
-	event = new_event(Hist, 'EndValue')
+	ksu_set = unpack_set(eval('theory.' + set_name))
+	ksu = ksu_set[ksu_id]
+	event = new_event(Hist, 'EndValue') #xx
 
 	if 'effort' in post_details:
 		event['effort'] = True
 
 	event['ksu_id'] = ksu_id
-	event['duration'] = post_details['duration']
-	event['importance'] = post_details['importance']
-	event['repetitions'] = post_details['repetitions']	
+
+	if 'duration' in post_details:
+		event['duration'] = post_details['duration']
+	else:
+		event['duration'] = ksu['time_cost']	
+
+	if 'importance' in post_details:
+		event['importance'] = post_details['importance']
+	else:
+		event['importance'] = ksu['importance']	
+	
+	if 'repetitions' in post_details:
+		event['repetitions'] = post_details['repetitions']
+	else:
+		event['repetitions'] = '1'
 	
 	update_set(Hist, event)
 	update_MLog(theory, event)
