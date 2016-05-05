@@ -140,7 +140,7 @@ class Handler(webapp2.RequestHandler):
 
 	def set_secure_cookie(self, cookie_name, cookie_value):
 		cookie_secure_value = make_secure_val(cookie_value)
-		self.response.headers.add_header('Set-Cookie', '%s=%s; Path=/' % (cookie_name, cookie_secure_value))
+		self.response.headers.add_header('Set-Cookie', '%s=%s; Expires=Tue, 3 Jan 2017 00:00:00 GMT; Path=/' % (cookie_name, cookie_secure_value))
 
 	def read_secure_cookie(self, cookie_name):
 		cookie_secure_val = self.request.cookies.get(cookie_name)
@@ -2718,16 +2718,16 @@ def add_SmartEffort_event(theory, post_details): #Duration & Importance to be up
 	
 	event['ksu_id'] = ksu_id
 
-	if 'duration' in post_details:
-		event['duration'] = post_details['duration']
-	else:
-		event['duration'] = ksu['time_cost']	
+	if set_name in poractive_sets:
 
-	if 'repetitions' in post_details:
+		if 'duration' in post_details:
+			event['duration'] = post_details['duration']
+		else:
+			event['duration'] = ksu['time_cost']	
+
+		if 'repetitions' in post_details:
 			event['repetitions'] = post_details['repetitions']	
 
-
-	if set_name in poractive_sets:		
 		if 'importance' in post_details:
 			event['importance'] = post_details['importance']
 		else:
